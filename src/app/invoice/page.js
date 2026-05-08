@@ -646,6 +646,7 @@ export default function InvoicePage({ darkMode }) {
         productId: product.id,
         hsCode: product.hsCode,
         product_description: product.product_description, // UPDATED field name
+        description: product.product_description,
         singleUnitPrice: product.singleUnitPrice,
         unit: product.unit,
         internalSinglePrice: product.internalSinglePrice,
@@ -702,34 +703,41 @@ export default function InvoicePage({ darkMode }) {
     return isNaN(parsed) ? 0 : parsed;
   };
 
-  // The core calculation logic for each row
   const calculateRow = (row) => {
     const qty = n(row.qty);
     const price = n(row.singleUnitPrice);
-    const discount = n(row.discount);
+    const discountPct = n(row.discount);
 
-    // 1. Calculate Value Excluding Sales Tax
-    const valueExcl = qty * price - discount;
+    const grossValue = qty * price;
+    const discountAmount = (grossValue * discountPct) / 100;
+    const valueExcl = grossValue - discountAmount;
 
-    // 2. Determine Tax Rate (Stripping symbols like % if present)
+    const retailPricePerUnit = n(row.fixedNotifiedValueOrRetailPrice);
+    const retailPriceTotal = retailPricePerUnit * qty;
+
     const rateVal = n(String(row.rate).replace(/[^0-9.]/g, ""));
-
-    // 3. Calculate Base Sales Tax
     const baseSalesTax = (valueExcl * rateVal) / 100;
 
-    // 4. Sum all other FBR specific taxes
-    const furtherTax = n(row.furtherTax);
-    const extraTax = n(row.extraTax);
-    const fed = n(row.fedPayable);
+    const furtherTaxAmt = (valueExcl * n(row.furtherTax)) / 100;
+    const extraTaxAmt = (valueExcl * n(row.extraTax)) / 100;
+    const fedAmt = (valueExcl * n(row.fedPayable)) / 100;
+    const withheldAmt = (valueExcl * n(row.salesTaxWithheldAtSource)) / 100;
 
-    const totalTaxPerRow = baseSalesTax + furtherTax + extraTax + fed;
+    const totalTaxPerRow = baseSalesTax + furtherTaxAmt + extraTaxAmt + fedAmt;
     const totalInclTax = valueExcl + totalTaxPerRow;
 
     return {
       ...row,
       valueSalesExcludingST: valueExcl.toFixed(2),
+
+      calculatedFurtherTax: furtherTaxAmt,
+      calculatedExtraTax: extraTaxAmt,
+      calculatedFed: fedAmt,
+      calculatedWithheld: withheldAmt,
       salesTaxApplicable: totalTaxPerRow.toFixed(2),
       totalValues: totalInclTax.toFixed(2),
+      // Update the retail total field as requested
+      retailPriceTotal: retailPriceTotal.toFixed(2),
     };
   };
   const updateInvoiceTotals = (allRows) => {
@@ -778,15 +786,15 @@ export default function InvoicePage({ darkMode }) {
       day: "2-digit",
     }).format(new Date());
     minDate = today;
-    const successInvoices = invoices.filter((inv) => inv.status === "Success");
+    const successInvoices = invoices;
 
     if (successInvoices.length > 0) {
       const lastInvoice = successInvoices.reduce((latest, inv) => {
-        const invDate = new Date(inv.invoice_date);
-        return invDate > new Date(latest.invoice_date) ? inv : latest;
+        const invDate = new Date(inv.invoice_created_date);
+        return invDate > new Date(latest.invoice_created_date) ? inv : latest;
       }, successInvoices[0]);
 
-      const d = new Date(lastInvoice.invoice_date);
+      const d = new Date(lastInvoice.invoice_created_date);
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, "0");
       const day = String(d.getDate()).padStart(2, "0");
@@ -1927,13 +1935,17 @@ export default function InvoicePage({ darkMode }) {
         // Decimal validation
         if (fourDecimalFields.includes(name)) {
           const decimalMatch = String(value).match(/\.(\d*)/);
-          if (decimalMatch && decimalMatch[1].length > 4) return prevRows;
+          if (decimalMatch && decimalMatch[1].length > 4) {
+            value = value.slice(0, value.indexOf(".") + 5);
+          }
           row[name] = String(value)
             .replace(/[^0-9.]/g, "")
             .replace(/(\..*?)\./g, "$1");
         } else if (twoDecimalFields.includes(name)) {
           const decimalMatch = String(value).match(/\.(\d*)/);
-          if (decimalMatch && decimalMatch[1].length > 2) return prevRows;
+          if (decimalMatch && decimalMatch[1].length > 2) {
+            value = value.slice(0, value.indexOf(".") + 3);
+          }
           row[name] = String(value)
             .replace(/[^0-9.]/g, "")
             .replace(/(\..*?)\./g, "$1");
@@ -1988,10 +2000,10 @@ export default function InvoicePage({ darkMode }) {
             }
           }
 
-          if (isChanged) {
-            row.productId = null;
-            row.product_description = "";
-          }
+          // if (isChanged) {
+          //   row.productId = null;
+          //   row.product_description = "";
+          // }
         }
         // HS Code
         if (name === "hsCode") {
@@ -2077,8 +2089,8 @@ export default function InvoicePage({ darkMode }) {
           row.sroItemOptions = [];
           row.sroItemId = "";
           row.sroItemSerialNo = "";
-          row.productId = null;
-          row.product_description = "";
+          // row.productId = null;
+          // row.product_description = "";
 
           // async fetch SRO schedules
           setTimeout(
@@ -2130,8 +2142,8 @@ export default function InvoicePage({ darkMode }) {
           row.sroItemOptions = [];
           row.sroItemId = "";
           row.sroItemSerialNo = "";
-          row.productId = null;
-          row.product_description = "";
+          // row.productId = null;
+          // row.product_description = "";
 
           // async fetch SRO items
           setTimeout(() => fetchSroItemOptions(index, row, undefined), 0);
@@ -2472,18 +2484,16 @@ export default function InvoicePage({ darkMode }) {
                     setIsEditMode(false);
                     setIsReadOnly(false);
                     setEditingInvoiceId(null);
-
+                    const defaultBiz =
+                      userBusinesses.length > 0 ? userBusinesses[0] : null;
                     setInvoiceForm({
                       invoiceNo: "",
                       date: minDate,
                       customer: "",
                       customerId: 0,
                       buyerProvince: "",
-                      sellerProvince:
-                        sessionStorage.getItem("sellerProvince") || "",
-                      sellerProvinceId: Number(
-                        sessionStorage.getItem("sellerProvinceId") || 0,
-                      ),
+                      sellerProvinceId: Number(defaultBiz?.province_id || 0),
+                      sellerProvince: defaultBiz?.province || "",
                       scenarioCode: null,
                       scenarioCodeId: 0,
                       saleType: "",
@@ -2892,65 +2902,67 @@ export default function InvoicePage({ darkMode }) {
                         </select>
                       )}
                     </div>
-                    {/* <div>
-                                    <label className="block text-sm font-medium mb-2">
-                                        Seller Province *
-                                    </label>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Seller Province *
+                      </label>
 
-                                    {isReadOnly ? (
-                                        <>
-                                            <input
-                                                type="text"
-                                                value={
-                                                    provinces.find(
-                                                        p => p.stateProvinceCode === invoiceForm.sellerProvinceId
-                                                    )?.stateProvinceDesc || ''
-                                                }
-                                                className="w-full border border-[#B0B0B0] rounded-md p-2 bg-gray-100 text-[#4E4E4E]"
-                                                readOnly
-                                            />
-                                            <input
-                                                type="hidden"
-                                                name="sellerProvinceId"
-                                                value={invoiceForm.sellerProvinceId || ''}
-                                            />
-                                        </>
-                                    ) : (
-                                        <select
-                                            name="sellerProvinceId"
-                                            value={invoiceForm.sellerProvinceId || ''}
-                                            onChange={(e) => {
-                                                handleFormChange(e);
-                                                setHasChanged(true);
-                                            }}
-                                            className="w-full border border-[#B0B0B0] rounded-md p-2 bg-white text-[#4E4E4E] focus:border-[#5AB3E8] focus:ring-1 focus:ring-[#5AB3E8] transition-all duration-300 outline-none"
-                                            required
-                                            disabled={loading}
-                                        >
-                                            <option value="">Select Province</option>
+                      {isReadOnly ? (
+                        <>
+                          <input
+                            type="text"
+                            value={
+                              provinces.find(
+                                (p) =>
+                                  p.stateProvinceCode ===
+                                  invoiceForm.sellerProvinceId,
+                              )?.stateProvinceDesc || ""
+                            }
+                            className="w-full border border-[#B0B0B0] rounded-md p-2 bg-gray-100 text-[#4E4E4E]"
+                            readOnly
+                          />
+                          <input
+                            type="hidden"
+                            name="sellerProvinceId"
+                            value={invoiceForm.sellerProvinceId || ""}
+                          />
+                        </>
+                      ) : (
+                        <select
+                          name="sellerProvinceId"
+                          value={invoiceForm.sellerProvinceId || ""}
+                          onChange={(e) => {
+                            handleFormChange(e);
+                            setHasChanged(true);
+                          }}
+                          className="w-full border border-[#B0B0B0] rounded-md p-2 bg-white text-[#4E4E4E] focus:border-[#5AB3E8] focus:ring-1 focus:ring-[#5AB3E8] transition-all duration-300 outline-none"
+                          required
+                          disabled={loading}
+                        >
+                          <option value="">Select Province</option>
 
-                                            {loading && (
-                                                <option value="" disabled>
-                                                    Loading provinces...
-                                                </option>
-                                            )}
+                          {loading && (
+                            <option value="" disabled>
+                              Loading provinces...
+                            </option>
+                          )}
 
-                                            {provinces.map((prov) => (
-                                                <option
-                                                    key={prov.stateProvinceCode}
-                                                    value={prov.stateProvinceCode}
-                                                >
-                                                    {prov.stateProvinceDesc}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    )}
-                                    <input
-                                        type="hidden"
-                                        name="sellerProvince"
-                                        value={invoiceForm.sellerProvince || ''}
-                                    />
-                                </div> */}
+                          {provinces.map((prov) => (
+                            <option
+                              key={prov.stateProvinceCode}
+                              value={prov.stateProvinceCode}
+                            >
+                              {prov.stateProvinceDesc}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                      <input
+                        type="hidden"
+                        name="sellerProvince"
+                        value={invoiceForm.sellerProvince || ""}
+                      />
+                    </div>
                     {/* <div>
                       <label className="block text-sm font-medium mb-2">
                         Seller Business *
@@ -3221,25 +3233,27 @@ export default function InvoicePage({ darkMode }) {
                             Value Sales Excl. ST
                           </th>
                           <th className="px-4 py-3 font-semibold">
-                            Fixed Notified / Retail Price * Qty
+                            Fixed Notified / Retail Price %
                           </th>
                           <th className="px-4 py-3 font-semibold">
                             Sales Tax Applicable
                           </th>
                           <th className="px-4 py-3 font-semibold">
-                            Sales Tax Withheld
+                            Sales Tax Withheld %
                           </th>
                           <th className="px-4 py-3 font-semibold">Extra Tax</th>
                           <th className="px-4 py-3 font-semibold">
-                            Further Tax
+                            Further Tax %
                           </th>
                           <th className="px-4 py-3 font-semibold">
                             SRO Schedule No
                           </th>
                           <th className="px-4 py-3 font-semibold">
-                            FED Payable
+                            FED Payable %
                           </th>
-                          <th className="px-4 py-3 font-semibold">Discount</th>
+                          <th className="px-4 py-3 font-semibold">
+                            Discount %
+                          </th>
                           {/* <th className="px-4 py-3 font-semibold">Sale Type</th> */}
                           <th className="px-4 py-3 font-semibold">
                             SRO Item Serial No
@@ -3855,68 +3869,72 @@ export default function InvoicePage({ darkMode }) {
                               <input
                                 type="text"
                                 name="salesTaxWithheldAtSource"
-                                // value={row.qty}
                                 value={row.salesTaxWithheldAtSource ?? ""}
-                                // onChange={(e) => handleInputChange(index, "qty", e.target.value)}
                                 onChange={(e) => {
-                                  if (isReadOnly) return;
+                                  if (
+                                    isReadOnly ||
+                                    permissions.can_edit_sales_tax === 0
+                                  )
+                                    return;
 
-                                  let val = e.target.value;
+                                  const input = e.target;
+                                  const start = input.selectionStart;
+                                  let val = input.value;
 
-                                  const decimalMatch = val.match(/\.(\d*)/);
-                                  const hasDecimal = decimalMatch !== null;
-                                  const decimalDigits = hasDecimal
-                                    ? decimalMatch[1].length
-                                    : 0;
-
-                                  if (decimalDigits > 2) return;
-
-                                  const cleaned = val
-                                    .replace(/[^0-9.]/g, "")
-                                    .replace(/(\..*?)\./g, "$1");
+                                  if (
+                                    val.length > 1 &&
+                                    val.startsWith("0") &&
+                                    val[1] !== "."
+                                  ) {
+                                    val = val.substring(1);
+                                  }
 
                                   handleInputChange(
                                     index,
                                     "salesTaxWithheldAtSource",
-                                    cleaned,
+                                    val,
                                   );
                                   setHasChanged(true);
+
+                                  window.requestAnimationFrame(() => {
+                                    const adj =
+                                      val.length < input.value.length ? -1 : 0;
+                                    input.setSelectionRange(
+                                      start + adj,
+                                      start + adj,
+                                    );
+                                  });
                                 }}
                                 onBlur={() => {
                                   if (isReadOnly) return;
-
                                   let current = (
                                     row.salesTaxWithheldAtSource ?? ""
                                   ).trim();
 
-                                  if (current === "") {
+                                  if (
+                                    current === "" ||
+                                    isNaN(Number(current))
+                                  ) {
                                     handleInputChange(
                                       index,
                                       "salesTaxWithheldAtSource",
                                       "0",
                                     );
-                                    setHasChanged(true);
-                                    return;
-                                  }
-
-                                  const num = Number(current);
-                                  if (!isNaN(num) && num >= 0) {
-                                    handleInputChange(
-                                      index,
-                                      "salesTaxWithheldAtSource",
-                                      num.toString(),
-                                    );
-                                    setHasChanged(true);
                                   } else {
                                     handleInputChange(
                                       index,
                                       "salesTaxWithheldAtSource",
-                                      "0",
+                                      Number(current).toString(),
                                     );
-                                    setHasChanged(true);
                                   }
+                                  setHasChanged(true);
                                 }}
-                                className="w-full border rounded px-2 py-1"
+                                className={`w-full border rounded px-2 py-1 transition-all ${
+                                  isReadOnly ||
+                                  permissions.can_edit_sales_tax === 0
+                                    ? "bg-slate-50 text-slate-400"
+                                    : "bg-white text-slate-800 focus:ring-1 focus:ring-blue-500 outline-none"
+                                }`}
                                 readOnly={
                                   isReadOnly ||
                                   permissions.can_edit_sales_tax === 0
@@ -3930,128 +3948,134 @@ export default function InvoicePage({ darkMode }) {
                               <input
                                 type="text"
                                 name="extraTax"
-                                // value={row.qty}
                                 value={row.extraTax ?? ""}
-                                // onChange={(e) => handleInputChange(index, "qty", e.target.value)}
                                 onChange={(e) => {
-                                  if (isReadOnly) return;
+                                  if (
+                                    isReadOnly ||
+                                    permissions.can_edit_extra_tax === 0
+                                  )
+                                    return;
 
-                                  let val = e.target.value;
+                                  const input = e.target;
+                                  const start = input.selectionStart;
+                                  let val = input.value;
+                                  if (
+                                    val.length > 1 &&
+                                    val.startsWith("0") &&
+                                    val[1] !== "."
+                                  ) {
+                                    val = val.substring(1);
+                                  }
 
-                                  const decimalMatch = val.match(/\.(\d*)/);
-                                  const hasDecimal = decimalMatch !== null;
-                                  const decimalDigits = hasDecimal
-                                    ? decimalMatch[1].length
-                                    : 0;
-
-                                  if (decimalDigits > 2) return;
-
-                                  const cleaned = val
-                                    .replace(/[^0-9.]/g, "")
-                                    .replace(/(\..*?)\./g, "$1");
-
-                                  handleInputChange(index, "extraTax", cleaned);
+                                  handleInputChange(index, "extraTax", val);
                                   setHasChanged(true);
+
+                                  window.requestAnimationFrame(() => {
+                                    const adj =
+                                      val.length < input.value.length ? -1 : 0;
+                                    input.setSelectionRange(
+                                      start + adj,
+                                      start + adj,
+                                    );
+                                  });
                                 }}
                                 onBlur={() => {
                                   if (isReadOnly) return;
-
                                   let current = (row.extraTax ?? "").trim();
 
-                                  if (current === "") {
+                                  if (
+                                    current === "" ||
+                                    isNaN(Number(current))
+                                  ) {
                                     handleInputChange(index, "extraTax", "0");
-                                    setHasChanged(true);
-                                    return;
-                                  }
-
-                                  const num = Number(current);
-                                  if (!isNaN(num) && num >= 0) {
+                                  } else {
                                     handleInputChange(
                                       index,
                                       "extraTax",
-                                      num.toString(),
+                                      Number(current).toString(),
                                     );
-                                    setHasChanged(true);
-                                  } else {
-                                    handleInputChange(index, "extraTax", "0");
-                                    setHasChanged(true);
                                   }
+                                  setHasChanged(true);
                                 }}
-                                className="w-full border rounded px-2 py-1"
+                                className={`w-full border rounded px-2 py-1 ${
+                                  isReadOnly ||
+                                  permissions.can_edit_extra_tax === 0
+                                    ? "bg-slate-50 text-slate-400"
+                                    : "bg-white text-slate-800 focus:ring-1 focus:ring-blue-500 outline-none"
+                                }`}
                                 readOnly={
                                   isReadOnly ||
                                   permissions.can_edit_extra_tax === 0
                                 }
                                 inputMode="decimal"
-                                pattern="[0-9]*\.?[0-9]*"
-                                placeholder="0.00"
                               />
                             </td>
                             <td className="px-4 py-3 whitespace-nowrap">
                               <input
                                 type="text"
                                 name="furtherTax"
-                                // value={row.qty}
                                 value={row.furtherTax ?? ""}
-                                // onChange={(e) => handleInputChange(index, "qty", e.target.value)}
                                 onChange={(e) => {
-                                  if (isReadOnly) return;
+                                  if (
+                                    isReadOnly ||
+                                    permissions.can_edit_furthur_tax === 0
+                                  )
+                                    return;
 
-                                  let val = e.target.value;
+                                  const input = e.target;
+                                  const start = input.selectionStart;
+                                  let val = input.value;
 
-                                  const decimalMatch = val.match(/\.(\d*)/);
-                                  const hasDecimal = decimalMatch !== null;
-                                  const decimalDigits = hasDecimal
-                                    ? decimalMatch[1].length
-                                    : 0;
+                                  if (
+                                    val.length > 1 &&
+                                    val.startsWith("0") &&
+                                    val[1] !== "."
+                                  ) {
+                                    val = val.substring(1);
+                                  }
 
-                                  // Reject if more than 4 digits after decimal
-                                  if (decimalDigits > 2) return;
-
-                                  const cleaned = val
-                                    .replace(/[^0-9.]/g, "")
-                                    .replace(/(\..*?)\./g, "$1");
-
-                                  handleInputChange(
-                                    index,
-                                    "furtherTax",
-                                    cleaned,
-                                  );
+                                  handleInputChange(index, "furtherTax", val);
                                   setHasChanged(true);
+
+                                  window.requestAnimationFrame(() => {
+                                    const adj =
+                                      val.length < input.value.length ? -1 : 0;
+                                    input.setSelectionRange(
+                                      start + adj,
+                                      start + adj,
+                                    );
+                                  });
                                 }}
                                 onBlur={() => {
                                   if (isReadOnly) return;
-
                                   let current = (row.furtherTax ?? "").trim();
 
-                                  if (current === "") {
+                                  if (
+                                    current === "" ||
+                                    isNaN(Number(current))
+                                  ) {
                                     handleInputChange(index, "furtherTax", "0");
-                                    setHasChanged(true);
-                                    return;
-                                  }
-
-                                  // Optional: normalize (remove leading zeros, etc.)
-                                  // e.g. "000.50" → "0.5", ".5" → "0.5"
-                                  const num = Number(current);
-                                  if (!isNaN(num) && num >= 0) {
+                                  } else {
                                     handleInputChange(
                                       index,
                                       "furtherTax",
-                                      num.toString(),
+                                      Number(current).toString(),
                                     );
-                                    setHasChanged(true);
-                                  } else {
-                                    handleInputChange(index, "furtherTax", "0");
-                                    setHasChanged(true);
                                   }
+                                  setHasChanged(true);
                                 }}
-                                className="w-full border rounded px-2 py-1"
+                                className={`w-full border rounded px-2 py-1 transition-all ${
+                                  isReadOnly ||
+                                  permissions.can_edit_furthur_tax === 0
+                                    ? "bg-slate-50 text-slate-400 cursor-not-allowed"
+                                    : "bg-white text-slate-800 focus:ring-1 focus:ring-blue-500 outline-none"
+                                }`}
                                 readOnly={
                                   isReadOnly ||
                                   permissions.can_edit_furthur_tax === 0
                                 }
-                                inputMode="decimal" // better mobile keyboard (shows decimal key)
-                                pattern="[0-9]*\.?[0-9]*" // helps some browsers/mobile validation
+                                inputMode="decimal"
+                                pattern="[0-9]*\.?[0-9]*"
                                 placeholder="0.00"
                               />
                             </td>
@@ -4115,72 +4139,79 @@ export default function InvoicePage({ darkMode }) {
                               <input
                                 type="text"
                                 name="fedPayable"
-                                // value={row.qty}
                                 value={row.fedPayable ?? ""}
-                                // onChange={(e) => handleInputChange(index, "qty", e.target.value)}
+                                // Standard behavior: click anywhere to edit without auto-highlighting everything
                                 onChange={(e) => {
-                                  if (isReadOnly) return;
+                                  if (
+                                    isReadOnly ||
+                                    permissions.can_edit_fed_payable === 0
+                                  )
+                                    return;
 
-                                  let val = e.target.value;
+                                  const input = e.target;
+                                  const start = input.selectionStart; // 1. Capture cursor position
+                                  let val = input.value;
 
-                                  const decimalMatch = val.match(/\.(\d*)/);
-                                  const hasDecimal = decimalMatch !== null;
-                                  const decimalDigits = hasDecimal
-                                    ? decimalMatch[1].length
-                                    : 0;
+                                  // 2. SMART ZERO HANDLING:
+                                  // Removes the leading '0' if you type a number at the start of '0.00'
+                                  if (
+                                    val.length > 1 &&
+                                    val.startsWith("0") &&
+                                    val[1] !== "."
+                                  ) {
+                                    val = val.substring(1);
+                                  }
 
-                                  // Reject if more than 4 digits after decimal
-                                  if (decimalDigits > 2) return;
-
-                                  const cleaned = val
-                                    .replace(/[^0-9.]/g, "")
-                                    .replace(/(\..*?)\./g, "$1");
-
-                                  handleInputChange(
-                                    index,
-                                    "fedPayable",
-                                    cleaned,
-                                  );
+                                  // 3. Update parent state
+                                  handleInputChange(index, "fedPayable", val);
                                   setHasChanged(true);
+
+                                  // 4. RESTORE CURSOR:
+                                  // requestAnimationFrame ensures the blinking cursor stays exactly where you are typing
+                                  window.requestAnimationFrame(() => {
+                                    const adj =
+                                      val.length < input.value.length ? -1 : 0;
+                                    input.setSelectionRange(
+                                      start + adj,
+                                      start + adj,
+                                    );
+                                  });
                                 }}
                                 onBlur={() => {
                                   if (isReadOnly) return;
-
                                   let current = (row.fedPayable ?? "").trim();
 
-                                  if (current === "") {
+                                  // 5. Normalize value on exit
+                                  if (
+                                    current === "" ||
+                                    isNaN(Number(current))
+                                  ) {
                                     handleInputChange(
                                       index,
                                       "fedPayable",
                                       "0.00",
                                     );
-                                    setHasChanged(true);
-                                    return;
-                                  }
-                                  const num = Number(current);
-                                  if (!isNaN(num) && num >= 0) {
-                                    handleInputChange(
-                                      index,
-                                      "fedPayable",
-                                      num.toString(),
-                                    );
-                                    setHasChanged(true);
                                   } else {
                                     handleInputChange(
                                       index,
                                       "fedPayable",
-                                      "0.00",
+                                      Number(current).toString(),
                                     );
-                                    setHasChanged(true);
                                   }
+                                  setHasChanged(true);
                                 }}
-                                className="w-full border rounded px-2 py-1"
+                                className={`w-full border rounded px-2 py-1 transition-all ${
+                                  isReadOnly ||
+                                  permissions.can_edit_fed_payable === 0
+                                    ? "bg-slate-50 text-slate-400 cursor-not-allowed"
+                                    : "bg-white text-slate-800 focus:ring-1 focus:ring-blue-500 outline-none"
+                                }`}
                                 readOnly={
                                   isReadOnly ||
                                   permissions.can_edit_fed_payable === 0
                                 }
-                                inputMode="decimal" // better mobile keyboard (shows decimal key)
-                                pattern="[0-9]*\.?[0-9]*" // helps some browsers/mobile validation
+                                inputMode="decimal"
+                                pattern="[0-9]*\.?[0-9]*"
                                 placeholder="0.00"
                               />
                             </td>
@@ -4188,66 +4219,72 @@ export default function InvoicePage({ darkMode }) {
                               <input
                                 type="text"
                                 name="discount"
-                                // value={row.qty}
                                 value={row.discount ?? ""}
-                                // onChange={(e) => handleInputChange(index, "qty", e.target.value)}
+                                // Standard behavior: click anywhere to edit without the "select-all" bypass
                                 onChange={(e) => {
                                   if (isReadOnly) return;
 
-                                  let val = e.target.value;
+                                  const input = e.target;
+                                  const start = input.selectionStart; // 1. Capture cursor position
+                                  let val = input.value;
 
-                                  const decimalMatch = val.match(/\.(\d*)/);
-                                  const hasDecimal = decimalMatch !== null;
-                                  const decimalDigits = hasDecimal
-                                    ? decimalMatch[1].length
-                                    : 0;
+                                  // 2. SMART ZERO HANDLING:
+                                  // Removes the '0' if you type a digit at the start of '0.0000'
+                                  if (
+                                    val.length > 1 &&
+                                    val.startsWith("0") &&
+                                    val[1] !== "."
+                                  ) {
+                                    val = val.substring(1);
+                                  }
 
-                                  // Reject if more than 4 digits after decimal
-                                  if (decimalDigits > 4) return;
-
-                                  const cleaned = val
-                                    .replace(/[^0-9.]/g, "")
-                                    .replace(/(\..*?)\./g, "$1");
-
-                                  handleInputChange(index, "discount", cleaned);
+                                  // 3. Update state
+                                  handleInputChange(index, "discount", val);
                                   setHasChanged(true);
+
+                                  // 4. RESTORE CURSOR:
+                                  // requestAnimationFrame keeps the blinking cursor exactly where you are typing
+                                  window.requestAnimationFrame(() => {
+                                    const adj =
+                                      val.length < input.value.length ? -1 : 0;
+                                    input.setSelectionRange(
+                                      start + adj,
+                                      start + adj,
+                                    );
+                                  });
                                 }}
                                 onBlur={() => {
                                   if (isReadOnly) return;
-
                                   let current = (row.discount ?? "").trim();
 
-                                  if (current === "") {
+                                  // 5. Normalize value on exit
+                                  if (
+                                    current === "" ||
+                                    isNaN(Number(current))
+                                  ) {
                                     handleInputChange(
                                       index,
                                       "discount",
                                       "0.0000",
                                     );
-                                    setHasChanged(true);
-                                    return;
-                                  }
-                                  const num = Number(current);
-                                  if (!isNaN(num) && num >= 0) {
-                                    handleInputChange(
-                                      index,
-                                      "discount",
-                                      num.toString(),
-                                    );
-                                    setHasChanged(true);
                                   } else {
                                     handleInputChange(
                                       index,
                                       "discount",
-                                      "0.0000",
+                                      Number(current).toString(),
                                     );
-                                    setHasChanged(true);
                                   }
+                                  setHasChanged(true);
                                 }}
-                                className="w-full border rounded px-2 py-1"
+                                className={`w-full border rounded px-2 py-1 transition-all ${
+                                  isReadOnly
+                                    ? "bg-slate-50 text-slate-400"
+                                    : "bg-white text-slate-800 focus:ring-1 focus:ring-blue-500 outline-none"
+                                }`}
                                 readOnly={isReadOnly}
-                                inputMode="decimal" // better mobile keyboard (shows decimal key)
-                                pattern="[0-9]*\.?[0-9]*" // helps some browsers/mobile validation
-                                placeholder="0.00"
+                                inputMode="decimal"
+                                pattern="[0-9]*\.?[0-9]*"
+                                placeholder="0.0000"
                               />
                             </td>
                             <td className="px-4 py-3 whitespace-nowrap">
@@ -4698,7 +4735,7 @@ export default function InvoicePage({ darkMode }) {
                     "Items",
                     "Excl. Tax",
                     "Tax",
-                    "Other Taxes",
+                    "Other Taxes %",
                     "Total",
                     "Status",
                     "Action",
@@ -4765,7 +4802,7 @@ export default function InvoicePage({ darkMode }) {
                           : "-"}
                       </td>
                       <td className="px-4 py-4 text-center font-bold text-blue-600">
-                        {inv.customer_name || "-"}
+                        {inv.customer_name + " - " + inv.ntn || "-"}
                       </td>
                       <td className="px-4 py-4 text-center font-bold">
                         {totalQty}

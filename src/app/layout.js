@@ -1,60 +1,86 @@
-"use client";
+// "use client";
 
-import { useState } from "react";
+// import { useState } from "react";
+// import { Inter } from "next/font/google";
+// import { usePathname } from "next/navigation";
+// import Sidebar from "../components/sidebar/Sidebar";
+// import Header from "../components/header/Header";
+// import "./globals.css";
+
+// const inter = Inter({
+//   subsets: ["latin"],
+//   variable: "--font-inter",
+//   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+// });
+
+// export default function RootLayout({ children }) {
+//   const pathname = usePathname();
+//   const [sidebarOpen, setSidebarOpen] = useState(false);
+//   const [darkMode, setDarkMode] = useState(false);
+//   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+//   const isHomePage = pathname === "/" || pathname === "/superAdmin";
+
+//   if (isHomePage) {
+//     return (
+//       <html lang="en">
+//         <body className={`${inter.variable} antialiased`}>{children}</body>
+//       </html>
+//     );
+//   }
+
+//   return (
+//     <html lang="en">
+//       <body className={`${inter.variable} antialiased`}>
+//         <div
+//           className={`min-h-screen ${darkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}
+//         >
+//           <Sidebar
+//             darkMode={darkMode}
+//             sidebarCollapsed={sidebarCollapsed}
+//             setSidebarCollapsed={setSidebarCollapsed}
+//             sidebarOpen={sidebarOpen}
+//             setSidebarOpen={setSidebarOpen}
+//           />
+
+//           <div
+//             className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}
+//           >
+//             <Header
+//               darkMode={darkMode}
+//               setDarkMode={setDarkMode}
+//               setSidebarOpen={setSidebarOpen}
+//             />
+
+//             <main className="p-6">{children}</main>
+//           </div>
+//         </div>
+//       </body>
+//     </html>
+//   );
+// }
+
 import { Inter } from "next/font/google";
-import { usePathname } from "next/navigation";
-import Sidebar from "../components/sidebar/Sidebar";
-import Header from "../components/header/Header";
 import "./globals.css";
+import Providers from "./providers";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
 });
 
+// export const metadata = {
+//   title: "Vendidge",
+//   description: "My Next.js PWA",
+//   manifest: "/manifest.json",
+//   themeColor: "#000000",
+// };
+
 export default function RootLayout({ children }) {
-  const pathname = usePathname();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
-  const isHomePage = pathname === "/" || pathname === "/superAdmin";
-
-  if (isHomePage) {
-    return (
-      <html lang="en">
-        <body className={`${inter.variable} antialiased`}>{children}</body>
-      </html>
-    );
-  }
-
   return (
     <html lang="en">
       <body className={`${inter.variable} antialiased`}>
-        <div
-          className={`min-h-screen ${darkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}
-        >
-          <Sidebar
-            darkMode={darkMode}
-            sidebarCollapsed={sidebarCollapsed}
-            setSidebarCollapsed={setSidebarCollapsed}
-            sidebarOpen={sidebarOpen}
-            setSidebarOpen={setSidebarOpen}
-          />
-
-          <div
-            className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}
-          >
-            <Header
-              darkMode={darkMode}
-              setDarkMode={setDarkMode}
-              setSidebarOpen={setSidebarOpen}
-            />
-
-            <main className="p-6">{children}</main>
-          </div>
-        </div>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
