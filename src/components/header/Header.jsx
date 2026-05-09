@@ -71,6 +71,10 @@ export default function Header({ darkMode, setDarkMode, setSidebarOpen }) {
                     sessionStorage.setItem("sellerAddress", "");
                     sessionStorage.setItem("sellerToken", "");
                     sessionStorage.setItem("activeConsultantMode", "");
+                    sessionStorage.setItem("consultantEditInvoiceId", "");
+                    sessionStorage.setItem("consultantEditProductId", "");
+                    sessionStorage.setItem("consultantEditCustomerId", "");
+
                     logout();
                     router.push("/");
                   }}

@@ -25,6 +25,9 @@ export const handlePrintInvoice = async (
       sellerInvoiceNTN,
     );
 
+    console.log("target invoice id", targetInvoice);
+    console.log("form invoice id", invoiceForm);
+
     const invoiceNo = invoiceForm.invoiceNo || targetInvoice.invoice_no || "";
     const invoiceDate =
       formatDateForInput(invoiceForm.date || targetInvoice.invoice_date) || "";
@@ -42,14 +45,16 @@ export const handlePrintInvoice = async (
         invoiceForm.invoice_posted_date || targetInvoice.invoice_posted_date,
       ) || "";
 
+    // const customerName =
+    //   invoiceForm.customer.split(" - ")[0] || targetInvoice.customer_name || "";
     const customerName =
-      invoiceForm.customer.split(" - ")[0] || targetInvoice.customer_name || "";
+      invoiceForm.customer_name || targetInvoice.customer_name || "";
     const isEvent = targetInvoice && targetInvoice.nativeEvent;
 
     const activeCustomerId =
       targetInvoice && !isEvent
         ? targetInvoice.customer_id
-        : invoiceForm.customerId;
+        : invoiceForm.customerId || invoiceForm.customer_id;
 
     const customerAddress =
       customers.find((c) => c.id === activeCustomerId)?.address || "";
@@ -551,7 +556,9 @@ export const handleBatchPrintInvoices = async (
       const invoiceDate = formatDateForInput(targetInvoice.invoice_date) || "";
       const challanNoLabel = targetInvoice.challanNoLabel || "Challan No";
       const challanDateLabel = targetInvoice.challanDateLabel || "Challan Date";
-      const customerName = (targetInvoice.customer_name || "").split(" - ")[0];
+      // const customerName = (targetInvoice.customer_name || "").split(" - ")[0];
+      console.log("target invoice customer ", targetInvoice.customer_name);
+      const customerName = targetInvoice.customer_name || "";
 
       const activeCustomerId = targetInvoice.customer_id;
       const customer = customers.find((c) => c.id === activeCustomerId);
@@ -805,15 +812,21 @@ export const handleBatchPrintInvoices = async (
             @media screen { .header-fixed, .footer-fixed { display: none; } }
         </style>
 
-        <div class="header-fixed">
-            <div style="text-align:center; font-weight:bold; font-size:16px; margin-top:5px;">${sellerName.toUpperCase()}</div>
-            <div style="text-align:center; font-size:11px;">${sellerAddress.toUpperCase()}</div>
-            <div style="text-align:center; font-size:11px; margin-bottom:12px;">NTN No. ${sellerInvoiceNTN}</div>
-            <div style="text-align:center; font-weight:bold; font-size:14px; padding: 6px 0; margin: 0 10px; position: relative;">
-                SALES TAX INVOICE
-                <span class="page-counter-display" style="position: absolute; right: 10px; font-size: 10px;"></span>
-            </div>
-        </div>
+       <div class="header-fixed">
+    <div style="text-align:center; font-weight:bold; font-size:16px; margin-top:5px;">
+         ${shouldShow("Seller Name") ? `${sellerName.toUpperCase()}` : ""}
+    </div>
+    <div style="text-align:center; font-size:11px;">
+          ${shouldShow("Seller Address") ? `${sellerAddress.toUpperCase()}` : ""}
+    </div>
+    <div style="text-align:center; font-size:11px; margin-bottom:12px;">
+        ${shouldShow("Seller NTN") ? `NTN No. ${sellerInvoiceNTN}` : ""}
+    </div>
+    <div style="text-align:center; font-weight:bold; font-size:14px; padding: 6px 0; margin: 0 10px; position: relative;">
+        SALES TAX INVOICE
+        <span class="page-counter-display" style="position: absolute; right: 10px; font-size: 10px;"></span>
+    </div>
+</div>
 
         <div class="footer-fixed">
             <span style="padding-left:15px; font-style: italic;">${footerEnvText}</span>

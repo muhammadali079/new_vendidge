@@ -115,91 +115,26 @@ export default function CustomersPage({ darkMode }) {
     }
   }, [user, loadCustomers]);
 
-  useEffect(() => {
-    const isConsultant =
-      sessionStorage.getItem("activeConsultantMode") === "true";
-    const editId = sessionStorage.getItem("consultantEditCustomerId");
-
-    // Only run once the customer list has actually loaded from the DB
-    if (isConsultant && customers.length > 0) {
-      if (editId) {
-        // FLOW A: CONSULTANT EDIT/VIEW
-        const target = customers.find(
-          (c) => c.id.toString() === editId.toString(),
-        );
-        if (target) {
-          handleOpenForm(target); // This now checks perms.can_edit_customer automatically
-        }
-      } else {
-        // FLOW B: CONSULTANT REGISTER NEW
-        handleOpenForm(null); // This now checks perms.can_create_customer automatically
-      }
-    }
-  }, [customers]); // Depend on customers list being ready
-
   // --- 2. FORM ACTION LOGIC ---
-  // const handleOpenForm = (customer = null) => {
-  //   if (customer) {
-  //     // Existing Customer: Always open if view=1, but check edit perm
-  //     setEditingCustomer(customer);
-  //     setIsFormReadOnly(perms.can_edit_customer === 0);
-  //     setForm({
-  //       ...customer,
-  //       locations:
-  //         customer.locations?.length > 0
-  //           ? JSON.parse(JSON.stringify(customer.locations))
-  //           : [emptyFormState.locations[0]],
-  //     });
-  //   } else {
-  //     // New Customer: Open if create=1
-  //     if (perms.can_create_customer === 0) return;
-  //     setEditingCustomer(null);
-  //     setIsFormReadOnly(false);
-  //     setForm(emptyFormState);
-  //   }
-  //   setDeletedLocationIds([]);
-  //   setShowForm(true);
-  // };
-
-  // REPLACE your current handleOpenForm and handleEditClick with this:
   const handleOpenForm = (customer = null) => {
-    // 1. SECURITY GUARD: For NEW registrations
-    if (!customer && perms.can_create_customer === 0) {
-      alert(
-        "Action Denied: You do not have permission to register new customers.",
-      );
-      return;
-    }
-
-    // 2. LOGIC: For EXISTING customer (Edit or View mode)
     if (customer) {
+      // Existing Customer: Always open if view=1, but check edit perm
       setEditingCustomer(customer);
-      // If edit perm is 0, we lock the form (Read-Only)
       setIsFormReadOnly(perms.can_edit_customer === 0);
-
       setForm({
         ...customer,
         locations:
           customer.locations?.length > 0
             ? JSON.parse(JSON.stringify(customer.locations))
-            : [
-                {
-                  business_name: "",
-                  province_id: "",
-                  province_name: "",
-                  address: "",
-                },
-              ],
+            : [emptyFormState.locations[0]],
       });
-    }
-
-    // 3. LOGIC: For NEW customer
-    else {
+    } else {
+      // New Customer: Open if create=1
+      if (perms.can_create_customer === 0) return;
       setEditingCustomer(null);
-      setIsFormReadOnly(false); // Always editable for new entries
+      setIsFormReadOnly(false);
       setForm(emptyFormState);
     }
-
     setDeletedLocationIds([]);
     setShowForm(true);
   };
@@ -242,15 +177,8 @@ export default function CustomersPage({ darkMode }) {
         }),
       });
       if (res.ok) {
-        // --- CONSULTANT MODE REDIRECT ---
-        if (sessionStorage.getItem("activeConsultantMode") === "true") {
-          router.push("/consultant/customers");
-        } else {
-          // Normal User Flow
-          setShowForm(false);
-          loadCustomers();
-          setForm(emptyFormState);
-        }
+        setShowForm(false);
+        loadCustomers();
       }
     } catch (err) {
       alert("Error saving.");
@@ -491,7 +419,7 @@ export default function CustomersPage({ darkMode }) {
                   <h3 className="text-sm font-black text-emerald-600 uppercase tracking-widest flex items-center gap-2">
                     <MapPin size={16} /> Branches
                   </h3>
-                  {/* {!isFormReadOnly && (
+                  {!isFormReadOnly && (
                     <button
                       type="button"
                       onClick={() =>
@@ -512,7 +440,7 @@ export default function CustomersPage({ darkMode }) {
                     >
                       <Plus size={14} /> Add
                     </button>
-                  )} */}
+                  )}
                 </div>
                 <div className="space-y-4">
                   {form.locations.map((loc, idx) => (
@@ -520,7 +448,7 @@ export default function CustomersPage({ darkMode }) {
                       key={idx}
                       className="bg-slate-50 rounded-2xl p-5 border border-slate-100 relative group"
                     >
-                      {/* {!isFormReadOnly && (
+                      {!isFormReadOnly && (
                         <button
                           type="button"
                           onClick={() =>
@@ -535,7 +463,7 @@ export default function CustomersPage({ darkMode }) {
                         >
                           <Trash2 size={16} />
                         </button>
-                      )} */}
+                      )}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <input
                           readOnly={isFormReadOnly}
@@ -590,16 +518,7 @@ export default function CustomersPage({ darkMode }) {
               <div className="flex justify-end gap-3 pt-6 border-t sticky bottom-0 bg-white">
                 <button
                   type="button"
-                  onClick={() => {
-                    // If in consultant mode, close should return to the ledger
-                    if (
-                      sessionStorage.getItem("activeConsultantMode") === "true"
-                    ) {
-                      router.push("/consultant/customers");
-                    } else {
-                      setShowForm(false);
-                    }
-                  }}
+                  onClick={() => setShowForm(false)}
                   className="bg-white border border-slate-200 text-slate-600 px-6 py-3 rounded-xl font-bold"
                 >
                   Close

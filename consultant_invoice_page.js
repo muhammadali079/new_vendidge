@@ -34,12 +34,6 @@ import {
 
 export default function ConsultantMasterInvoices() {
   const router = useRouter();
-  const [perms, setPerms] = useState({});
-
-  useEffect(() => {
-    const stored = JSON.parse(sessionStorage.getItem("permissions") || "{}");
-    setPerms(stored);
-  }, []);
 
   // --- DATA & UI STATES ---
   const [invoices, setInvoices] = useState([]);
@@ -177,7 +171,6 @@ export default function ConsultantMasterInvoices() {
 
   const shouldShow = (fieldName, row = null, form = null) => {
     const f = fields.find((f) => f.name === fieldName);
-    console.log("field", fieldName, fields, f);
     if (!f) return true;
 
     if (f.show === 1) return true;
@@ -309,11 +302,10 @@ export default function ConsultantMasterInvoices() {
       challan_date: inv.challanDate,
       invoice_posted_date: inv.invoice_posted_date,
     };
-    console.log("inv cusotmer ", inv.customer_name);
 
     await handlePrintInvoice(
       inv, // targetInvoice
-      inv, // invoiceForm
+      mockForm, // invoiceForm
       customers, // Metadata from your Consultant state
       inv.items || [], // Pre-hydrated items
       scenarioCodes,
@@ -330,8 +322,6 @@ export default function ConsultantMasterInvoices() {
     const selectedObjs = invoices.filter((inv) =>
       selectedInvoices.includes(inv.id),
     );
-
-    console.dir(invoices);
 
     // 1. Set seller context from the first selected invoice
     // This ensures the batch print header uses the correct seller info
@@ -849,14 +839,12 @@ export default function ConsultantMasterInvoices() {
               </button>
             </div>
           )}
-          {perms.can_create_invoice === 1 && (
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-black shadow-lg"
-            >
-              <Plus size={18} /> New Invoice
-            </button>
-          )}
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-black shadow-lg shadow-indigo-200 flex items-center gap-2 hover:bg-indigo-700 transition-all"
+          >
+            <Plus size={18} /> New Invoice
+          </button>
         </div>
       </div>
 
@@ -1113,7 +1101,7 @@ export default function ConsultantMasterInvoices() {
                       </button>
                     </div>
                   </td>
-                  {/* <td className="px-6 py-5 text-right flex items-center justify-end gap-3">
+                  <td className="px-6 py-5 text-right flex items-center justify-end gap-3">
                     <button
                       onClick={() =>
                         setupContextAndRoute(
@@ -1131,37 +1119,6 @@ export default function ConsultantMasterInvoices() {
                     >
                       Delete
                     </button>
-                  </td> */}
-                  <td className="px-6 py-5 text-right flex items-center justify-end gap-3">
-                    {/* HIDE ACTION COMPLETELY if both perms are 0 */}
-                    {(perms.can_edit_invoice === 1 ||
-                      perms.can_view_invoice === 1) && (
-                      <button
-                        onClick={() =>
-                          setupContextAndRoute(
-                            allClients.find((c) => c.id === inv.user_id),
-                            inv.invoice_no,
-                          )
-                        }
-                        className="text-indigo-600 font-black text-xs hover:underline uppercase"
-                      >
-                        {/* Label changes based on Edit vs View permission */}
-                        {perms.can_edit_invoice === 1 &&
-                        inv.status !== "Success"
-                          ? "Edit"
-                          : "View"}
-                      </button>
-                    )}
-
-                    {/* SILENT GUARD: Only show Delete if allowed */}
-                    {perms.can_delete_invoice === 1 && (
-                      <button
-                        onClick={() => handleDelete(inv.id)}
-                        className="text-red-500 font-black text-xs hover:underline uppercase"
-                      >
-                        Delete
-                      </button>
-                    )}
                   </td>
                 </tr>
               ))

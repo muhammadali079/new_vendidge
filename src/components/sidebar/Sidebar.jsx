@@ -158,7 +158,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Wallet,
   Users,
@@ -175,6 +175,7 @@ import {
   ShieldCheck,
   User,
   LogOut,
+  ShieldAlert,
 } from "lucide-react";
 
 export default function Sidebar({
@@ -187,29 +188,49 @@ export default function Sidebar({
   const pathname = usePathname();
   const router = useRouter();
   const [userRole, setUserRole] = useState(null);
+  const [userType, setUserType] = useState(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const userId = sessionStorage.getItem("userId");
+      const userType = sessionStorage.getItem("userType");
       const role = sessionStorage.getItem("role");
+      console.log("user role and type ", role, userType);
       setUserRole(role);
+      setUserType(userType);
 
       if (window.location.pathname === "/" || !userId) return;
     }
   }, []);
 
-  // Switching menu items based on role
-  const menuItems =
-    userRole === "consultant"
-      ? [
-          { icon: LayoutDashboard, label: "Dashboard", url: "/consultant" },
-          {
-            icon: Receipt,
-            label: "Master Invoices",
-            url: "/consultant/invoices",
-          },
-          { icon: Package, label: "Products", url: "/consultant/products" },
-          { icon: Users, label: "Customers", url: "/consultant/customers" },
+  // Ensure these values are normalized (lowercase and trimmed) to prevent matching errors
+  const role = userRole?.toLowerCase().trim();
+  const type = userType?.toLowerCase().trim();
+
+  const menuItems = useMemo(() => {
+    const role = userRole?.toLowerCase().trim();
+    const type = userType?.toLowerCase().trim();
+
+    // --- 1. CONSULTANT SIDE LOGIC ---
+    if (
+      role === "consultant" ||
+      role === "admin_consultant" ||
+      role === "sub_consultant"
+    ) {
+      const baseConsultantMenu = [
+        { icon: LayoutDashboard, label: "Dashboard", url: "/consultant" },
+        {
+          icon: Receipt,
+          label: "Master Invoices",
+          url: "/consultant/invoices",
+        },
+        { icon: Package, label: "Products", url: "/consultant/products" },
+        { icon: Users, label: "Customers", url: "/consultant/customers" },
+      ];
+
+      // Sub-Consultants are strictly blocked from management and profile
+      if (role !== "sub_consultant") {
+        baseConsultantMenu.push(
           {
             icon: UserCircle,
             label: "Sub-Consultants",
@@ -221,19 +242,40 @@ export default function Sidebar({
             url: "/consultant/user-permissions",
           },
           { icon: User, label: "Profile", url: "/consultant/profile" },
-        ]
-      : [
-          { icon: Users, label: "Customer", url: "/customer" },
-          { icon: FileText, label: "Invoice", url: "/invoice" },
-          ...(userRole === "admin"
-            ? [
-                { icon: Users, label: "Sub Users", url: "/subUsers" },
-                { icon: Wallet, label: "Dashboard", url: "/dashboard" },
-                { icon: Package, label: "Products", url: "/products" },
-              ]
-            : []),
-        ];
+        );
+      }
+      return baseConsultantMenu;
+    }
 
+    // --- 2. BUSINESS SIDE LOGIC (Admin & Sub-Users) ---
+    const baseBusinessMenu = [
+      { icon: Users, label: "Customers", url: "/customer" },
+      { icon: FileText, label: "Invoices", url: "/invoice" },
+      { icon: Package, label: "Products", url: "/products" },
+    ];
+
+    // ALL Admins (Managed or Self-Managed) must see these
+    if (role === "admin") {
+      baseBusinessMenu.push(
+        { icon: LayoutDashboard, label: "Analytics", url: "/dashboard" },
+        { icon: UserCircle, label: "Manage Team", url: "/subUsers" },
+      );
+    }
+
+    // ONLY Self-Managed Admins see Agency Control
+    if (type === "self_managed" && role === "admin") {
+      baseBusinessMenu.push({
+        icon: ShieldAlert,
+        label: "Agency Control",
+        url: "/consultant_permissions",
+      });
+    }
+
+    // Everyone on business side sees their own profile
+    baseBusinessMenu.push({ icon: User, label: "Profile", url: "/profile" });
+
+    return baseBusinessMenu;
+  }, [userRole, userType]); // Re-renders automatically when these values change
   const handleSignOut = () => {
     sessionStorage.clear();
     router.push("/");

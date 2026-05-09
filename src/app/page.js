@@ -73,6 +73,7 @@ export default function Home() {
           data.user.parent_id ? data.user.parent_id : null,
         );
         sessionStorage.setItem("role", data.user.role);
+        sessionStorage.setItem("userType", data.user.user_type);
         sessionStorage.setItem(
           "permissions",
           JSON.stringify(data.user.permissions),

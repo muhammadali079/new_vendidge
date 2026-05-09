@@ -154,9 +154,7 @@ export async function GET(req) {
       ? "new_invoices_rows_prod"
       : "new_invoices_rows";
 
-    // 1. Fetch Invoices with Metadata
-    // Note: We join 'ubi' on 'sellerBusinessId' to get the specific business used for the invoice,
-    // which prevents duplication compared to joining on user_id.
+    // 1. BASE QUERY (WITHOUT ORDER BY)
     let query = `
       SELECT 
         inv.*, 
@@ -164,21 +162,35 @@ export async function GET(req) {
         ubi.address AS address,
         ubi.province AS province,
         ubi.province_id AS province_id,
-        c.business_name AS customer_name, 
-        c.cnic_ntn AS ntn_cnic,
-        u.token as client_token,
-        u.cnic_ntn as seller_ntn,
-        u.invoice_ntn as seller_invoice_ntn,
-        (SELECT address FROM new_customers_locations WHERE customer_id = inv.customer_id LIMIT 1) AS customer_address
+        u.token AS client_token,
+        u.cnic_ntn AS seller_ntn,
+        u.invoice_ntn AS seller_invoice_ntn,
+        nc.ntn AS customer_ntn,
+        cl.customer_address,
+        cl.customer_name
       FROM ${targetTable} inv
       INNER JOIN new_users u ON inv.user_id = u.id
-      LEFT JOIN new_customers c ON inv.customer_id = c.id
+      LEFT JOIN new_customers nc ON inv.customer_id = nc.id
       LEFT JOIN new_users_business_info ubi ON inv.sellerBusinessId = ubi.id
+      /* JOINing a subquery ensures we only get the FIRST location 
+         per customer, which prevents duplicate invoice rows 
+      */
+      LEFT JOIN (
+        SELECT 
+          customer_id, 
+          address AS customer_address, 
+          business_name AS customer_name 
+        FROM new_customers_locations
+        WHERE id IN (
+          SELECT MIN(id) FROM new_customers_locations GROUP BY customer_id
+        )
+      ) cl ON inv.customer_id = cl.customer_id
       WHERE u.ref_code = ?
     `;
 
     const queryParams = [targetRefCode];
 
+    // 2. DYNAMIC FILTERS
     if (clientsParam) {
       query += ` AND inv.user_id IN (?)`;
       queryParams.push(clientsParam.split(",").map((id) => parseInt(id)));
@@ -192,69 +204,69 @@ export async function GET(req) {
       queryParams.push(`%${search}%`);
     }
 
+    // 3. ADD ORDER BY AT THE VERY END
     query += ` ORDER BY inv.invoice_date DESC, inv.invoice_no DESC`;
 
     const [invoices] = await db.query(query, queryParams);
 
-    if (invoices.length > 0) {
+    if (invoices && invoices.length > 0) {
       const invoiceIds = invoices.map((inv) => inv.id);
       const userIds = [...new Set(invoices.map((inv) => inv.user_id))];
 
-      // 2. Hydrate Line Items
-      const [allRows] = await db.query(
-        `SELECT * FROM ${targetRowTable} WHERE invoice_id IN (?)`,
-        [invoiceIds],
-      );
+      // 4. Hydrate metadata in parallel
+      const [allRows, allLocations, unpostedResult] = await Promise.all([
+        db.query(`SELECT * FROM ${targetRowTable} WHERE invoice_id IN (?)`, [
+          invoiceIds,
+        ]),
+        db.query(`SELECT * FROM new_users_business_info WHERE user_id IN (?)`, [
+          userIds,
+        ]),
+        db.query(
+          `SELECT user_id, MIN(invoice_no) as minUnposted FROM ${targetTable} WHERE user_id IN (?) AND status != 'Success' GROUP BY user_id`,
+          [userIds],
+        ),
+      ]);
 
-      // 3. Hydrate ALL Business Locations for each client (for your sessionStorage)
-      const [allLocations] = await db.query(
-        `SELECT * FROM new_users_business_info WHERE user_id IN (?)`,
-        [userIds],
-      );
-      //console.log(allLocations, "All Locations for Users:", userIds);
-      // 4. Calculate Min Unposted Invoice No PER USER
-      const [unpostedResult] = await db.query(
-        `SELECT user_id, MIN(invoice_no) as minUnposted 
-         FROM ${targetTable} 
-         WHERE user_id IN (?) AND status != 'Success'
-         GROUP BY user_id`,
-        [userIds],
-      );
-
-      console.log(unpostedResult, "Min Unposted Invoice No by User:", userIds);
-
-      // Grouping data for merging
-      const rowsByInvoice = allRows.reduce((acc, row) => {
+      // Mappings
+      const rowsByInvoice = allRows[0].reduce((acc, row) => {
         if (!acc[row.invoice_id]) acc[row.invoice_id] = [];
         acc[row.invoice_id].push(row);
         return acc;
       }, {});
 
-      const locationsByUser = allLocations.reduce((acc, loc) => {
+      const locationsByUser = allLocations[0].reduce((acc, loc) => {
         if (!acc[loc.user_id]) acc[loc.user_id] = [];
         acc[loc.user_id].push(loc);
         return acc;
       }, {});
 
-      const minUnpostedByUser = unpostedResult.reduce((acc, res) => {
+      const minUnpostedByUser = unpostedResult[0].reduce((acc, res) => {
         acc[res.user_id] = res.minUnposted;
         return acc;
       }, {});
 
-      // 5. Final Merge
+      // Final Merge
       invoices.forEach((inv) => {
         inv.items = rowsByInvoice[inv.id] || [];
-        // This 'locations' array is what you need for sessionStorage 'businesses'
         inv.locations = locationsByUser[inv.user_id] || [];
         inv.minUnpostedForUser = minUnpostedByUser[inv.user_id] || null;
       });
     }
 
+    // Fixed Debug Log
+    if (invoices) {
+      console.log(
+        `Successfully fetched ${invoices.length} invoices for Consultant ${consultantId}`,
+      );
+      // console.dir(invoices); // Uncomment if you need deep object inspection
+    }
+
     return NextResponse.json(
-      { data: invoices, count: invoices.length },
+      { data: invoices || [], count: invoices ? invoices.length : 0 },
       { status: 200 },
     );
   } catch (error) {
+    console.error("SQL Error in Consultant Invoices:", error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

@@ -103,8 +103,69 @@ export default function InvoicePage({ darkMode }) {
   });
   const [invoices, setInvoices] = useState([]);
 
+  useEffect(() => {
+    const isConsultant =
+      sessionStorage.getItem("activeConsultantMode") === "true";
+    const editId = sessionStorage.getItem("consultantEditInvoiceId"); // THE SIGNAL
+
+    console.log("Consultant mode:", isConsultant, "Edit ID signal:", editId);
+
+    if (isConsultant) {
+      setIsConsultantMode(true);
+
+      // FLOW A: CREATE INVOICE (Blank Form)
+      if (!editId) {
+        setShowForm(true);
+        setIsEditMode(false);
+        setIsReadOnly(false);
+        setEditingInvoiceId(null);
+
+        setInvoiceForm({
+          invoiceNo: "",
+          date: minDate || getFormattedDate(new Date()),
+          customer: "",
+          customerId: 0,
+          buyerProvince: "",
+          sellerProvince: sessionStorage.getItem("sellerProvince") || "",
+          sellerProvinceId: Number(
+            sessionStorage.getItem("sellerProvinceId") || 0,
+          ),
+          scenarioCode: null,
+          scenarioCodeId: 0,
+          saleType: "",
+          registrationNo: "",
+          items: [{ ...emptyRow, rowId: genRowId() }],
+        });
+        setRows([{ ...emptyRow, rowId: genRowId() }]);
+      }
+      // FLOW B: EDIT INVOICE
+      // We do nothing here; we wait for the second useEffect below to catch the data.
+    }
+  }, []);
+
   // THE EDIT HANDSHAKE: Automatically triggers handleViewInvoice when arriving from Ledger
-  // Runs as soon as invoices array is populated
+  useEffect(() => {
+    const editId = sessionStorage.getItem("consultantEditInvoiceId");
+    console.log("Checking for edit signal. Found ID:", editId);
+    console.log("Current invoices in state:", invoices);
+    setIsEditMode(true);
+    setIsReadOnly(true);
+
+    // Once the invoice list is fetched from /api/invoices-crud, find the match
+    if (editId && invoices.length > 0) {
+      const targetInvoice = invoices.find(
+        (inv) => inv.invoice_no.toString() === editId.toString(),
+      );
+      console.log("Looking for invoice ID:", editId, "Found:", targetInvoice);
+      if (targetInvoice) {
+        // Trigger YOUR actual function (Line ~940) that loads data and opens the form
+        handleViewInvoice(targetInvoice);
+
+        // Clean up the signal so the form doesn't re-open on every page refresh
+        //   sessionStorage.removeItem("consultantEditInvoiceId");
+      }
+    }
+  }, [invoices]); // Runs as soon as invoices array is populated
 
   // const [page, setPage] = useState(1);
   // const [pageSize] = useState(10);
@@ -234,70 +295,6 @@ export default function InvoicePage({ darkMode }) {
       }
     }
   }, []);
-
-  useEffect(() => {
-    const isConsultant =
-      sessionStorage.getItem("activeConsultantMode") === "true";
-    const editId = sessionStorage.getItem("consultantEditInvoiceId"); // THE SIGNAL
-
-    console.log("Consultant mode:", isConsultant, "Edit ID signal:", editId);
-
-    if (isConsultant) {
-      setIsConsultantMode(true);
-
-      // FLOW A: CREATE INVOICE (Blank Form)
-      if (!editId) {
-        setShowForm(true);
-        setIsEditMode(false);
-        setIsReadOnly(false);
-        setEditingInvoiceId(null);
-
-        setInvoiceForm({
-          invoiceNo: "",
-          date: minDate || getFormattedDate(new Date()),
-          customer: "",
-          customerId: 0,
-          buyerProvince: "",
-          sellerProvince: sessionStorage.getItem("sellerProvince") || "",
-          sellerProvinceId: Number(
-            sessionStorage.getItem("sellerProvinceId") || 0,
-          ),
-          scenarioCode: null,
-          scenarioCodeId: 0,
-          saleType: "",
-          registrationNo: "",
-          items: [{ ...emptyRow, rowId: genRowId() }],
-        });
-        setRows([{ ...emptyRow, rowId: genRowId() }]);
-      }
-      // FLOW B: EDIT INVOICE
-      // We do nothing here; we wait for the second useEffect below to catch the data.
-    }
-  }, []);
-
-  useEffect(() => {
-    const editId = sessionStorage.getItem("consultantEditInvoiceId");
-    console.log("Checking for edit signal. Found ID:", editId);
-    console.log("Current invoices in state:", invoices);
-
-    // Once the invoice list is fetched from /api/invoices-crud, find the match
-    if (editId && invoices.length > 0) {
-      const targetInvoice = invoices.find(
-        (inv) => inv.invoice_no.toString() === editId.toString(),
-      );
-      console.log("Looking for invoice ID:", editId, "Found:", targetInvoice);
-      console.log("user perm ", permissions);
-      if (targetInvoice) {
-        setIsEditMode(true);
-        setIsReadOnly(true);
-        // Trigger YOUR actual function (Line ~940) that loads data and opens the form
-        handleViewInvoice(targetInvoice);
-
-        // Clean up the signal so the form doesn't re-open on every page refresh
-        //   sessionStorage.removeItem("consultantEditInvoiceId");
-      }
-    }
-  }, [invoices]);
 
   const genRowId = () => `${Date.now()}_${Math.floor(Math.random() * 100000)}`;
 
@@ -1441,7 +1438,7 @@ export default function InvoicePage({ darkMode }) {
       }
 
       setShowForm(true);
-      if (permissions.can_edit_invoice === 1) {
+      if (permissions.can_edit_invoice === 1 || isConsultantMode === true) {
         setIsEditMode(true);
       } else {
         setIsEditMode(false);
@@ -1449,7 +1446,8 @@ export default function InvoicePage({ darkMode }) {
 
       setEditingInvoiceId(inv.id);
       setIsReadOnly(
-        inv.status === "Success" || permissions.can_edit_invoice === 0,
+        inv.status === "Success" ||
+          (permissions.can_edit_invoice === 0 && isConsultantMode === false),
       );
     } catch (err) {
       console.warn("Error opening invoice from row:", err);
