@@ -172,9 +172,6 @@ export async function GET(req) {
       INNER JOIN new_users u ON inv.user_id = u.id
       LEFT JOIN new_customers nc ON inv.customer_id = nc.id
       LEFT JOIN new_users_business_info ubi ON inv.sellerBusinessId = ubi.id
-      /* JOINing a subquery ensures we only get the FIRST location 
-         per customer, which prevents duplicate invoice rows 
-      */
       LEFT JOIN (
         SELECT 
           customer_id, 
@@ -258,7 +255,7 @@ export async function GET(req) {
       console.log(
         `Successfully fetched ${invoices.length} invoices for Consultant ${consultantId}`,
       );
-      // console.dir(invoices); // Uncomment if you need deep object inspection
+      console.dir(invoices); // Uncomment if you need deep object inspection
     }
 
     return NextResponse.json(

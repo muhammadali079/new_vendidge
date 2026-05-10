@@ -296,7 +296,7 @@ export default function ConsultantMasterInvoices() {
     const custRes = await fetch(`/api/customer?userId=${inv.user_id}`);
     if (custRes.ok) setCustomers(await custRes.json());
     const fieldRes = await fetch(
-      `/api/userChoosableFields?userId=${sessionStorage.getItem("userId")}`,
+      `/api/userChoosableFields?userId=${Number(sessionStorage.getItem("userId"))}&role=${sessionStorage.getItem("role")}`,
     );
     if (fieldRes.ok) setFields(await fieldRes.json());
     const mockForm = {
@@ -353,7 +353,9 @@ export default function ConsultantMasterInvoices() {
     try {
       const [custRes, fieldRes] = await Promise.all([
         fetch(`/api/customer?userId=${firstInv.user_id}`),
-        fetch(`/api/userChoosableFields?userId=${firstInv.user_id}`),
+        fetch(
+          `/api/userChoosableFields?userId=${Number(sessionStorage.getItem("userId"))}&role=${sessionStorage.getItem("role")}`,
+        ),
       ]);
 
       let batchCustomers = customers;

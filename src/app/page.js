@@ -101,11 +101,12 @@ export default function Home() {
           data.user.businesses[0]?.address,
         );
         sessionStorage.setItem("sellerToken", data.user.token);
+        console.log("token", data.user.token);
         document.cookie = `isProd=${data.user.isProd}; path=/; SameSite=Lax`;
         console.log("User logged in:", data);
         showPopup("Login Successful!", "success");
         if (
-          data.user.role === "consultant" ||
+          data.user.role === "admin_consultant" ||
           data.user.role === "sub_consultant"
         ) {
           sessionStorage.setItem("consultantId", data.user.id);

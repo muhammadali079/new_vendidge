@@ -13,11 +13,11 @@ import {
   handlePrintInvoice,
   handleBatchPrintInvoices,
 } from "../utils/printInvoice";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Layers, Check, Settings, Calculator, Trash2 } from "lucide-react";
 
 export default function InvoicePage({ darkMode }) {
-  const searchParams = useSearchParams();
+  // const searchParams = useSearchParams();
   const router = useRouter();
   // const isConsultantMode = searchParams.get("mode") === "consultant";
   const [isConsultantMode, setIsConsultantMode] = useState(false);
@@ -343,10 +343,11 @@ export default function InvoicePage({ darkMode }) {
 
     async function fetchUserChooseableFields() {
       try {
-        const userId =
-          Number(sessionStorage.getItem("parent_id")) ||
-          Number(sessionStorage.getItem("userId"));
-        const res = await fetch(`/api/userChoosableFields?userId=${userId}`);
+        const userId = Number(sessionStorage.getItem("userId"));
+        const userRole = sessionStorage.getItem("role");
+        const res = await fetch(
+          `/api/userChoosableFields?userId=${userId}&role=${userRole}`,
+        );
         const data = await res.json();
         setFields(data);
       } catch (err) {
@@ -363,23 +364,41 @@ export default function InvoicePage({ darkMode }) {
   useEffect(() => {
     if (showForm && !isEditMode) {
       const fetchLatestInvoice = async () => {
+        let nextInvoiceNo = "";
         try {
-          const userId = sessionStorage.getItem("userId");
+          const userId =
+            sessionStorage.getItem("parentId") ||
+            sessionStorage.getItem("userId");
           if (!userId) return;
           const res = await fetch(`/api/latestInvoiceNo?user_id=${userId}`);
           const data = await res.json();
-          setLatestInvoice(data.latestInvoice);
+
+          const currentLatest = data.latestInvoice;
+          const isNumeric =
+            currentLatest !== null &&
+            currentLatest !== "" &&
+            !isNaN(Number(currentLatest));
+
+          // 2. Calculate the next number (default to 1 if no previous invoice exists)
+          nextInvoiceNo = isNumeric
+            ? Number(currentLatest) + 1
+            : data.latestInvoice;
+          console.log("latest invoice no", nextInvoiceNo);
+          setLatestInvoice(nextInvoiceNo);
           setInvoiceForm((prev) => ({
             ...prev,
-            invoiceNo: data.latestInvoice,
+            internal_inv_ref_no: nextInvoiceNo,
           }));
         } catch (err) {
           console.warn("Failed to fetch latest invoice:", err);
-          setLatestInvoice(1);
-          setInvoiceForm((prev) => ({ ...prev, invoiceNo: 1 }));
+          setLatestInvoice(data.latestInvoice);
+          setInvoiceForm((prev) => ({
+            ...prev,
+            internal_inv_ref_no: data.latestInvoice,
+          }));
         }
       };
-      //fetchLatestInvoice();
+      fetchLatestInvoice();
     }
     if (showForm) {
       const fetchMasterData = async () => {
@@ -1591,6 +1610,7 @@ export default function InvoicePage({ darkMode }) {
     let invoiceToSubmit = {
       userId: Number(userId),
       invoiceNo: invoiceForm.invoiceNo,
+      internal_inv_ref_no: invoiceForm.internal_inv_ref_no,
       date: invoiceForm.date,
       customer: invoiceForm.customer,
       customerId: invoiceForm.customerId,
@@ -2727,23 +2747,23 @@ export default function InvoicePage({ darkMode }) {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                     <div>
                       <label className="block text-sm font-medium mb-1">
-                        Invoice No *
+                        Int. Invoice No *
                       </label>
                       <input
                         type="text"
-                        name="invoiceNo"
-                        value={invoiceForm.invoiceNo}
+                        name="internal_inv_ref_no"
+                        value={invoiceForm.internal_inv_ref_no}
                         onChange={(e) => {
                           const canEdit =
-                            !isEditMode && Number(latestInvoice) === 1;
+                            !isEditMode &&
+                            (Number(latestInvoice) === 1 ||
+                              isNaN(Number(latestInvoice)));
                           if (canEdit) {
-                            const numericValue = e.target.value.replace(
-                              /\D/g,
-                              "",
-                            );
+                            console.log("can edit invoce no");
+
                             setInvoiceForm((prev) => ({
                               ...prev,
-                              invoiceNo: numericValue,
+                              internal_inv_ref_no: e.target.value,
                             }));
                             setHasChanged(true);
                           }
@@ -2753,12 +2773,12 @@ export default function InvoicePage({ darkMode }) {
                             !isEditMode && Number(latestInvoice) === 1;
                           if (
                             canEdit &&
-                            (!invoiceForm.invoiceNo ||
-                              invoiceForm.invoiceNo === "")
+                            (!invoiceForm.internal_inv_ref_no ||
+                              invoiceForm.internal_inv_ref_no === "")
                           ) {
                             setInvoiceForm((prev) => ({
                               ...prev,
-                              invoiceNo: "1",
+                              internal_inv_ref_no: "1",
                             }));
                             setHasChanged(true);
                           }
@@ -2768,15 +2788,18 @@ export default function InvoicePage({ darkMode }) {
                         readOnly={
                           isEditMode ||
                           isReadOnly ||
-                          Number(latestInvoice) !== 1
+                          (Number(latestInvoice) !== 1 &&
+                            !isNaN(Number(latestInvoice)))
                         }
                         pattern="\d*"
                       />
-                      {Number(latestInvoice) !== 1 && !isEditMode && (
-                        <p className="text-red-500 text-sm mt-1">
-                          Inv no. auto-assigned cannot be changed.
-                        </p>
-                      )}
+                      {Number(latestInvoice) !== 1 &&
+                        !isNaN(Number(latestInvoice)) &&
+                        !isEditMode && (
+                          <p className="text-red-500 text-sm mt-1">
+                            Inv no. auto-assigned cannot be changed.
+                          </p>
+                        )}
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1">

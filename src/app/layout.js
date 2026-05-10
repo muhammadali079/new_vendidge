@@ -59,7 +59,6 @@
 //     </html>
 //   );
 // }
-
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
@@ -69,16 +68,32 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-// export const metadata = {
-//   title: "Vendidge",
-//   description: "My Next.js PWA",
-//   manifest: "/manifest.json",
-//   themeColor: "#000000",
-// };
+// 1. New Viewport Export (Fixes the warnings)
+export const viewport = {
+  themeColor: "#000000",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+
+// 2. Updated Metadata (Removed themeColor and viewport from here)
+export const metadata = {
+  title: "Vendidge",
+  description: "Vendidge an FBR invoicing system",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Vendidge",
+  },
+};
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="apple-touch-icon" href="/images/login/logos.png" />
+      </head>
       <body className={`${inter.variable} antialiased`}>
         <Providers>{children}</Providers>
       </body>

@@ -540,9 +540,7 @@ export default function SettingsPage() {
   // -----------------------------------------------
 
   const loadSettings = async () => {
-    const userId =
-      Number(sessionStorage.getItem("parent_id")) ||
-      Number(sessionStorage.getItem("userId"));
+    const userId = Number(sessionStorage.getItem("userId"));
     if (!userId) return;
 
     setLoading(true);
@@ -550,7 +548,9 @@ export default function SettingsPage() {
       const savedOrientation =
         localStorage.getItem("userPrintOrientation") || "landscape";
       setOrientation(savedOrientation);
-      const res = await fetch(`/api/userChoosableFields?userId=${userId}`);
+      const res = await fetch(
+        `/api/userChoosableFields?userId=${userId}&role=${sessionStorage.getItem("role")}`,
+      );
       const data = await res.json();
       setFields(data);
       setHasChanges(false);

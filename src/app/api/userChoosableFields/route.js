@@ -5,12 +5,15 @@ export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
     const userId = Number(searchParams.get("userId"));
+    const userRole = searchParams.get("role");
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-     const [rows] = await db.query(
+    console.log("user id and role ", userId, userRole);
+
+    const [rows] = await db.query(
       `
       SELECT 
         ucf.id,
@@ -22,29 +25,28 @@ export async function GET(req) {
         ucf.hide
       FROM new_user_choosable_fields ucf
       JOIN choosable_fields cf ON cf.id = ucf.field_id
-      WHERE ucf.user_id = ?
+      WHERE ucf.user_id = ? AND ucf.role = ?
       ORDER BY cf.id
       `,
-      [userId]
+      [userId, userRole],
     );
-   // console.log(rows);
+    // console.log(rows);
 
     return NextResponse.json(rows);
-
   } catch (error) {
     console.error("Fetch user fields error:", error);
     return NextResponse.json(
       { error: "Failed to load settings" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-
 export async function PUT(req) {
   try {
     const body = await req.json();
-    const { id, userId,user_defined_display_name , show, show_if_value, hide } = body;
+    const { id, userId, user_defined_display_name, show, show_if_value, hide } =
+      body;
 
     if (!id || !userId) {
       return NextResponse.json({ error: "Invalid request" }, { status: 400 });
@@ -56,7 +58,7 @@ export async function PUT(req) {
       SET \`show\` = ?, show_if_value = ?, hide = ?, user_defined_display_name = ?
       WHERE id = ? AND user_id = ?
       `,
-      [show, show_if_value, hide, user_defined_display_name, id, userId]
+      [show, show_if_value, hide, user_defined_display_name, id, userId],
     );
 
     return NextResponse.json({ success: true });
@@ -64,8 +66,7 @@ export async function PUT(req) {
     console.error("Update user choosable field error:", error);
     return NextResponse.json(
       { error: "Failed to update setting" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

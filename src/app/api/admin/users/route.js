@@ -409,6 +409,15 @@ export async function PUT(req) {
               `INSERT INTO new_users_permissions (user_id , role, created_at) VALUES (?, ?, NOW())`,
               [childResult.insertId, "sub_user"],
             );
+
+            await conn.execute(
+              `
+    INSERT INTO new_user_choosable_fields (user_id, role, field_id, \`show\`, show_if_value, hide)
+    SELECT ?, ?, f.id, 1, 0, 0
+    FROM choosable_fields f
+`,
+              [childResult.insertId, "sub_user"],
+            );
           }
         }
       }

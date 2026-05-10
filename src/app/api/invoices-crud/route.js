@@ -19,6 +19,7 @@ export async function POST(req) {
 
     const body = await req.json();
     const {
+      internal_inv_ref_no,
       sellerNTNCNIC,
       sellerBusinessId,
       sellerBusinessName,
@@ -83,6 +84,7 @@ export async function POST(req) {
     const [result] = await connection.query(
       `INSERT INTO ${targetTable} (
         invoice_no, 
+        internal_inv_ref_no,
         user_id, 
         invoice_date, 
         customer_id, 
@@ -102,9 +104,10 @@ export async function POST(req) {
         tax,
         inclTax,
         invoice_created_date
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE())`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE())`,
       [
         nextInvoiceNo,
+        internal_inv_ref_no,
         userId,
         date,
         customerId,
@@ -368,6 +371,7 @@ export async function PUT(req) {
     const {
       invoiceId,
       invoiceNo,
+      internal_inv_ref_no,
       sellerNTNCNIC,
       sellerBusinessId,
       sellerBusinessName,
@@ -1690,6 +1694,10 @@ export async function PUT(req) {
     if (typeof invoiceNo !== "undefined") {
       updates.push("invoice_no = ?");
       params.push(invoiceNo);
+    }
+    if (typeof internal_inv_ref_no !== "undefined") {
+      updates.push("internal_inv_ref_no = ?");
+      params.push(internal_inv_ref_no);
     }
     if (typeof date !== "undefined") {
       updates.push("invoice_date = ?");

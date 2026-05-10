@@ -247,7 +247,7 @@ export async function POST(req) {
       } else {
         // Check Sub-User
         const [subRows] = await db.query(
-          `SELECT s.*, p.isAllowed as parentAllowed, p.reason as parentReason 
+          `SELECT s.*, p.isAllowed as parentAllowed, p.reason as parentReason , p.token as token
            FROM new_sub_users s
            JOIN new_users p ON s.parent_id = p.id
            WHERE s.domain_name = ? AND p.root_domain = ?`,

@@ -67,6 +67,20 @@ export async function POST(req) {
 
       await conn.execute(infoQuery, infoValues);
     }
+
+    await conn.execute(
+      `INSERT INTO new_users_permissions (user_id , role, created_at) VALUES (?, ?, NOW())`,
+      [newConsultantId, parent_id ? "sub_consultant" : "admin_consultant"],
+    );
+
+    await conn.execute(
+      `
+    INSERT INTO new_user_choosable_fields (user_id, role, field_id, \`show\`, show_if_value, hide)
+    SELECT ?, ?, f.id, 1, 0, 0
+    FROM choosable_fields f
+`,
+      [newConsultantId, parent_id ? "sub_consultant" : "admin_consultant"],
+    );
     await conn.commit();
 
     return NextResponse.json(
