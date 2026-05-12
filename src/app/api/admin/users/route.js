@@ -110,7 +110,7 @@ export async function POST(req) {
       leverage,
       company_type,
       user_type,
-      businesses, // This is the array of business units from the form
+      businesses,
     } = body;
 
     // Basic Validation
@@ -126,11 +126,23 @@ export async function POST(req) {
     // 1. Insert into new_users
     const userSql = `
             INSERT INTO new_users (
-                business_name, business_logo, seller_name, root_domain, root_username, 
-                password, cnic_ntn, invoice_ntn, strn, token, email, contact, designation,
-                provinceId, province, address, amount, expire, cycle, reason, 
-                isPaid, isAllowed, isProd, ref_code, alert, company_type, user_type, leverage, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+                business_name, business_logo, seller_name, root_domain, 
+                root_username, password, cnic_ntn, invoice_ntn, 
+                strn, token, email, contact, 
+                designation, provinceId, province, address, 
+                amount, expire, cycle, reason, 
+                isPaid, isAllowed, isProd, ref_code, 
+                alert, company_type, user_type, leverage, 
+                created_at
+            ) VALUES (
+             ?, ?, ?, ?, 
+             ?, ?, ?, ?, 
+             ?, ?, ?, ?,
+             ?, ?, ?, ?,
+             ?, ?, ?, ?,
+             ?, ?, ?, ?,
+             ?, ?, ?, ?,
+             NOW())
         `;
 
     const userValues = [
@@ -163,7 +175,11 @@ export async function POST(req) {
       v(user_type),
       leverage ? Math.floor(leverage) : 0,
     ];
-    console.log("Inserting new user with values:", userValues);
+    console.log(
+      "Inserting new user with values:",
+      userValues,
+      userValues.length,
+    );
     const [userResult] = await conn.execute(userSql, userValues);
     const newUserId = userResult.insertId;
     console.log("New user created with ID:", newUserId);
