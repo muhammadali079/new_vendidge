@@ -195,7 +195,7 @@ export async function POST(req) {
             [
               newUserId,
               biz.business_name,
-              biz.province_id,
+              biz.provinceId,
               biz.province,
               biz.address,
             ],

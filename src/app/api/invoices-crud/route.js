@@ -50,7 +50,6 @@ export async function POST(req) {
       !buyerProvince ||
       !sellerProvince ||
       !sellerProvinceId ||
-      !scenarioCode ||
       !buyerType ||
       !saleType ||
       !items
@@ -188,7 +187,7 @@ export async function POST(req) {
         invoiceId: result.insertId,
         invoiceNo: nextInvoiceNo,
       },
-      { status: 201 },
+      { status: 200 },
     );
   } catch (error) {
     // 7. If any step fails, rollback all changes on this connection
@@ -301,8 +300,8 @@ export async function GET(req) {
       LEFT JOIN new_customers c ON inv.customer_id = c.id
       left join new_customers_locations cl on c.id = cl.customer_id
       WHERE inv.user_id = ? 
-        AND inv.invoice_created_date >= ? 
-        AND inv.invoice_created_date <= ?
+        AND inv.invoice_date >= ? 
+        AND inv.invoice_date <= ?
       ORDER BY 
         CASE WHEN inv.status = 'Success' THEN 1 ELSE 0 END ASC,
         CASE WHEN inv.status != 'Success' THEN inv.invoice_date END ASC,

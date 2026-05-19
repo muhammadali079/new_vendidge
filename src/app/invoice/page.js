@@ -158,6 +158,8 @@ export default function InvoicePage({ darkMode }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fields, setFields] = useState([]);
 
+  const [buyerRegistrationType, setBuyerRegistrationType] = useState("");
+
   const emptyRow = {
     hsCode: "",
     description: "",
@@ -216,7 +218,6 @@ export default function InvoicePage({ darkMode }) {
         const parsedBiz = JSON.parse(storedBusinesses);
         setUserBusinesses(parsedBiz);
 
-        // AUTO-SELECT FIRST BUSINESS
         if (parsedBiz.length > 0 && !isEditMode) {
           const firstBiz = parsedBiz[0];
           console.log("first biz", firstBiz);
@@ -238,19 +239,20 @@ export default function InvoicePage({ darkMode }) {
   useEffect(() => {
     const isConsultant =
       sessionStorage.getItem("activeConsultantMode") === "true";
-    const editId = sessionStorage.getItem("consultantEditInvoiceId"); // THE SIGNAL
+    const editId = sessionStorage.getItem("consultantEditInvoiceId");
 
     console.log("Consultant mode:", isConsultant, "Edit ID signal:", editId);
 
     if (isConsultant) {
       setIsConsultantMode(true);
 
-      // FLOW A: CREATE INVOICE (Blank Form)
       if (!editId) {
         setShowForm(true);
         setIsEditMode(false);
         setIsReadOnly(false);
         setEditingInvoiceId(null);
+        getMinDate();
+        console.log("mid date ", minDate);
 
         setInvoiceForm({
           invoiceNo: "",
@@ -273,7 +275,7 @@ export default function InvoicePage({ darkMode }) {
       // FLOW B: EDIT INVOICE
       // We do nothing here; we wait for the second useEffect below to catch the data.
     }
-  }, []);
+  }, [invoices]);
 
   useEffect(() => {
     const editId = sessionStorage.getItem("consultantEditInvoiceId");
@@ -808,21 +810,22 @@ export default function InvoicePage({ darkMode }) {
       day: "2-digit",
     }).format(new Date());
     minDate = today;
+
     const successInvoices = invoices;
 
     if (successInvoices.length > 0) {
       const lastInvoice = successInvoices.reduce((latest, inv) => {
-        const invDate = new Date(inv.invoice_created_date);
-        return invDate > new Date(latest.invoice_created_date) ? inv : latest;
+        const invDate = new Date(inv.invoice_date);
+        return invDate > new Date(latest.invoice_date) ? inv : latest;
       }, successInvoices[0]);
 
-      const d = new Date(lastInvoice.invoice_created_date);
+      const d = new Date(lastInvoice.invoice_date);
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, "0");
       const day = String(d.getDate()).padStart(2, "0");
 
       minDate = `${year}-${month}-${day}`;
-      //  console.log("minDate", minDate);
+      console.log("minDate", minDate);
     } else {
       minDate = "";
       // console.log("else case minDate", minDate);
@@ -1621,8 +1624,8 @@ export default function InvoicePage({ darkMode }) {
       sellerProvinceId: Number(invoiceForm.sellerProvinceId) || 0,
       sellerAddress: invoiceForm.sellerAddress || "",
       sellerNTNCNIC: sessionStorage.getItem("sellerNTNCNIC") || "",
-      scenarioCode: invoiceForm.scenarioCode,
-      scenarioCodeId: invoiceForm.scenarioCodeId,
+      scenarioCode: invoiceForm.scenarioCode || "",
+      scenarioCodeId: invoiceForm.scenarioCodeId || 0,
       saleType: invoiceForm.saleType,
       fbrInvoiceRefNo: invoiceForm.fbrInvoiceRefNo,
       //registrationNo: Number(invoiceForm.registrationNo),
@@ -1805,6 +1808,10 @@ export default function InvoicePage({ darkMode }) {
     } catch (err) {
       console.warn("Network error:", err);
     } finally {
+      if (isConsultantMode) {
+        router.push("/consultant/invoices");
+      }
+
       setIsSubmitting(false);
     }
   };
@@ -2718,6 +2725,7 @@ export default function InvoicePage({ darkMode }) {
                       )}
 
                       <button
+                        type="button"
                         onClick={() => {
                           if (isConsultantMode) {
                             //sessionStorage.removeItem("activeConsultantMode"); // Clear the flag
@@ -2791,7 +2799,6 @@ export default function InvoicePage({ darkMode }) {
                           (Number(latestInvoice) !== 1 &&
                             !isNaN(Number(latestInvoice)))
                         }
-                        pattern="\d*"
                       />
                       {Number(latestInvoice) !== 1 &&
                         !isNaN(Number(latestInvoice)) &&
@@ -2851,11 +2858,13 @@ export default function InvoicePage({ darkMode }) {
                           .map((c) => {
                             const displayValue = `${c.locations[0]?.business_name} - ${c.ntn || c.cnic}`;
                             const regNoToUse = c.ntn || c.cnic || "";
+
                             return (
                               <div
                                 key={c.id}
                                 className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                                onMouseDown={() => {
+                                onMouseDown={async () => {
+                                  const headers = getFbrHeaders();
                                   setInvoiceForm((prev) => ({
                                     ...prev,
                                     customerId: c.id,
@@ -2869,6 +2878,34 @@ export default function InvoicePage({ darkMode }) {
                                   }));
                                   setCustomerSearch(displayValue);
                                   setHasChanged(true);
+                                  if (regNoToUse) {
+                                    try {
+                                      const response = await fetch(
+                                        `/api/fbr/registrationType?regNo=${encodeURIComponent(regNoToUse)}`,
+                                        { headers },
+                                      );
+
+                                      if (response.ok) {
+                                        const regTypeData =
+                                          await response.json();
+                                        console.log(
+                                          " reg type ",
+                                          regTypeData?.REGISTRATION_TYPE,
+                                        );
+                                        setInvoiceForm((prev) => ({
+                                          ...prev,
+                                          buyerType:
+                                            regTypeData?.REGISTRATION_TYPE ||
+                                            "",
+                                        }));
+                                      }
+                                    } catch (err) {
+                                      console.warn(
+                                        "Registration type fetch failed:",
+                                        err,
+                                      );
+                                    }
+                                  }
                                 }}
                               >
                                 {displayValue}

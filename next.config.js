@@ -4,7 +4,7 @@ const withPWA = require("next-pwa")({
   register: true,
   skipWaiting: true,
   // Change this to false to enable PWA testing on localhost
-  disable: process.env.NODE_ENV === "development" ? false : false,
+  disable: process.env.NODE_ENV === "development" ? true : false,
   runtimeCaching: [], // Optional: add custom caching rules here
   publicExcludes: [
     "!nprogress/nprogress.css",

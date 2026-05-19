@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import bcrypt from "bcrypt";
 import { db } from "../../../../../lib/db";
 
 export async function POST(req) {
@@ -8,6 +9,7 @@ export async function POST(req) {
     const {
       name,
       domain_name,
+      designation,
       password,
       parent_id,
       business_name,
@@ -26,19 +28,23 @@ export async function POST(req) {
     }
 
     await conn.beginTransaction();
-    const safeDomain = domain_name ? `admin@${domain_name}` : null;
+    //const hashedPassword = await bcrypt.hash(password, 10);
+
+    const safeDomain =
+      domain_name && parent_id == null ? `admin@${domain_name}` : domain_name;
     const query = `
             INSERT INTO consultant (
                 parent_id, 
                 name, 
                 domain_name, 
+                designation,
                 password, 
                 created_at,
                 updated_at
-            ) VALUES (?, ?, ?, ?, NOW(), NOW())
+            ) VALUES (?, ?, ?, ?, ?, NOW(), NOW())
         `;
 
-    const values = [parent_id || null, name, safeDomain, password];
+    const values = [parent_id || null, name, safeDomain, designation, password];
 
     const [result] = await conn.execute(query, values);
 
@@ -149,6 +155,7 @@ export async function PUT(req) {
       id,
       name,
       domain_name,
+      designation,
       password,
       business_name,
       cnic_ntn,
@@ -178,16 +185,19 @@ export async function PUT(req) {
     }
 
     const isParent = !consultant.parent_id;
-
+    console.log("is parent ", isParent, domain_name, designation);
     // ========================
     // 🔹 UPDATE CONSULTANT
     // ========================
-    let query = `UPDATE consultant SET name = ?, updated_at = NOW()`;
-    let values = [name];
+    let query = `UPDATE consultant SET name = ?, designation = ?, updated_at = NOW()`;
+    let values = [name, designation];
 
     if (isParent && domain_name) {
       query += `, domain_name = ?`;
       values.push(`admin@${domain_name}`);
+    } else {
+      query += `, domain_name = ?`;
+      values.push(`${domain_name}`);
     }
 
     if (password?.trim()) {
@@ -260,6 +270,8 @@ export async function GET() {
                 c1.parent_id, 
                 c1.name, 
                 c1.domain_name, 
+                c1.designation,
+                c1.password,
                 c1.can_create_user_invoice, 
                 c1.can_view_user_invoice, 
                 c1.can_edit_user_invoice, 
@@ -274,6 +286,7 @@ export async function GET() {
                 ci.address,
                 -- Join to get the Parent Name for Children
                 c2.name as parent_name,
+           
                 -- Logic to label the level for the frontend
                 CASE 
                     WHEN c1.parent_id IS NULL THEN 'Root Parent' 
@@ -285,6 +298,7 @@ export async function GET() {
             ORDER BY c1.parent_id ASC, c1.id DESC;
         `;
     const [rows] = await db.execute(sql);
+
     console.log("rows", rows);
     return NextResponse.json(rows);
   } catch (error) {

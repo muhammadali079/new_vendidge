@@ -29,6 +29,7 @@ export default function SuperAdminMaster() {
   const [companyTypes, setCompanyTypes] = useState([]);
   const [users, setUsers] = useState([]);
   const [showPassword, setShowPassword] = useState(false);
+  const [showPass, setShowPass] = useState(false);
   const [visibleSubUsersPasswords, setVisibleSubUsersPasswords] = useState({});
 
   // --- COLLAPSE STATE ---
@@ -41,6 +42,7 @@ export default function SuperAdminMaster() {
     id: null,
     name: "",
     domain_name: "",
+    designation: "",
     password: "",
     parent_id: null,
     business_name: "",
@@ -164,7 +166,8 @@ export default function SuperAdminMaster() {
       domain_name: item.domain_name
         ? item.domain_name.replace("admin@", "")
         : "",
-      password: "",
+      designation: item.designation || "",
+      password: item.password,
       parent_id: item.parent_id,
       business_name: item.business_name || "",
       cnic_ntn: item.cnic_ntn || "",
@@ -629,20 +632,42 @@ export default function SuperAdminMaster() {
                         const parent = consultants.find(
                           (c) => c.id === consultantForm.parent_id,
                         );
-                        return parent?.domain_name || "domain.com";
+                        return (
+                          parent?.domain_name.split("@")[1] || "domain.com"
+                        );
                       })()}
                     </p>
                   </div>
                 )}
               </div>
 
-              <div className={!consultantForm.parent_id ? "col-span-2" : ""}>
+              <div className={!consultantForm.parent_id ? "col-span-1" : ""}>
+                <label className="text-[10px] font-black text-slate-400 uppercase ml-2">
+                  Designation
+                </label>
+                <input
+                  className="w-full p-4 bg-slate-50 rounded-2xl outline-none border-2 border-transparent focus:border-blue-500 transition-all"
+                  placeholder="e.g. Accountant"
+                  value={consultantForm.designation || ""}
+                  onChange={(e) => {
+                    setConsultantForm({
+                      ...consultantForm,
+                      designation: e.target.value,
+                    });
+                  }}
+                />
+              </div>
+
+              <div
+                className={`relative ${!consultantForm.parent_id ? "col-span-2" : ""}`}
+              >
                 <label className="text-[10px] font-black text-slate-400 uppercase ml-2">
                   Password
                 </label>
                 <input
                   className="w-full p-4 bg-slate-50 rounded-2xl outline-none border-2 border-transparent focus:border-blue-500 transition-all"
-                  type="password"
+                  type={showPass ? "text" : "password"}
+                  value={consultantForm.password || ""}
                   onChange={(e) =>
                     setConsultantForm({
                       ...consultantForm,
@@ -651,9 +676,15 @@ export default function SuperAdminMaster() {
                   }
                   required={!isEditMode}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPass(!showPass)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600"
+                >
+                  {showPass ? <Eye size={20} /> : <EyeOff size={20} />}
+                </button>
               </div>
             </div>
-
             <button
               type="submit"
               className="w-full mt-8 py-4 bg-blue-600 text-white rounded-2xl font-black shadow-lg hover:bg-blue-700 transition-all"
@@ -903,91 +934,125 @@ export default function SuperAdminMaster() {
                 </h4>
               </div>
               <div className="space-y-1 mb-1 md:col-span-4">
-                {userForm.businesses?.map((business, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100"
-                  >
-                    <div className="flex-[1.5] flex flex-col w-full">
-                      <label className="text-[10px] font-bold uppercase ml-1 text-slate-500 mb-1">
-                        Business Name *
-                      </label>
-                      <input
-                        className="flex-1 p-2.5 bg-white rounded-xl border-2 border-transparent focus:border-emerald-500 outline-none text-xs"
-                        placeholder="Business Name"
-                        value={business.business_name}
-                        onChange={(e) => {
-                          const updated = [...userForm.businesses];
-                          updated[idx].business_name = e.target.value;
-                          setUserForm({ ...userForm, businesses: updated });
-                        }}
-                        required
-                      />
-                    </div>
-                    <div className="flex-[1.5] flex flex-col w-full">
-                      <label className="text-[10px] font-bold uppercase ml-1 text-slate-500 mb-1 tracking-widest">
-                        Province *
-                      </label>
-                      <div className="relative">
-                        <select
-                          className="w-full p-2.5 bg-slate-50 rounded-xl border-2 border-transparent focus:border-emerald-500 transition-all duration-300 outline-none text-[10px] text-slate-700 appearance-none cursor-pointer"
-                          value={business.province}
-                          required
-                          onChange={(e) => {
-                            const selectedDesc = e.target.value;
-                            const selectedProv = provinces.find(
-                              (p) => p.stateProvinceDesc === selectedDesc,
-                            );
-                            console.log(
-                              "Selected Province:",
-                              selectedDesc,
-                              selectedProv,
-                            );
-                            const updated = [...userForm.businesses];
-                            updated[idx].province = selectedDesc;
-                            updated[idx].provinceId = selectedProv
-                              ? selectedProv.stateProvinceCode
-                              : "";
-                            setUserForm({ ...userForm, businesses: updated });
-                          }}
-                        >
-                          <option value="">Select Province</option>
-                          {provinces.map((prov) => (
-                            <option
-                              key={prov.stateProvinceCode}
-                              value={prov.stateProvinceDesc}
-                            >
-                              {prov.stateProvinceDesc}
-                            </option>
-                          ))}
-                        </select>
+                {/* {userForm.businesses?.map((business, idx) => ( */}
+                <div className="flex items-center gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                  <div className="flex-[1.5] flex flex-col w-full">
+                    <label className="text-[10px] font-bold uppercase ml-1 text-slate-500 mb-1">
+                      Business Name *
+                    </label>
+                    <input
+                      className="flex-1 p-2.5 bg-white rounded-xl border-2 border-transparent focus:border-emerald-500 outline-none text-xs"
+                      placeholder="Business Name"
+                      value={userForm.businesses[0]?.business_name ?? ""}
+                      onChange={(e) => {
+                        const updatedBusinesses = [...userForm.businesses];
 
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                          <ChevronDown size={16} />
-                        </div>
+                        if (!updatedBusinesses[0]) {
+                          updatedBusinesses[0] = {};
+                        }
+
+                        updatedBusinesses[0] = {
+                          ...updatedBusinesses[0],
+                          business_name: e.target.value,
+                        };
+
+                        setUserForm({
+                          ...userForm,
+                          businesses: updatedBusinesses,
+                        });
+                      }}
+                      required
+                    />
+                  </div>
+                  <div className="flex-[1.5] flex flex-col w-full">
+                    <label className="text-[10px] font-bold uppercase ml-1 text-slate-500 mb-1 tracking-widest">
+                      Province *
+                    </label>
+                    <div className="relative">
+                      <select
+                        className="w-full p-2.5 bg-slate-50 rounded-xl border-2 border-transparent focus:border-emerald-500 transition-all duration-300 outline-none text-[10px] text-slate-700 appearance-none cursor-pointer"
+                        value={userForm.businesses[0]?.province ?? ""}
+                        required
+                        onChange={(e) => {
+                          const selectedDesc = e.target.value;
+
+                          const selectedProv = provinces.find(
+                            (p) => p.stateProvinceDesc === selectedDesc,
+                          );
+
+                          console.log(
+                            "Selected Province:",
+                            selectedDesc,
+                            selectedProv,
+                          );
+
+                          const updatedBusinesses = [...userForm.businesses];
+
+                          if (!updatedBusinesses[0]) {
+                            updatedBusinesses[0] = {};
+                          }
+
+                          updatedBusinesses[0] = {
+                            ...updatedBusinesses[0],
+                            province: selectedDesc,
+                            provinceId: selectedProv?.stateProvinceCode || "",
+                          };
+
+                          setUserForm({
+                            ...userForm,
+                            businesses: updatedBusinesses,
+                          });
+                        }}
+                      >
+                        <option value="">Select Province</option>
+                        {provinces.map((prov) => (
+                          <option
+                            key={prov.stateProvinceCode}
+                            value={prov.stateProvinceDesc}
+                          >
+                            {prov.stateProvinceDesc}
+                          </option>
+                        ))}
+                      </select>
+
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                        <ChevronDown size={16} />
                       </div>
                     </div>
+                  </div>
 
-                    {/* Address */}
-                    <div className="flex-[1.5] flex flex-col w-full">
-                      <label className="text-[10px] font-bold uppercase ml-1 text-slate-500 mb-1">
-                        Address *
-                      </label>
-                      <input
-                        className="flex-1 p-2.5 bg-white rounded-xl border-2 border-transparent focus:border-emerald-500 outline-none text-xs"
-                        placeholder="Address"
-                        value={business.address}
-                        onChange={(e) => {
-                          const updated = [...userForm.businesses];
-                          updated[idx].address = e.target.value;
-                          setUserForm({ ...userForm, businesses: updated });
-                        }}
-                        required
-                      />
-                    </div>
+                  {/* Address */}
+                  <div className="flex-[1.5] flex flex-col w-full">
+                    <label className="text-[10px] font-bold uppercase ml-1 text-slate-500 mb-1">
+                      Address *
+                    </label>
+                    <input
+                      className="flex-1 p-2.5 bg-white rounded-xl border-2 border-transparent focus:border-emerald-500 outline-none text-xs"
+                      placeholder="Address"
+                      value={userForm.businesses[0]?.address ?? ""}
+                      onChange={(e) => {
+                        const updatedBusinesses = [...userForm.businesses];
 
-                    {/* Remove Button */}
-                    <button
+                        if (!updatedBusinesses[0]) {
+                          updatedBusinesses[0] = {};
+                        }
+
+                        updatedBusinesses[0] = {
+                          ...updatedBusinesses[0],
+                          address: e.target.value,
+                        };
+
+                        setUserForm({
+                          ...userForm,
+                          businesses: updatedBusinesses,
+                        });
+                      }}
+                      required
+                    />
+                  </div>
+
+                  {/* Remove Button */}
+                  {/* <button
                       type="button"
                       onClick={() => {
                         setUserForm((prev) => {
@@ -1029,13 +1094,13 @@ export default function SuperAdminMaster() {
                       className="text-red-400 hover:text-red-600 p-2"
                     >
                       <X size={16} />
-                    </button>
-                  </div>
-                ))}
+                    </button> */}
+                </div>
+                {/* ))} */}
               </div>
 
               {/* Add New Business Row */}
-              <div className="flex items-center gap-3 md:col-span-4 bg-blue-50/30 p-4 rounded-2xl border border-blue-100">
+              {/* <div className="flex items-center gap-3 md:col-span-4 bg-blue-50/30 p-4 rounded-2xl border border-blue-100">
                 <div className="flex-[1.5] flex flex-col w-full">
                   <label className="text-[10px] font-bold uppercase ml-1 text-slate-500 mb-1">
                     Business Name *
@@ -1138,7 +1203,7 @@ export default function SuperAdminMaster() {
                 >
                   Add
                 </button>
-              </div>
+              </div> */}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2 pt-4 border-t">
