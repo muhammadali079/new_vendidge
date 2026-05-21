@@ -191,9 +191,11 @@ export default function ConsultantMasterInvoices() {
         case "Internal UoM":
           return !!row.internalUOM;
         case "Internal Single Unit":
-          return !!row.internalSinglePrice;
+          return (
+            !!row.internalSinglePrice && Number(row.internalSinglePrice) !== 0
+          );
         case "Internal Qty":
-          return !!row.internalQty;
+          return !!row.internalQty && Number(row.internalQty) !== 0;
         case "Fixed Notified Value or Retail Price":
           return (
             !!row.fixedNotifiedValueOrRetailPrice &&
@@ -544,6 +546,7 @@ export default function ConsultantMasterInvoices() {
   // --- 6. CONTEXT & ROUTING (HIJACK) ---
 
   const setupContextAndRoute = (client, invoiceId = null) => {
+    console.log("client ", client);
     sessionStorage.setItem("parent_id", client.parent_id);
     sessionStorage.setItem("userId", client.id);
     sessionStorage.setItem("sellerToken", client.token || "");

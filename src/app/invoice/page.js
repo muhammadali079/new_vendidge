@@ -103,9 +103,6 @@ export default function InvoicePage({ darkMode }) {
   });
   const [invoices, setInvoices] = useState([]);
 
-  // THE EDIT HANDSHAKE: Automatically triggers handleViewInvoice when arriving from Ledger
-  // Runs as soon as invoices array is populated
-
   // const [page, setPage] = useState(1);
   // const [pageSize] = useState(10);
   // Helper to format any date consistently to YYYY-MM-DD in PKT timezone
@@ -118,22 +115,17 @@ export default function InvoicePage({ darkMode }) {
     }).format(date);
   };
 
-  // Calculate today once for our maximums
   const todayStr = getFormattedDate(new Date());
 
   const [startDate, setStartDate] = useState(() => {
-    // Detect the edit signal immediately to set a broad date range
     const editId =
       typeof window !== "undefined" &&
       sessionStorage.getItem("consultantEditInvoiceId");
 
     let d;
     if (editId) {
-      // 1. Wrap the string in new Date() so it is a valid object
-      // 2. Use a broad date (2020) so fetchInvoices finds the older record
       d = new Date("2020-04-19T19:17:35");
     } else {
-      // Default: Last 30 days
       d = new Date();
       d.setMonth(d.getMonth() - 1);
     }
@@ -254,26 +246,28 @@ export default function InvoicePage({ darkMode }) {
         getMinDate();
         console.log("mid date ", minDate);
 
-        setInvoiceForm({
+        setInvoiceForm((prev) => ({
+          ...prev,
           invoiceNo: "",
           date: minDate || getFormattedDate(new Date()),
           customer: "",
           customerId: 0,
           buyerProvince: "",
-          sellerProvince: sessionStorage.getItem("sellerProvince") || "",
-          sellerProvinceId: Number(
-            sessionStorage.getItem("sellerProvinceId") || 0,
-          ),
+          sellerProvince:
+            sessionStorage.getItem("sellerProvince") ||
+            prev.sellerProvince ||
+            "",
+          sellerProvinceId: sessionStorage.getItem("sellerProvinceId")
+            ? String(sessionStorage.getItem("sellerProvinceId"))
+            : prev.sellerProvinceId || "",
           scenarioCode: null,
           scenarioCodeId: 0,
           saleType: "",
           registrationNo: "",
           items: [{ ...emptyRow, rowId: genRowId() }],
-        });
+        }));
         setRows([{ ...emptyRow, rowId: genRowId() }]);
       }
-      // FLOW B: EDIT INVOICE
-      // We do nothing here; we wait for the second useEffect below to catch the data.
     }
   }, [invoices]);
 
@@ -774,14 +768,39 @@ export default function InvoicePage({ darkMode }) {
     let totalFed = 0;
     let totalIncl = 0;
 
+    // allRows.forEach((r) => {
+    //   totalQty += n(r.qty);
+    //   totalExcl += n(r.valueSalesExcludingST);
+    //   totalTax += n(r.salesTaxApplicable);
+    //   totalFurther += n(r.furtherTax);
+    //   totalExtra += n(r.extraTax);
+    //   totalWithheld += n(r.salesTaxWithheldAtSource);
+    //   totalFed += n(r.fedPayable);
+    //   totalIncl += n(r.totalValues);
+    // });
     allRows.forEach((r) => {
-      totalQty += n(r.qty);
-      totalExcl += n(r.valueSalesExcludingST);
-      totalTax += n(r.salesTaxApplicable);
-      totalFurther += n(r.furtherTax);
-      totalExtra += n(r.extraTax);
-      totalWithheld += n(r.salesTaxWithheldAtSource);
-      totalFed += n(r.fedPayable);
+      const qty = n(r.qty);
+      const exclValue = n(r.valueSalesExcludingST);
+
+      // 1. Core values
+      totalQty += qty;
+      totalExcl += exclValue;
+      totalTax += n(r.salesTaxApplicable); // Assuming this is already a calculated value
+
+      // 2. Calculate actual monetary value from tax percentages
+      // Formula: (Excluding Tax Value * Tax Rate Percentage) / 100
+      const rowFurtherAmt = (exclValue * n(r.furtherTax)) / 100;
+      const rowExtraAmt = (exclValue * n(r.extraTax)) / 100;
+      const rowWithheldAmt = (exclValue * n(r.salesTaxWithheldAtSource)) / 100;
+      const rowFedAmt = (exclValue * n(r.fedPayable)) / 100;
+
+      // 3. Accumulate calculated monetary values into totals
+      totalFurther += rowFurtherAmt;
+      totalExtra += rowExtraAmt;
+      totalWithheld += rowWithheldAmt;
+      totalFed += rowFedAmt;
+
+      // 4. Accumulate Total Inclusive value
       totalIncl += n(r.totalValues);
     });
 
@@ -1678,6 +1697,7 @@ export default function InvoicePage({ darkMode }) {
     const isProd = value === "1";
 
     console.log("Invoice to submit:", invoiceToSubmit);
+
     // console.log(sessionStorage.getItem("sellerProvince"));
     // console.log(sessionStorage.getItem("sellerBusinessName"));
     // console.log(sessionStorage.getItem("sellerNTNCNIC"));
@@ -1809,6 +1829,16 @@ export default function InvoicePage({ darkMode }) {
       console.warn("Network error:", err);
     } finally {
       if (isConsultantMode) {
+        sessionStorage.setItem(
+          "userId",
+          sessionStorage.getItem("consultantId"),
+        );
+        if (sessionStorage.getItem("parentConsultantId")) {
+          sessionStorage.setItem(
+            "parent_id",
+            sessionStorage.getItem("parentConsultantId"),
+          );
+        }
         router.push("/consultant/invoices");
       }
 
@@ -1831,20 +1861,21 @@ export default function InvoicePage({ darkMode }) {
         case "Internal UoM":
           return !!row.internalUOM;
         case "Internal Single Unit":
-          return !!row.internalSinglePrice;
-        case "Internal Qty":
-          return !!row.internalQty;
-        case "Fixed Notified Value or Retail Price":
           return (
-            !!row.fixedNotifiedValueOrRetailPrice &&
-            Number(row.fixedNotifiedValueOrRetailPrice) !== 0
+            !!row.internalSinglePrice && Number(row.internalSinglePrice) !== 0
           );
+        case "Internal Qty":
+          return !!row.internalQty && Number(row.internalQty) !== 0;
+        case "Fixed Notified Value or Retail Price":
+          return !!row.fixedNotifiedValueOrRetailPrice;
         case "Extra Tax":
           return !!row.extraTax && Number(row.extraTax) !== 0;
         case "Further Tax":
           return !!row.furtherTax && Number(row.furtherTax) !== 0;
         case "Federal Excise Duty":
           return !!row.fedPayable && Number(row.fedPayable) !== 0;
+        case "Discount":
+          return !!row.discount && Number(row.discount) !== 0;
         case "Sales Tax With-Held at SOURCE":
           return !!row.salesTaxWithheldAtSource;
         case "Seller Name":
@@ -2218,13 +2249,37 @@ export default function InvoicePage({ darkMode }) {
           totalIncl = 0;
 
         for (let r of newRows) {
-          totalQty += n(r.qty);
-          totalExcl += n(r.valueSalesExcludingST);
-          totalTax += n(r.salesTaxApplicable);
-          totalFurther += n(r.furtherTax);
-          totalExtra += n(r.extraTax);
-          totalWithheld += n(r.salesTaxWithheldAtSource);
-          totalFed += n(r.fedPayable);
+          // totalQty += n(r.qty);
+          // totalExcl += n(r.valueSalesExcludingST);
+          // totalTax += n(r.salesTaxApplicable);
+          // totalFurther += n(r.furtherTax);
+          // totalExtra += n(r.extraTax);
+          // totalWithheld += n(r.salesTaxWithheldAtSource);
+          // totalFed += n(r.fedPayable);
+          // totalIncl += n(r.totalValues);
+          const qty = n(r.qty);
+          const exclValue = n(r.valueSalesExcludingST);
+
+          // 1. Core values
+          totalQty += qty;
+          totalExcl += exclValue;
+          totalTax += n(r.salesTaxApplicable); // Assuming this is already a calculated value
+
+          // 2. Calculate actual monetary value from tax percentages
+          // Formula: (Excluding Tax Value * Tax Rate Percentage) / 100
+          const rowFurtherAmt = (exclValue * n(r.furtherTax)) / 100;
+          const rowExtraAmt = (exclValue * n(r.extraTax)) / 100;
+          const rowWithheldAmt =
+            (exclValue * n(r.salesTaxWithheldAtSource)) / 100;
+          const rowFedAmt = (exclValue * n(r.fedPayable)) / 100;
+
+          // 3. Accumulate calculated monetary values into totals
+          totalFurther += rowFurtherAmt;
+          totalExtra += rowExtraAmt;
+          totalWithheld += rowWithheldAmt;
+          totalFed += rowFedAmt;
+
+          // 4. Accumulate Total Inclusive value
           totalIncl += n(r.totalValues);
         }
 
@@ -2728,7 +2783,17 @@ export default function InvoicePage({ darkMode }) {
                         type="button"
                         onClick={() => {
                           if (isConsultantMode) {
-                            //sessionStorage.removeItem("activeConsultantMode"); // Clear the flag
+                            sessionStorage.removeItem("activeConsultantMode"); // Clear the flag
+                            sessionStorage.setItem(
+                              "userId",
+                              sessionStorage.getItem("consultantId"),
+                            );
+                            if (sessionStorage.getItem("parentConsultantId")) {
+                              sessionStorage.setItem(
+                                "parent_id",
+                                sessionStorage.getItem("parentConsultantId"),
+                              );
+                            }
                             router.push("/consultant/invoices"); // Kick back to ledger
                           } else {
                             setShowForm(false);
@@ -2976,7 +3041,7 @@ export default function InvoicePage({ darkMode }) {
                             value={
                               provinces.find(
                                 (p) =>
-                                  p.stateProvinceCode ===
+                                  p.stateProvinceCode ==
                                   invoiceForm.sellerProvinceId,
                               )?.stateProvinceDesc || ""
                             }

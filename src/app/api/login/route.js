@@ -271,6 +271,11 @@ export async function POST(req) {
 
       if (consultantRows.length > 0) {
         user = consultantRows[0];
+        const [token] = await db.query(
+          `SELECT token FROM new_users WHERE token is NOT NULL limit 1`,
+        );
+        user.token = token[0]?.token || null;
+
         // CRITICAL: Map to the roles used in your permissions table
         roleFound = user.parent_id ? "sub_consultant" : "admin_consultant";
       }

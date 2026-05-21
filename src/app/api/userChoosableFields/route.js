@@ -30,7 +30,7 @@ export async function GET(req) {
       `,
       [userId, userRole],
     );
-    // console.log(rows);
+    console.log(rows);
 
     return NextResponse.json(rows);
   } catch (error) {

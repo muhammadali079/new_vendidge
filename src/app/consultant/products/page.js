@@ -716,6 +716,7 @@ export default function ConsultantProductLedger() {
       JSON.stringify(prod.all_client_locations || []),
     );
     sessionStorage.setItem("activeConsultantMode", "true");
+
     sessionStorage.setItem("consultantEditProductId", prod.id);
     router.push("/products");
   };
@@ -732,7 +733,7 @@ export default function ConsultantProductLedger() {
     const client = allClients.find((c) => c.id.toString() === targetClient);
     if (!client) return;
     sessionStorage.setItem("userId", client.id);
-    sessionStorage.setItem("sellerToken", client.token || "");
+    // sessionStorage.setItem("sellerToken", client.token || "");
     sessionStorage.setItem(
       "businesses",
       JSON.stringify(client.businesses || []),
@@ -743,16 +744,16 @@ export default function ConsultantProductLedger() {
   };
 
   // --- 3. UI GUARD: PAGE ACCESS ---
-  if (perms.can_view_product === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen text-slate-400">
-        <ShieldAlert size={48} className="mb-4 opacity-20" />
-        <p className="font-black uppercase tracking-widest text-xs">
-          Access Denied: Product Ledger Restricted
-        </p>
-      </div>
-    );
-  }
+  // if (perms.can_view_product === 0) {
+  //   return (
+  //     <div className="flex flex-col items-center justify-center min-h-screen text-slate-400">
+  //       <ShieldAlert size={48} className="mb-4 opacity-20" />
+  //       <p className="font-black uppercase tracking-widest text-xs">
+  //         Access Denied: Product Ledger Restricted
+  //       </p>
+  //     </div>
+  //   );
+  // }
 
   if (loading)
     return (

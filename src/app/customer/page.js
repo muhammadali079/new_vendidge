@@ -41,7 +41,7 @@ const emptyFormState = {
   email: "",
   allowed: true,
   locations: [
-    { business_name: "", province_id: 1, province_name: "Punjab", address: "" },
+    { business_name: "", province_id: 0, province_name: "", address: "" },
   ],
 };
 
@@ -121,7 +121,7 @@ export default function CustomersPage({ darkMode }) {
     const editId = sessionStorage.getItem("consultantEditCustomerId");
 
     // Only run once the customer list has actually loaded from the DB
-    if (isConsultant && customers.length > 0) {
+    if (isConsultant) {
       if (editId) {
         // FLOW A: CONSULTANT EDIT/VIEW
         const target = customers.find(
@@ -204,16 +204,34 @@ export default function CustomersPage({ darkMode }) {
     setShowForm(true);
   };
 
-  const handleLocationChange = (index, field, value) => {
+  // const handleLocationChange = (index, field, value) => {
+  //   if (isFormReadOnly) return;
+  //   const newLocs = [...form.locations];
+  //   if (field === "province") {
+  //     const selected = provinces.find((p) => p.stateProvinceDesc === value);
+  //     newLocs[index].province_id = selected?.stateProvinceCode || "";
+  //     newLocs[index].province_name = value;
+  //   } else {
+  //     newLocs[index][field] = value;
+  //   }
+  //   setForm({ ...form, locations: newLocs });
+  // };
+
+  const handleLocationChange = (field, value) => {
     if (isFormReadOnly) return;
+
+    // Shallow copy the array and the specific location object at index 0
     const newLocs = [...form.locations];
+    newLocs[0] = { ...newLocs[0] };
+
     if (field === "province") {
       const selected = provinces.find((p) => p.stateProvinceDesc === value);
-      newLocs[index].province_id = selected?.stateProvinceCode || "";
-      newLocs[index].province_name = value;
+      newLocs[0].province_id = selected?.stateProvinceCode || "";
+      newLocs[0].province_name = value;
     } else {
-      newLocs[index][field] = value;
+      newLocs[0][field] = value;
     }
+
     setForm({ ...form, locations: newLocs });
   };
 
@@ -227,6 +245,8 @@ export default function CustomersPage({ darkMode }) {
     const finalLocations = form.locations.filter(
       (loc) => loc.business_name.trim() !== "" && loc.address.trim() !== "",
     );
+    console.log("Form Data:", form);
+    console.log("Submitting with locations:", finalLocations);
 
     setLoading(true);
     try {
@@ -244,6 +264,16 @@ export default function CustomersPage({ darkMode }) {
       if (res.ok) {
         // --- CONSULTANT MODE REDIRECT ---
         if (sessionStorage.getItem("activeConsultantMode") === "true") {
+          sessionStorage.setItem(
+            "userId",
+            sessionStorage.getItem("consultantId"),
+          );
+          if (sessionStorage.getItem("parentConsultantId")) {
+            sessionStorage.setItem(
+              "parent_id",
+              sessionStorage.getItem("parentConsultantId"),
+            );
+          }
           router.push("/consultant/customers");
         } else {
           // Normal User Flow
@@ -260,14 +290,14 @@ export default function CustomersPage({ darkMode }) {
   };
 
   // UI GUARD: If cannot view, show nothing
-  if (!loadingUser && perms.can_view_customer === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen text-gray-400">
-        <ShieldAlert size={48} />
-        <p className="mt-4 font-bold">ACCESS RESTRICTED</p>
-      </div>
-    );
-  }
+  // if (!loadingUser && perms.can_view_customer === 0) {
+  //   return (
+  //     <div className="flex flex-col items-center justify-center min-h-screen text-gray-400">
+  //       <ShieldAlert size={48} />
+  //       <p className="mt-4 font-bold">ACCESS RESTRICTED</p>
+  //     </div>
+  //   );
+  // }
 
   if (loadingUser) return <Spinner />;
 
@@ -515,12 +545,8 @@ export default function CustomersPage({ darkMode }) {
                   )} */}
                 </div>
                 <div className="space-y-4">
-                  {form.locations.map((loc, idx) => (
-                    <div
-                      key={idx}
-                      className="bg-slate-50 rounded-2xl p-5 border border-slate-100 relative group"
-                    >
-                      {/* {!isFormReadOnly && (
+                  <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100 relative group">
+                    {/* {!isFormReadOnly && (
                         <button
                           type="button"
                           onClick={() =>
@@ -536,53 +562,48 @@ export default function CustomersPage({ darkMode }) {
                           <Trash2 size={16} />
                         </button>
                       )} */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <input
-                          readOnly={isFormReadOnly}
-                          placeholder="Branch Name"
-                          className={`w-full p-3 border rounded-xl font-bold ${isFormReadOnly ? "bg-white text-gray-400" : "bg-white"}`}
-                          value={loc.business_name}
-                          onChange={(e) =>
-                            handleLocationChange(
-                              idx,
-                              "business_name",
-                              e.target.value,
-                            )
-                          }
-                        />
-                        <select
-                          disabled={isFormReadOnly}
-                          className={`w-full p-3 border rounded-xl font-bold ${isFormReadOnly ? "bg-white text-gray-400" : "bg-white"}`}
-                          value={loc.province_name}
-                          onChange={(e) =>
-                            handleLocationChange(
-                              idx,
-                              "province",
-                              e.target.value,
-                            )
-                          }
-                        >
-                          {provinces.map((p) => (
-                            <option
-                              key={p.stateProvinceCode}
-                              value={p.stateProvinceDesc}
-                            >
-                              {p.stateProvinceDesc}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <input
                         readOnly={isFormReadOnly}
-                        placeholder="Address"
-                        className={`w-full p-3 border rounded-xl ${isFormReadOnly ? "bg-white text-gray-400" : "bg-white"}`}
-                        value={loc.address}
+                        placeholder="Branch Name *"
+                        className={`w-full p-3 border rounded-xl font-bold ${isFormReadOnly ? "bg-white text-gray-400" : "bg-white"}`}
+                        value={form.locations[0].business_name}
                         onChange={(e) =>
-                          handleLocationChange(idx, "address", e.target.value)
+                          handleLocationChange("business_name", e.target.value)
                         }
+                        required
                       />
+                      <select
+                        disabled={isFormReadOnly}
+                        className={`w-full p-3 border rounded-xl font-bold ${isFormReadOnly ? "bg-white text-gray-400" : "bg-white"}`}
+                        value={form.locations[0].province_name}
+                        onChange={(e) =>
+                          handleLocationChange("province", e.target.value)
+                        }
+                        required
+                      >
+                        <option value="">Select Province</option>
+                        {provinces.map((p) => (
+                          <option
+                            key={p.stateProvinceCode}
+                            value={p.stateProvinceDesc}
+                          >
+                            {p.stateProvinceDesc}
+                          </option>
+                        ))}
+                      </select>
                     </div>
-                  ))}
+                    <input
+                      readOnly={isFormReadOnly}
+                      placeholder="Address *"
+                      className={`w-full p-3 border rounded-xl ${isFormReadOnly ? "bg-white text-gray-400" : "bg-white"}`}
+                      value={form.locations[0].address}
+                      onChange={(e) =>
+                        handleLocationChange("address", e.target.value)
+                      }
+                      required
+                    />
+                  </div>
                 </div>
               </section>
 
@@ -595,6 +616,16 @@ export default function CustomersPage({ darkMode }) {
                     if (
                       sessionStorage.getItem("activeConsultantMode") === "true"
                     ) {
+                      sessionStorage.setItem(
+                        "userId",
+                        sessionStorage.getItem("consultantId"),
+                      );
+                      if (sessionStorage.getItem("parentConsultantId")) {
+                        sessionStorage.setItem(
+                          "parent_id",
+                          sessionStorage.getItem("parentConsultantId"),
+                        );
+                      }
                       router.push("/consultant/customers");
                     } else {
                       setShowForm(false);

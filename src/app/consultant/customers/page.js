@@ -526,16 +526,16 @@ export default function ConsultantCustomerLedger() {
   };
 
   // UI Guard: Check if allowed to view the Customer Ledger module
-  if (perms.can_view_customer === 0) {
-    return (
-      <div className="h-screen flex flex-col items-center justify-center text-slate-400">
-        <Users size={48} className="opacity-20 mb-4" />
-        <p className="font-black uppercase tracking-widest text-xs">
-          Access Denied: Customer Ledger Restricted
-        </p>
-      </div>
-    );
-  }
+  // if (perms.can_view_customer === 0) {
+  //   return (
+  //     <div className="h-screen flex flex-col items-center justify-center text-slate-400">
+  //       <Users size={48} className="opacity-20 mb-4" />
+  //       <p className="font-black uppercase tracking-widest text-xs">
+  //         Access Denied: Customer Ledger Restricted
+  //       </p>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6 font-bold text-slate-900">

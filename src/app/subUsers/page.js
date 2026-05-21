@@ -167,9 +167,6 @@ export default function SubUserManagement() {
                 : "Restricted Hierarchy Mode"}
             </p>
           </div>
-          <button className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black text-sm flex items-center gap-3 shadow-xl shadow-slate-200">
-            <UserPlus size={18} strokeWidth={3} /> ADD USER
-          </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -266,11 +263,11 @@ export default function SubUserManagement() {
                   return (
                     <div
                       key={f.id}
-                      className={`flex items-center justify-between p-5 rounded-3xl border ${locked ? "bg-gray-50 border-gray-100 opacity-50 cursor-not-allowed" : "bg-white border-slate-100 hover:border-blue-200 shadow-sm"}`}
+                      className={`flex items-center justify-between p-5 rounded-3xl border ${locked ? "bg-gray-50 border-gray-100 opacity-90 cursor-not-allowed" : "bg-white border-slate-100 hover:border-blue-200 shadow-sm"}`}
                     >
                       <div className="flex flex-col">
                         <span
-                          className={`text-xs font-black ${locked ? "text-slate-300" : "text-slate-700"}`}
+                          className={`text-xs font-black ${locked ? "text-slate-500" : "text-slate-700"}`}
                         >
                           {f.label}
                         </span>

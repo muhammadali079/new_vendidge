@@ -1023,6 +1023,7 @@ export default function ProductPage({ darkMode }) {
   const [hsCodes, setHsCodes] = useState([]);
   const [transTypeList, setTransTypeList] = useState([]);
   const [uomList, setUomList] = useState([]);
+  const [allowedUoms, setAllowedUoms] = useState([]);
   const [rateOptions, setRateOptions] = useState([]);
   const [sroOptions, setSroOptions] = useState([]);
   const [sroItemOptions, setSroItemOptions] = useState([]);
@@ -1076,7 +1077,7 @@ export default function ProductPage({ darkMode }) {
 
   const fetchProducts = async (userId) => {
     // Permission Guard: View
-    if (perms.can_view_product === 0) return;
+    //if (perms.can_view_product === 0) return;
 
     setLoading(true);
     try {
@@ -1103,7 +1104,9 @@ export default function ProductPage({ darkMode }) {
       ]);
       setHsCodes(await hsRes.json());
       setTransTypeList(await transRes.json());
-      setUomList(await uomRes.json());
+      // const uoms = await uomRes.json();
+      // setUomList(uoms);
+      console.log("FBR Master Data Loaded", { uoms });
     } catch (err) {
       console.error("FBR Master Data Failed:", err);
     }
@@ -1182,7 +1185,7 @@ export default function ProductPage({ darkMode }) {
       sessionStorage.getItem("activeConsultantMode") === "true";
     const editId = sessionStorage.getItem("consultantEditProductId");
 
-    if (isConsultant && products.length > 0) {
+    if (isConsultant) {
       if (editId) {
         // FLOW A: Redirected here to EDIT/VIEW an existing product
         const targetProduct = products.find(
@@ -1276,6 +1279,16 @@ export default function ProductPage({ darkMode }) {
 
     if (res.ok) {
       if (sessionStorage.getItem("activeConsultantMode") === "true") {
+        sessionStorage.setItem(
+          "userId",
+          sessionStorage.getItem("consultantId"),
+        );
+        if (sessionStorage.getItem("parentConsultantId")) {
+          sessionStorage.setItem(
+            "parent_id",
+            sessionStorage.getItem("parentConsultantId"),
+          );
+        }
         router.push("/consultant/products");
       } else {
         setShowForm(false);
@@ -1311,20 +1324,70 @@ export default function ProductPage({ darkMode }) {
     setFormData((prev) => ({ ...prev, [field]: val }));
   };
 
+  const handleHsCodeSelect = async (selectedHsCode) => {
+    setFormData((prev) => ({ ...prev, hsCode: selectedHsCode }));
+
+    try {
+      const token = sessionStorage.getItem("sellerToken");
+
+      if (!token) {
+        console.warn("Authorization token not found for UOM fetch.");
+        return;
+      }
+
+      const response = await fetch(
+        `/api/fbr/hsCodeToUOM?hsCode=${selectedHsCode}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch UOM mapping: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("UOM Mapping Response:", data);
+
+      if (Array.isArray(data) && data.length > 0) {
+        // const matchedUnit = uomList.find(
+        //   (u) =>
+        //     u.description.toLowerCase() === fbrUomDescription.toLowerCase(),
+        // );
+
+        // if (matchedUnit) {
+        //   setFormData((prev) => ({ ...prev, unit: matchedUnit.description }));
+        // } else {
+        //   setFormData((prev) => ({ ...prev, unit: fbrUomDescription }));
+        // }
+        setUomList(data);
+        setFormData((prev) => ({ ...prev, unit: data[0].description }));
+      } else {
+        setUomList([]);
+        setFormData((prev) => ({ ...prev, unit: "" }));
+      }
+    } catch (error) {
+      console.error("Error setting UOM from HS Code:", error);
+    }
+  };
+
   // UI Guard: Access Restriction
-  if (!loading && perms.can_view_product === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen text-gray-400">
-        <ShieldAlert size={48} />
-        <p className="mt-4 font-bold uppercase tracking-widest">
-          Access Denied
-        </p>
-        <p className="text-xs">
-          You do not have permission to view the product catalog.
-        </p>
-      </div>
-    );
-  }
+  // if (!loading && perms.can_view_product === 0) {
+  //   return (
+  //     <div className="flex flex-col items-center justify-center min-h-screen text-gray-400">
+  //       <ShieldAlert size={48} />
+  //       <p className="mt-4 font-bold uppercase tracking-widest">
+  //         Access Denied
+  //       </p>
+  //       <p className="text-xs">
+  //         You do not have permission to view the product catalog.
+  //       </p>
+  //     </div>
+  //   );
+  // }
 
   if (loading && products.length === 0) {
     return (
@@ -1531,7 +1594,8 @@ export default function ProductPage({ darkMode }) {
                             <div
                               key={h.hS_CODE}
                               onMouseDown={() =>
-                                setFormData({ ...formData, hsCode: h.hS_CODE })
+                                // setFormData({ ...formData, hsCode: h.hS_CODE })
+                                handleHsCodeSelect(h.hS_CODE)
                               }
                               className="p-3 hover:bg-slate-50 cursor-pointer text-xs font-bold border-b border-slate-50 last:border-none"
                             >
@@ -1819,6 +1883,16 @@ export default function ProductPage({ darkMode }) {
                     if (
                       sessionStorage.getItem("activeConsultantMode") === "true"
                     ) {
+                      sessionStorage.setItem(
+                        "userId",
+                        sessionStorage.getItem("consultantId"),
+                      );
+                      if (sessionStorage.getItem("parentConsultantId")) {
+                        sessionStorage.setItem(
+                          "parent_id",
+                          sessionStorage.getItem("parentConsultantId"),
+                        );
+                      }
                       router.push("/consultant/products");
                     } else {
                       setShowForm(false);

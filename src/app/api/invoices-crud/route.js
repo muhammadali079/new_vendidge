@@ -1655,8 +1655,11 @@ export async function PUT(req) {
             },
           ];
         }
+        let errorTable = isProd
+          ? "new_invoices_prod_error"
+          : "new_invoices_error";
         await connection.query(
-          `INSERT INTO new_invoices_error (userid, invoiceid, error) 
+          `INSERT INTO ${errorTable} (userid, invoiceid, error) 
    VALUES (?, ?, ?) 
    ON DUPLICATE KEY UPDATE error = VALUES(error)`,
           [sellerInfo.userId, invoiceId, JSON.stringify(errorData)],

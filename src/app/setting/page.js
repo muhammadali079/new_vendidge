@@ -552,6 +552,7 @@ export default function SettingsPage() {
         `/api/userChoosableFields?userId=${userId}&role=${sessionStorage.getItem("role")}`,
       );
       const data = await res.json();
+      console.log("data fields", data);
       setFields(data);
       setHasChanges(false);
     } catch (err) {
