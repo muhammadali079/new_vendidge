@@ -172,6 +172,7 @@
 
 import { NextResponse } from "next/server";
 import { db } from "../../../../lib/db";
+import bcrypt from "bcryptjs";
 
 // THE FULL 39+ FIELDS LIST FOR FALLBACKS
 const ALL_PERMISSION_FIELDS = [
@@ -289,7 +290,15 @@ export async function POST(req) {
     }
 
     // --- 2. AUTH & RESTRICTION CHECKS ---
-    if (password !== user.password) {
+    // if (password !== user.password) {
+    //   return NextResponse.json(
+    //     { message: "Invalid credentials" },
+    //     { status: 401 },
+    //   );
+    // }
+    const isPasswordValid = bcrypt.compareSync(password, user.password);
+
+    if (!isPasswordValid) {
       return NextResponse.json(
         { message: "Invalid credentials" },
         { status: 401 },

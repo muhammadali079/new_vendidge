@@ -63,6 +63,10 @@ export async function POST(req) {
     // 3. Start the Transaction on the dedicated connection
     await connection.beginTransaction();
 
+    console.log("seller business id ", sellerBusinessId);
+    console.log("seller business name", sellerBusinessName);
+    console.log("seller business address", sellerAddress);
+
     const targetTable = isProd ? "new_invoices_prod" : "new_invoices";
     const targetRowTable = isProd
       ? "new_invoices_rows_prod"
@@ -366,6 +370,7 @@ export async function PUT(req) {
     }
     const token = authHeader.replace(/^Bearer\s+/i, "");
     console.log("Token:", token);
+
     const body = await req.json();
     const {
       invoiceId,
@@ -420,6 +425,7 @@ export async function PUT(req) {
       ),
     );
 
+    console.log("to Validate:", toValidate);
     if (!invoiceId) {
       return NextResponse.json(
         { message: "invoiceId is required" },
@@ -432,8 +438,8 @@ export async function PUT(req) {
 
     const [buyerInfoRows] = await connection.query(
       `SELECT 
-      nc.cnic_ntn AS buyerNTNCNIC,
-      nc.business_name AS buyerBusinessName,
+      nc.ntn AS buyerNTNCNIC,
+      ncl.business_name AS buyerBusinessName,
       ncl.address AS buyerAddress,
       ncl.province_name AS buyerProvince
    FROM new_customers nc

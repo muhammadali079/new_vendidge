@@ -1,6 +1,25 @@
 import { NextResponse } from "next/server";
-import bcrypt from "bcrypt";
 import { db } from "../../../../../lib/db";
+
+import bcrypt from "bcryptjs";
+
+function hashPasswordIfNeeded(password) {
+  if (!password || password.trim() === "") return null;
+
+  // Regex to check if the password is already a valid bcrypt hash
+  // (60 characters long, starts with $2a$, $2b$, or $2y$)
+  const isAlreadyHashed = /^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/.test(
+    password.trim(),
+  );
+
+  if (isAlreadyHashed) {
+    return password.trim(); // Return as-is if it's already a bcrypt hash
+  }
+
+  // Otherwise, generate a fresh salt and hash the plain text password synchronously
+  const salt = bcrypt.genSaltSync(10);
+  return bcrypt.hashSync(password, salt);
+}
 
 export async function POST(req) {
   const conn = await db.getConnection();
@@ -28,7 +47,7 @@ export async function POST(req) {
     }
 
     await conn.beginTransaction();
-    //const hashedPassword = await bcrypt.hash(password, 10);
+    const securedPassword = hashPasswordIfNeeded(password);
 
     const safeDomain =
       domain_name && parent_id == null ? `admin@${domain_name}` : domain_name;
@@ -44,7 +63,13 @@ export async function POST(req) {
             ) VALUES (?, ?, ?, ?, ?, NOW(), NOW())
         `;
 
-    const values = [parent_id || null, name, safeDomain, designation, password];
+    const values = [
+      parent_id || null,
+      name,
+      safeDomain,
+      designation,
+      securedPassword,
+    ];
 
     const [result] = await conn.execute(query, values);
 
@@ -173,6 +198,7 @@ export async function PUT(req) {
 
     conn = await db.getConnection();
     await conn.beginTransaction();
+    const securedPassword = hashPasswordIfNeeded(password);
 
     // 🔍 Get consultant to determine parent/child
     const [[consultant]] = await conn.execute(
@@ -202,7 +228,7 @@ export async function PUT(req) {
 
     if (password?.trim()) {
       query += `, password = ?`;
-      values.push(password);
+      values.push(securedPassword);
     }
 
     query += ` WHERE id = ?`;

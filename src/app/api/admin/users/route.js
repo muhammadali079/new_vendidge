@@ -1,6 +1,24 @@
 import { NextResponse } from "next/server";
 import { db } from "../../../../../lib/db";
-import { Contact } from "lucide-react";
+import bcrypt from "bcryptjs";
+
+function hashPasswordIfNeeded(password) {
+  if (!password || password.trim() === "") return null;
+
+  // Regex to check if the password is already a valid bcrypt hash
+  // (60 characters long, starts with $2a$, $2b$, or $2y$)
+  const isAlreadyHashed = /^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/.test(
+    password.trim(),
+  );
+
+  if (isAlreadyHashed) {
+    return password.trim(); // Return as-is if it's already a bcrypt hash
+  }
+
+  // Otherwise, generate a fresh salt and hash the plain text password synchronously
+  const salt = bcrypt.genSaltSync(10);
+  return bcrypt.hashSync(password, salt);
+}
 
 export async function GET() {
   try {
@@ -123,6 +141,8 @@ export async function POST(req) {
 
     await conn.beginTransaction();
 
+    const securedPassword = hashPasswordIfNeeded(password);
+
     // 1. Insert into new_users
     const userSql = `
             INSERT INTO new_users (
@@ -151,7 +171,7 @@ export async function POST(req) {
       seller_name,
       root_domain,
       root_username || "admin",
-      password,
+      securedPassword,
       v(cnic_ntn),
       v(invoice_ntn),
       v(strn),
@@ -281,6 +301,7 @@ export async function PUT(req) {
     } = body;
 
     await conn.beginTransaction();
+    const securedPassword = hashPasswordIfNeeded(password);
     const v = (val) => (val === undefined ? null : val);
 
     const updateFields = [
@@ -324,7 +345,7 @@ export async function PUT(req) {
 
     if (password && password.trim() !== "") {
       sql += `, password=? WHERE id=?`;
-      updateFields.push(password, user_id);
+      updateFields.push(securedPassword, user_id);
     } else {
       sql += ` WHERE id=?`;
       updateFields.push(user_id);

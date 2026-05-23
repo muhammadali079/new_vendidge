@@ -217,6 +217,7 @@ export default function InvoicePage({ darkMode }) {
             ...prev,
             sellerBusinessId: firstBiz.id,
             sellerBusinessName: firstBiz.business_name,
+            sellerAddress: firstBiz.address || "",
             sellerProvinceId: firstBiz.province_id,
             sellerProvince: firstBiz.province || "",
             sellerAddress: firstBiz.address || "",
@@ -501,6 +502,7 @@ export default function InvoicePage({ darkMode }) {
         `/api/invoices-crud?userId=${userId}&startDate=${startDate}&endDate=${endDate}`,
       );
       const data = await res.json();
+      console.log("Fetched invoices data:", data.data[0]);
       setInvoices(data.data || []);
       setMinUnpostedInvoiceNo(data.minUnpostedInvoiceNo);
       setSelectedInvoices([]); // Clear selection when data refreshes
@@ -1300,9 +1302,14 @@ export default function InvoicePage({ darkMode }) {
       inv.exclTax = totalExclTax.toFixed(2);
       inv.tax = totalTax.toFixed(2);
       inv.inclTax = totalInclTax.toFixed(2);
+      console.log("inv:", inv);
+
+      const defaultBiz = userBusinesses.length > 0 ? userBusinesses[0] : null;
+
       setInvoiceForm((prev) => ({
         ...prev,
         invoiceNo: inv.invoice_no || "",
+        internal_inv_ref_no: inv.internal_inv_ref_no || "",
         date: formatDateForInput(inv.invoice_date) || "",
         customer: customerDisplay || prev.customer,
         customerId: inv.customer_id || prev.customerId,
@@ -1314,9 +1321,10 @@ export default function InvoicePage({ darkMode }) {
         ),
         sellerProvince: inv.sellerProvince ?? "",
         sellerProvinceId: inv.sellerProvinceId,
-        sellerBusinessId: inv.sellerBusinessId,
-        sellerBusinessName: inv.sellerBusinessName,
-        sellerAddress: inv.sellerBusinessAddress,
+        sellerBusinessId: inv.sellerBusinessId || defaultBiz?.id || null,
+        sellerBusinessName:
+          inv.sellerBusinessName || defaultBiz?.business_name || "",
+        sellerAddress: defaultBiz ? defaultBiz.address : "",
         saleType: inv.saleType,
         //registrationNo: inv.registrationNo || prev.registrationNo,
         buyerType: inv.buyerType,
@@ -1696,6 +1704,7 @@ export default function InvoicePage({ darkMode }) {
 
     const isProd = value === "1";
 
+    console.log("Invoice to Validate:", toValidate);
     console.log("Invoice to submit:", invoiceToSubmit);
 
     // console.log(sessionStorage.getItem("sellerProvince"));
@@ -2576,6 +2585,11 @@ export default function InvoicePage({ darkMode }) {
                       customer: "",
                       customerId: 0,
                       buyerProvince: "",
+                      sellerBusinessId: defaultBiz ? defaultBiz.id : 0,
+                      sellerBusinessName: defaultBiz
+                        ? defaultBiz.business_name
+                        : "",
+                      sellerAddress: defaultBiz ? defaultBiz.address : "",
                       sellerProvinceId: Number(defaultBiz?.province_id || 0),
                       sellerProvince: defaultBiz?.province || "",
                       scenarioCode: null,
@@ -2629,8 +2643,11 @@ export default function InvoicePage({ darkMode }) {
                         <>
                           {hasChanged ? (
                             <button
-                              type="submit"
-                              disabled={isSubmitting}
+                              // type="submit"
+                              // disabled={isSubmitting}
+                              type="button"
+                              disabled={isSubmitting} // Disable during request
+                              onClick={() => handleInvoiceSubmit(null, false)}
                               className={`px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-all 
                                                                  ${
                                                                    isSubmitting
