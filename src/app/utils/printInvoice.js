@@ -905,6 +905,7 @@ export const handlePrintInvoice = async (
 
     console.log("target invoice id", targetInvoice);
     console.log("form invoice id", invoiceForm);
+    console.log("customer ", customers);
 
     const invoiceNo = invoiceForm.invoiceNo || targetInvoice.invoice_no || "";
     const invoiceDate =
@@ -924,7 +925,7 @@ export const handlePrintInvoice = async (
       ) || "";
 
     const customerName =
-      invoiceForm.customer_name || targetInvoice.customer_name || "";
+      invoiceForm.customer.split(" - ")[0] || targetInvoice.customer_name || "";
     const isEvent = targetInvoice && targetInvoice.nativeEvent;
 
     const activeCustomerId =
@@ -933,7 +934,8 @@ export const handlePrintInvoice = async (
         : invoiceForm.customerId || invoiceForm.customer_id;
 
     const customerAddress =
-      customers.find((c) => c.id === activeCustomerId)?.address || "";
+      customers.find((c) => c.id === activeCustomerId)?.locations?.[0]
+        ?.address || "";
     const customerProvince =
       invoiceForm.buyerProvince || targetInvoice.buyerProvince || "";
     const customer = customers.find((c) => c.id === activeCustomerId);
@@ -1451,7 +1453,8 @@ export const handleBatchPrintInvoices = async (
 
       const activeCustomerId = targetInvoice.customer_id;
       const customer = customers.find((c) => c.id === activeCustomerId);
-      const customerAddress = customer?.address || "";
+      //const customerAddress = customer?.address || "";
+      const customerAddress = customer?.locations?.[0]?.address || "";
       const customerProvince = targetInvoice.buyerProvince || "";
       const idLabel = customer?.ntn?.length === 7 ? "NTN" : "CNIC";
       const idValue = customer?.ntn || "";

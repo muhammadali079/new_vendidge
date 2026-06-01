@@ -796,10 +796,11 @@ export default function InvoicePage({ darkMode }) {
 
       // 2. Calculate actual monetary value from tax percentages
       // Formula: (Excluding Tax Value * Tax Rate Percentage) / 100
-      const rowFurtherAmt = (exclValue * n(r.furtherTax)) / 100;
-      const rowExtraAmt = (exclValue * n(r.extraTax)) / 100;
-      const rowWithheldAmt = (exclValue * n(r.salesTaxWithheldAtSource)) / 100;
-      const rowFedAmt = (exclValue * n(r.fedPayable)) / 100;
+      const rowFurtherAmt = (parseInt(exclValue) * n(r.furtherTax)) / 100;
+      const rowExtraAmt = (parseInt(exclValue) * n(r.extraTax)) / 100;
+      const rowWithheldAmt =
+        (parseInt(exclValue) * n(r.salesTaxWithheldAtSource)) / 100;
+      const rowFedAmt = (parseInt(exclValue) * n(r.fedPayable)) / 100;
 
       // 3. Accumulate calculated monetary values into totals
       totalFurther += rowFurtherAmt;
@@ -2548,13 +2549,12 @@ export default function InvoicePage({ darkMode }) {
     if (menuConfig.id === invId) {
       setMenuConfig({ open: false, id: null, top: 0, left: 0 });
     } else {
-      // Get the exact position of the button on the screen
       const rect = e.currentTarget.getBoundingClientRect();
       setMenuConfig({
         open: true,
         id: invId,
-        top: rect.bottom + window.scrollY, // Position right below the button
-        left: rect.left + window.scrollX - 140, // Offset to align right
+        top: rect.bottom - 50,
+        left: rect.left - 195,
       });
     }
   };
@@ -2564,7 +2564,12 @@ export default function InvoicePage({ darkMode }) {
     const close = () =>
       setMenuConfig({ open: false, id: null, top: 0, left: 0 });
     window.addEventListener("click", close);
-    return () => window.removeEventListener("click", close);
+    window.addEventListener("scroll", close, true);
+
+    return () => {
+      window.removeEventListener("click", close);
+      window.removeEventListener("scroll", close, true);
+    };
   }, []);
 
   return (
@@ -4957,16 +4962,23 @@ export default function InvoicePage({ darkMode }) {
                         {totalQty}
                       </td>
                       <td className="px-4 py-4 text-center">
-                        {Number(inv.exclTax).toLocaleString()}
+                        {/* {Number(inv.exclTax).toLocaleString()} */}
+                        {Number(
+                          String(inv.exclTax).replace(/,/g, ""),
+                        ).toLocaleString()}
                       </td>
                       <td className="px-4 py-4 text-center">
-                        {Number(inv.tax).toLocaleString()}
+                        {Number(
+                          String(inv.tax).replace(/,/g, ""),
+                        ).toLocaleString()}
                       </td>
                       <td className="px-4 py-4 text-center font-bold text-orange-600">
                         {otherTaxesSum.toLocaleString()}
                       </td>
                       <td className="px-4 py-4 text-center font-black text-emerald-600">
-                        {Number(inv.inclTax).toLocaleString()}
+                        {Number(
+                          String(inv.inclTax || 0).replace(/,/g, ""),
+                        ).toLocaleString()}
                       </td>
                       <td className="px-4 py-4 text-center">
                         {getStatusBadge(inv.status, inv.id)}
