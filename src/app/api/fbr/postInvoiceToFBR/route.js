@@ -139,11 +139,21 @@ export async function POST(request) {
       );
     }
 
+    // let fbrData;
+    // try {
+    //   fbrData = await res.json();
+    // } catch {
+    //   fbrData = { raw: await res.text() };
+    // }
+    const responseText = await res.text();
     let fbrData;
+
     try {
-      fbrData = await res.json();
+      // 2. Parse it manually in memory
+      fbrData = JSON.parse(responseText);
     } catch {
-      fbrData = { raw: await res.text() };
+      // 3. Fallback safely if it was HTML or plain text
+      fbrData = { raw: responseText };
     }
     console.log("FBR Response Data:", fbrData);
 

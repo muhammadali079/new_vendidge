@@ -502,7 +502,12 @@ export default function InvoicePage({ darkMode }) {
         `/api/invoices-crud?userId=${userId}&startDate=${startDate}&endDate=${endDate}`,
       );
       const data = await res.json();
-      console.log("Fetched invoices data:", data.data[0]);
+      console.log(
+        "Fetched invoices data:",
+        data.data[0],
+        "minUnpostedInvoiceNo:",
+        data.minUnpostedInvoiceNo,
+      );
       setInvoices(data.data || []);
       setMinUnpostedInvoiceNo(data.minUnpostedInvoiceNo);
       setSelectedInvoices([]); // Clear selection when data refreshes
@@ -600,7 +605,7 @@ export default function InvoicePage({ darkMode }) {
     try {
       for (const id of selectedInvoices) {
         console.log("Posting invoice to FBR:", id);
-        //await postInvoiceToFBR(id); // Reusing your existing function
+        await postInvoiceToFBR(id);
       }
       alert("Batch FBR Posting complete!");
     } catch (err) {
@@ -830,7 +835,7 @@ export default function InvoicePage({ darkMode }) {
       month: "2-digit",
       day: "2-digit",
     }).format(new Date());
-    minDate = today;
+    minDate = "";
 
     const successInvoices = invoices;
 
@@ -1093,11 +1098,11 @@ export default function InvoicePage({ darkMode }) {
       let items = [];
       // let buyerRegistrationType = "unregistered";
       try {
-        items = JSON.parse(invoice.items || "[]");
+        items = invoice.items || [];
       } catch {
         throw new Error("Invalid invoice items JSON");
       }
-
+      console.log("Invoice items:", items);
       const value = document.cookie
         .split("; ")
         .find((row) => row.startsWith("isProd="))
@@ -1148,7 +1153,7 @@ export default function InvoicePage({ darkMode }) {
     } finally {
       setProcessingInvoiceId(null);
       fetchInvoices();
-      // console.log("min date from use post invocie to fbr");
+      console.log("min date from use post invocie to fbr");
       getMinDate();
     }
   };
@@ -2897,7 +2902,7 @@ export default function InvoicePage({ darkMode }) {
                       <input
                         type="date"
                         name="date"
-                        value={invoiceForm.date}
+                        value={invoiceForm.date || today}
                         //onChange={handleFormChange}
                         onChange={(e) => {
                           handleFormChange(e);
@@ -5017,7 +5022,8 @@ export default function InvoicePage({ darkMode }) {
 
                       {/* POST TO FBR (Uses currentInv instead of inv) */}
                       {currentInv.status === "Validated" &&
-                        permissions.can_post_invoice === 1 && (
+                        permissions.can_post_invoice === 1 &&
+                        minUnpostedInvoiceNo == currentInv.invoice_no && (
                           <button
                             onClick={() => postInvoiceToFBR(currentInv.id)}
                             className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-emerald-600 hover:bg-emerald-50 rounded-lg flex items-center gap-3 transition-colors border-t border-slate-50 pt-3"

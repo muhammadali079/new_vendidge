@@ -1106,7 +1106,7 @@ export default function ProductPage({ darkMode }) {
       setTransTypeList(await transRes.json());
       // const uoms = await uomRes.json();
       // setUomList(uoms);
-      console.log("FBR Master Data Loaded", { uoms });
+      //console.log("FBR Master Data Loaded", { uoms });
     } catch (err) {
       console.error("FBR Master Data Failed:", err);
     }
