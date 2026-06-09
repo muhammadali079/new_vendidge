@@ -271,19 +271,19 @@ export default function SuperAdminMaster() {
   const minDateString = `${yyyy}-${mm}-${dd}`;
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] p-8 font-sans text-slate-900">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-[#f8fafc] font-sans text-slate-900 mt-4">
+      <div>
         <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
-          <div className="flex bg-slate-200 p-1.5 rounded-2xl shadow-inner">
+          <div className="flex bg-slate-200 p-1.5 rounded-lg shadow-inner transition-all">
             <button
               onClick={() => setActiveTab("consultants")}
-              className={`px-8 py-2.5 rounded-xl font-bold transition-all ${activeTab === "consultants" ? "bg-white text-blue-600 shadow-md" : "text-slate-500"}`}
+              className={`px-8 py-2.5 rounded-lg font-bold transition-all ${activeTab === "consultants" ? 'bg-white text-blue-600 shadow-md' : 'text-slate-500'}`}
             >
               Consultants
             </button>
             <button
               onClick={() => setActiveTab("users")}
-              className={`px-8 py-2.5 rounded-xl font-bold transition-all ${activeTab === "users" ? "bg-white text-emerald-600 shadow-md" : "text-slate-500"}`}
+              className={`px-8 py-2.5 rounded-lg font-bold transition-all ${activeTab === "users" ? 'bg-white text-blue-600 shadow-md' : 'text-slate-500'}`}
             >
               Business Users
             </button>
@@ -295,14 +295,14 @@ export default function SuperAdminMaster() {
             <div className="flex justify-end">
               <button
                 onClick={() => openConsultantModal()}
-                className="bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all"
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all"
               >
                 <Plus size={20} /> New Parent Consultant
               </button>
             </div>
-            <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
               <table className="w-full text-left">
-                <thead className="bg-slate-50/50 border-b text-slate-400 text-xs font-black uppercase tracking-widest">
+                <thead className="bg-slate-50/50 border-b text-xs font-black uppercase tracking-widest">
                   <tr>
                     <th className="p-6">Consultant Name</th>
                     <th className="p-6">Domain Identity</th>
@@ -315,7 +315,7 @@ export default function SuperAdminMaster() {
                     .map((parent) => (
                       <React.Fragment key={parent.id}>
                         <tr
-                          className="hover:bg-blue-50/30 border-l-4 border-blue-500 cursor-pointer transition-colors"
+                          className="hover:bg-blue-50/30 border-l-2 border-blue-500 cursor-pointer transition-colors"
                           onClick={() => toggleParent(parent.id)}
                         >
                           <td className="p-6">
@@ -347,7 +347,7 @@ export default function SuperAdminMaster() {
                           >
                             <button
                               onClick={() => openConsultantModal(parent.id)}
-                              className="bg-emerald-500 text-white p-2.5 rounded-xl hover:scale-110 shadow-md transition-transform"
+                              className="bg-blue-500 text-white p-2.5 rounded-xl hover:scale-110 shadow-md transition-transform"
                             >
                               <Plus size={18} />
                             </button>
@@ -366,7 +366,7 @@ export default function SuperAdminMaster() {
                             .map((child) => (
                               <tr
                                 key={child.id}
-                                className="bg-slate-50/50 border-l-4 border-emerald-400 animate-in fade-in slide-in-from-top-1 duration-200"
+                                className="bg-slate-50/50 border-l-2 border-black animate-in fade-in slide-in-from-top-1 duration-200"
                               >
                                 <td className="p-4 pl-16">
                                   <div className="flex items-center gap-2 text-slate-600 font-bold italic">
@@ -374,7 +374,7 @@ export default function SuperAdminMaster() {
                                   </div>
                                 </td>
                                 <td className="p-4">
-                                  <span className="text-emerald-600 font-mono text-sm">
+                                  <span className="text-black-600 font-mono text-sm">
                                     {child.name
                                       .toLowerCase()
                                       .replace(/\s/g, "")}
@@ -405,7 +405,7 @@ export default function SuperAdminMaster() {
             <div className="flex justify-end">
               <button
                 onClick={() => openUserModal()}
-                className="bg-emerald-600 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-emerald-700 shadow-lg shadow-emerald-100 transition-all"
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all"
               >
                 <UserPlus size={20} /> Create New Business
               </button>
@@ -415,10 +415,10 @@ export default function SuperAdminMaster() {
                 <div
                   key={u.id}
                   onClick={() => openUserModal(u)}
-                  className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm hover:shadow-xl transition-all group relative"
+                  className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm hover:shadow-xl transition-all group relative"
                 >
                   <div className="flex justify-between items-start mb-4">
-                    <div className="h-14 w-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600">
+                    <div className="h-14 w-14 bg-blue-600 rounded-lg flex items-center justify-center text-white">
                       {u.business_logo ? (
                         <img
                           src={u.business_logo}
@@ -429,7 +429,7 @@ export default function SuperAdminMaster() {
                       )}
                     </div>
                     <div
-                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${u.isPaid ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}
+                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${u.isPaid ? "bg-blue-100 text-blue-700" : "bg-red-100 text-red-700"}`}
                     >
                       {u.isPaid ? "Paid" : "Unpaid"}
                     </div>
@@ -437,7 +437,7 @@ export default function SuperAdminMaster() {
                   <h3 className="text-xl font-black text-slate-800 truncate">
                     {u.businesses[0]?.business_name}
                   </h3>
-                  <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest mt-1">
                     CNIC/NTN: {u.cnic_ntn || "N/A"}
                   </p>
 
@@ -449,7 +449,7 @@ export default function SuperAdminMaster() {
                       <Phone size={14} className="text-slate-400" />{" "}
                       {u.contact || "No Contact"}
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-slate-600 font-bold bg-slate-50 p-3 rounded-xl border border-slate-100 mt-2">
+                    <div className="flex items-center gap-2 text-xs text-slate-600 font-bold bg-slate-50 p-3 rounded-lg shadow-sm mt-2">
                       <LinkIcon size={14} className="text-blue-600" />
                       Ref:{" "}
                       <span className="text-blue-600">{u.ref_code || ""}</span>
@@ -465,10 +465,10 @@ export default function SuperAdminMaster() {
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <form
             onSubmit={submitConsultant}
-            className="bg-white rounded-[2.5rem] w-full max-w-4xl p-8 shadow-2xl max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-lg w-full max-w-4xl p-8 shadow-2xl max-h-[90vh] overflow-y-auto"
           >
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-black text-slate-800">
+              <h2 className="text-2xl font-semibold font-black text-slate-800">
                 {isEditMode
                   ? "Edit Consultant"
                   : consultantForm.parent_id
@@ -489,11 +489,11 @@ export default function SuperAdminMaster() {
               {consultantForm.parent_id === null && (
                 <>
                   <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase ml-2">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       Business Name
                     </label>
                     <input
-                      className="w-full p-4 bg-slate-50 rounded-2xl outline-none border-2 border-transparent focus:border-blue-500 transition-all"
+                      className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                       value={consultantForm.business_name || ""}
                       onChange={(e) =>
                         setConsultantForm({
@@ -505,11 +505,11 @@ export default function SuperAdminMaster() {
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase ml-2">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       CNIC / NTN
                     </label>
                     <input
-                      className="w-full p-4 bg-slate-50 rounded-2xl outline-none border-2 border-transparent focus:border-blue-500 transition-all"
+                      className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                       value={consultantForm.cnic_ntn || ""}
                       onChange={(e) =>
                         setConsultantForm({
@@ -521,11 +521,11 @@ export default function SuperAdminMaster() {
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase ml-2">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       Contact
                     </label>
                     <input
-                      className="w-full p-4 bg-slate-50 rounded-2xl outline-none border-2 border-transparent focus:border-blue-500 transition-all"
+                      className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                       value={consultantForm.contact || ""}
                       onChange={(e) =>
                         setConsultantForm({
@@ -536,11 +536,11 @@ export default function SuperAdminMaster() {
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase ml-2">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       Email
                     </label>
                     <input
-                      className="w-full p-4 bg-slate-50 rounded-2xl outline-none border-2 border-transparent focus:border-blue-500 transition-all"
+                      className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                       value={consultantForm.email || ""}
                       onChange={(e) =>
                         setConsultantForm({
@@ -551,11 +551,11 @@ export default function SuperAdminMaster() {
                     />
                   </div>
                   <div className="col-span-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase ml-2">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       Address
                     </label>
                     <input
-                      className="w-full p-4 bg-slate-50 rounded-2xl outline-none border-2 border-transparent focus:border-blue-500 transition-all"
+                      className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                       value={consultantForm.address || ""}
                       onChange={(e) =>
                         setConsultantForm({
@@ -570,11 +570,11 @@ export default function SuperAdminMaster() {
 
               {/* ALWAYS SHOW THESE (Name, Domain, Password) */}
               <div className={!consultantForm.parent_id ? "col-span-1" : ""}>
-                <label className="text-[10px] font-black text-slate-400 uppercase ml-2">
+                <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                   Name
                 </label>
                 <input
-                  className="w-full p-4 bg-slate-50 rounded-2xl outline-none border-2 border-transparent focus:border-blue-500 transition-all"
+                  className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                   placeholder="e.g. Abdullah"
                   value={consultantForm.name || ""}
                   onChange={(e) => {
@@ -604,11 +604,11 @@ export default function SuperAdminMaster() {
               <div>
                 {!consultantForm.parent_id ? (
                   <>
-                    <label className="text-[10px] font-black text-slate-400 uppercase ml-2">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       Domain (e.g. honda.com)
                     </label>
                     <input
-                      className="w-full p-4 bg-slate-50 rounded-2xl outline-none border-2 border-transparent focus:border-blue-500 transition-all"
+                      className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                       value={consultantForm.domain_name || ""}
                       onChange={(e) =>
                         setConsultantForm({
@@ -620,11 +620,11 @@ export default function SuperAdminMaster() {
                     />
                   </>
                 ) : (
-                  <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
-                    <p className="text-[10px] font-black text-emerald-700 uppercase">
+                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
+                    <p className="text-[10px] font-black text-blue-700 uppercase">
                       Auto-Assigned Domain
                     </p>
-                    <p className="text-sm font-mono text-emerald-900 mt-1">
+                    <p className="text-sm font-mono text-blue-900 mt-1">
                       {consultantForm.name?.toLowerCase().replace(/\s/g, "") ||
                         "[name]"}
                       @
@@ -642,11 +642,11 @@ export default function SuperAdminMaster() {
               </div>
 
               <div className={!consultantForm.parent_id ? "col-span-1" : ""}>
-                <label className="text-[10px] font-black text-slate-400 uppercase ml-2">
+                <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                   Designation
                 </label>
                 <input
-                  className="w-full p-4 bg-slate-50 rounded-2xl outline-none border-2 border-transparent focus:border-blue-500 transition-all"
+                  className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                   placeholder="e.g. Accountant"
                   value={consultantForm.designation || ""}
                   onChange={(e) => {
@@ -661,33 +661,35 @@ export default function SuperAdminMaster() {
               <div
                 className={`relative ${!consultantForm.parent_id ? "col-span-2" : ""}`}
               >
-                <label className="text-[10px] font-black text-slate-400 uppercase ml-2">
+                <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                   Password
                 </label>
-                <input
-                  className="w-full p-4 bg-slate-50 rounded-2xl outline-none border-2 border-transparent focus:border-blue-500 transition-all"
-                  type={showPass ? "text" : "password"}
-                  value={consultantForm.password || ""}
-                  onChange={(e) =>
-                    setConsultantForm({
-                      ...consultantForm,
-                      password: e.target.value,
-                    })
-                  }
-                  required={!isEditMode}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPass(!showPass)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600"
-                >
-                  {showPass ? <Eye size={20} /> : <EyeOff size={20} />}
-                </button>
+                <div className="relative">
+                  <input
+                    className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
+                    type={showPass ? "text" : "password"}
+                    value={consultantForm.password || ""}
+                    onChange={(e) =>
+                      setConsultantForm({
+                        ...consultantForm,
+                        password: e.target.value,
+                      })
+                    }
+                    required={!isEditMode}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPass(!showPass)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600"
+                  >
+                    {showPass ? <Eye size={20} /> : <EyeOff size={20} />}
+                  </button>
+                </div>
               </div>
             </div>
             <button
               type="submit"
-              className="w-full mt-8 py-4 bg-blue-600 text-white rounded-2xl font-black shadow-lg hover:bg-blue-700 transition-all"
+              className="w-full mt-8 py-4 bg-blue-600 text-white rounded-lg font-semibold font-black shadow-lg hover:bg-blue-700 transition-all"
             >
               {isEditMode ? "Update Record" : "Save Consultant"}
             </button>
@@ -699,10 +701,10 @@ export default function SuperAdminMaster() {
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <form
             onSubmit={submitUser}
-            className="bg-white rounded-[2.5rem] w-full max-w-7.5xl p-8 shadow-2xl max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-lg w-full max-w-7.5xl pt-0 pb-8 px-8 shadow-2xl max-h-[90vh] overflow-y-auto"
           >
-            <div className="flex justify-between items-center mb-6 sticky top-0 bg-white pb-4 z-10 border-b">
-              <h2 className="text-2xl font-black flex items-center gap-3 text-emerald-600">
+            <div className="flex justify-between items-center mb-6 sticky top-0 bg-white pt-8 pb-4 z-10 border-b">
+              <h2 className="text-2xl font-semibold font-black flex items-center gap-3 text-back">
                 <UserPlus /> Create User Profile
               </h2>
               <X
@@ -714,15 +716,15 @@ export default function SuperAdminMaster() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Section 1: Identity */}
               <div className="space-y-1">
-                <h4 className="text-xs font-black uppercase text-slate-400 tracking-widest border-b pb-1">
+                <h4 className="text-xs font-black uppercase text-black tracking-widest border-b pb-1">
                   Core Identity
                 </h4>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase ml-2 text-slate-500">
+                  <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                     Seller Name
                   </label>
                   <input
-                    className="w-full p-3 bg-slate-50 rounded-xl border-2 border-transparent focus:border-emerald-500 transition-all outline-none"
+                    className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                     value={userForm.seller_name}
                     onChange={(e) =>
                       setUserForm({ ...userForm, seller_name: e.target.value })
@@ -731,17 +733,19 @@ export default function SuperAdminMaster() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase ml-2 text-slate-500">
+                  <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                     Root Domain *
                   </label>
 
-                  <div className="flex items-center bg-slate-50 rounded-xl border-2 border-transparent focus-within:border-emerald-500">
-                    <span className="px-3 text-slate-400 font-bold text-sm">
+                  <div
+                    className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
+                  >
+                    <span className="text-slate-400 pr-1 font-bold text-sm">
                       admin@
                     </span>
 
                     <input
-                      className="flex-1 p-3 bg-transparent outline-none"
+                      className="flex-1 bg-transparent outline-none"
                       placeholder="hondaltd.com"
                       value={userForm.root_domain}
                       onChange={(e) => {
@@ -761,12 +765,12 @@ export default function SuperAdminMaster() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase ml-2 text-slate-500">
+                  <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                     Access Password *
                   </label>
                   <div className="relative">
                     <input
-                      className="w-full p-3 bg-slate-50 rounded-xl border-2 border-transparent focus:border-emerald-500 outline-none transition-all pr-12"
+                      className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                       type={showPassword ? "text" : "password"}
                       value={userForm.password}
                       onChange={(e) =>
@@ -785,11 +789,11 @@ export default function SuperAdminMaster() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase ml-2 text-slate-500">
+                  <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                     Designation
                   </label>
                   <input
-                    className="w-full p-3 bg-slate-50 rounded-xl border-2 border-transparent focus:border-emerald-500 transition-all outline-none"
+                    className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                     value={userForm.designation}
                     onChange={(e) =>
                       setUserForm({ ...userForm, designation: e.target.value })
@@ -800,17 +804,17 @@ export default function SuperAdminMaster() {
 
               {/* Section 2: Registration & Tax */}
               <div className="space-y-1">
-                <h4 className="text-xs font-black uppercase text-slate-400 tracking-widest border-b pb-1">
+                <h4 className="text-xs font-black text-black uppercase tracking-widest border-b pb-1">
                   Tax & Verification
                 </h4>
 
                 {/* CNIC / NTN Field */}
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase ml-2 text-slate-500">
+                  <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                     CNIC / Reg No *
                   </label>
                   <input
-                    className="w-full p-3 bg-slate-50 rounded-xl border-2 border-transparent focus:border-emerald-500 outline-none"
+                    className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                     placeholder="7-digit NTN or 13-digit CNIC"
                     value={userForm.cnic_ntn}
                     maxLength={13}
@@ -837,11 +841,11 @@ export default function SuperAdminMaster() {
 
                 {/* Invoice NTN Field */}
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase ml-2 text-slate-500">
+                  <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                     Invoice NTN *
                   </label>
                   <input
-                    className="w-full p-3 bg-slate-50 rounded-xl border-2 border-transparent focus:border-emerald-500  outline-none"
+                    className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                     placeholder="7-digit NTN or 13-digit CNIC"
                     value={userForm.invoice_ntn}
                     maxLength={13}
@@ -867,11 +871,11 @@ export default function SuperAdminMaster() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase ml-2 text-slate-500">
+                  <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                     STRN
                   </label>
                   <input
-                    className="w-full p-3 bg-slate-50 rounded-xl border-2 border-transparent focus:border-emerald-500  outline-none"
+                    className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                     value={userForm.strn}
                     onChange={(e) => {
                       let value = e.target.value;
@@ -882,11 +886,11 @@ export default function SuperAdminMaster() {
 
                 {/* System Token */}
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase ml-2 text-slate-500">
+                  <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                     System Token *
                   </label>
                   <input
-                    className="w-full p-3 bg-slate-50 rounded-xl border-2 border-transparent focus:border-emerald-500 outline-none"
+                    className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                     value={userForm.token}
                     onChange={(e) =>
                       setUserForm({ ...userForm, token: e.target.value })
@@ -897,15 +901,15 @@ export default function SuperAdminMaster() {
               </div>
               {/* Section 3: Contact */}
               <div className="space-y-1">
-                <h4 className="text-xs font-black uppercase text-slate-400 tracking-widest border-b pb-1">
+                <h4 className="text-xs font-black uppercase text-black tracking-widest border-b pb-1">
                   Contact Details
                 </h4>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase ml-2 text-slate-500">
+                  <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                     Email Address
                   </label>
                   <input
-                    className="w-full p-3 bg-slate-50 rounded-xl border-2 border-transparent focus:border-emerald-500 outline-none"
+                    className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                     value={userForm.email}
                     onChange={(e) =>
                       setUserForm({ ...userForm, email: e.target.value })
@@ -913,11 +917,11 @@ export default function SuperAdminMaster() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase ml-2 text-slate-500">
+                  <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                     Contact Number
                   </label>
                   <input
-                    className="w-full p-3 bg-slate-50 rounded-xl border-2 border-transparent focus:border-emerald-500 outline-none"
+                    className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                     value={userForm.contact}
                     onChange={(e) =>
                       setUserForm({ ...userForm, contact: e.target.value })
@@ -927,21 +931,21 @@ export default function SuperAdminMaster() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mt-3 pt-2 border-t">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mt-3 pt-2 border-t shadow-md">
               <div className="flex-1">
-                <h4 className="text-xs font-black uppercase text-slate-500">
+                <h4 className="text-xs font-black uppercase text-black">
                   Business Information
                 </h4>
               </div>
-              <div className="space-y-1 mb-1 md:col-span-4">
+              <div className="space-y-1 mb-1 col-span-1 md:col-span-2 lg:col-span-4">
                 {/* {userForm.businesses?.map((business, idx) => ( */}
                 <div className="flex items-center gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100">
                   <div className="flex-[1.5] flex flex-col w-full">
-                    <label className="text-[10px] font-bold uppercase ml-1 text-slate-500 mb-1">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       Business Name *
                     </label>
                     <input
-                      className="flex-1 p-2.5 bg-white rounded-xl border-2 border-transparent focus:border-emerald-500 outline-none text-xs"
+                      className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                       placeholder="Business Name"
                       value={userForm.businesses[0]?.business_name ?? ""}
                       onChange={(e) => {
@@ -965,12 +969,12 @@ export default function SuperAdminMaster() {
                     />
                   </div>
                   <div className="flex-[1.5] flex flex-col w-full">
-                    <label className="text-[10px] font-bold uppercase ml-1 text-slate-500 mb-1 tracking-widest">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       Province *
                     </label>
                     <div className="relative">
                       <select
-                        className="w-full p-2.5 bg-slate-50 rounded-xl border-2 border-transparent focus:border-emerald-500 transition-all duration-300 outline-none text-[10px] text-slate-700 appearance-none cursor-pointer"
+                        className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all appearance-none "
                         value={userForm.businesses[0]?.province ?? ""}
                         required
                         onChange={(e) => {
@@ -1023,11 +1027,11 @@ export default function SuperAdminMaster() {
 
                   {/* Address */}
                   <div className="flex-[1.5] flex flex-col w-full">
-                    <label className="text-[10px] font-bold uppercase ml-1 text-slate-500 mb-1">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       Address *
                     </label>
                     <input
-                      className="flex-1 p-2.5 bg-white rounded-xl border-2 border-transparent focus:border-emerald-500 outline-none text-xs"
+                      className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                       placeholder="Address"
                       value={userForm.businesses[0]?.address ?? ""}
                       onChange={(e) => {
@@ -1206,23 +1210,23 @@ export default function SuperAdminMaster() {
               </div> */}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2 pt-4 border-t">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-2 pt-4 border-t">
               {/* Billing & Logic */}
-              <div className="md:col-span-2 space-y-3">
-                <h4 className="text-xs font-black uppercase text-slate-400 tracking-widest ">
+              <div className="col-span-1 md:col-span-2 space-y-3">
+                <h4 className="text-xs font-black uppercase text-black tracking-widest ">
                   Billing & Subscription
                 </h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase ml-2 text-slate-500">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       Amount Paid
                     </label>
                     <div className="relative">
-                      <span className="absolute left-3 top-3.5 text-[10px] font-black text-slate-400">
+                      <span className="absolute left-3 top-4.5 text-[10px] font-black text-slate-400">
                         PKR
                       </span>
                       <input
-                        className="w-full p-3 pl-12 bg-slate-50 rounded-xl outline-none border-2 border-transparent focus:border-emerald-500  transition-all"
+                        className="w-full pl-10 pr-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                         type="text"
                         inputMode="numeric" // Changes mobile keyboard to numbers only
                         placeholder="0"
@@ -1256,16 +1260,16 @@ export default function SuperAdminMaster() {
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase ml-2 text-slate-500">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       Expiry Date
                     </label>
                     <div className="relative">
-                      <Calendar
+                      {/* <Calendar
                         className="absolute left-3 top-3 text-slate-400"
                         size={16}
-                      />
+                      /> */}
                       <input
-                        className="w-full p-3 pl-10 bg-slate-50 rounded-xl outline-none border-2 border-transparent focus:border-emerald-500 transition-all"
+                        className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                         type="date"
                         min={minDateString}
                         value={userForm.expire}
@@ -1278,11 +1282,11 @@ export default function SuperAdminMaster() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase ml-2 text-slate-500">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       Billing Cycle
                     </label>
                     <input
-                      className="w-full p-3 bg-slate-50 rounded-xl outline-none"
+                      className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                       placeholder="e.g: Monthly / Yearly"
                       value={userForm.cycle}
                       onChange={(e) =>
@@ -1291,11 +1295,11 @@ export default function SuperAdminMaster() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase ml-2 text-slate-500">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       Reason
                     </label>
                     <input
-                      className="w-full p-3 bg-slate-50 rounded-xl outline-none"
+                      className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                       placeholder="e.g: on hold"
                       value={userForm.reason}
                       onChange={(e) =>
@@ -1307,17 +1311,17 @@ export default function SuperAdminMaster() {
               </div>
 
               {/* Switches & Logic */}
-              <div className="md:col-span-1 space-y-4 bg-slate-50 p-4 rounded-3xl">
-                <h4 className="text-xs font-black uppercase text-slate-400 tracking-widest text-center border-b pb-1">
+              <div className="md:col-span-1 space-y-4 bg-slate-50 p-4 rounded-lg shadow-md">
+                <h4 className="text-xs font-black uppercase tracking-widest text-center border-b pb-1">
                   Status Flags
                 </h4>
                 <div className="flex items-center justify-between p-2">
-                  <label className="text-[10px] font-black uppercase">
+                  <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                     Paid
                   </label>
                   <input
                     type="checkbox"
-                    className="h-5 w-5 accent-emerald-500"
+                    className="h-5 w-5 accent-blue-500"
                     checked={userForm.isPaid === 1}
                     onChange={(e) =>
                       setUserForm({
@@ -1328,7 +1332,7 @@ export default function SuperAdminMaster() {
                   />
                 </div>
                 <div className="flex items-center justify-between p-2">
-                  <label className="text-[10px] font-black uppercase">
+                  <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                     Allowed
                   </label>
                   <input
@@ -1344,12 +1348,12 @@ export default function SuperAdminMaster() {
                   />
                 </div>
                 <div className="flex items-center justify-between p-2">
-                  <label className="text-[10px] font-black uppercase">
+                  <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                     Production
                   </label>
                   <input
                     type="checkbox"
-                    className="h-5 w-5 accent-red-500"
+                    className="h-5 w-5 accent-blue-500"
                     checked={userForm.isProd === 1}
                     onChange={(e) =>
                       setUserForm({
@@ -1364,86 +1368,101 @@ export default function SuperAdminMaster() {
               {/* Reference & Assignment */}
             </div>
             <div className="md:col-span-3 mt-6">
-              <h4 className="text-xs font-black uppercase text-slate-400 tracking-widest border-b pb-1 mb-4">
+              <h4 className="text-xs font-black uppercase text-blacktracking-widest border-b pb-1 mb-4">
                 Assignment & Parameters
               </h4>
 
               {/* Main Row Container */}
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-3 items-start">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 items-start">
                 {/* 1. Account Management Type */}
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase ml-2 text-slate-500 italic">
+                  <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                     User Management Type *
                   </label>
-                  <select
-                    className="w-full p-3 bg-blue-50 text-blue-800 rounded-xl border-2 border-blue-100 font-bold outline-none focus:border-blue-400 text-xs"
-                    value={userForm.user_type}
-                    required
-                    onChange={(e) =>
-                      setUserForm({ ...userForm, user_type: e.target.value })
-                    }
-                  >
-                    <option value="">Select User Type</option>
-                    <option value="managed_by_consultant">
-                      Managed By Consultant
-                    </option>
-                    <option value="self_managed">Self Managed</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all appearance-none"
+                      value={userForm.user_type}
+                      required
+                      onChange={(e) =>
+                        setUserForm({ ...userForm, user_type: e.target.value })
+                      }
+                    >
+                      <option value="">Select User Type</option>
+                      <option value="managed_by_consultant">
+                        Managed By Consultant
+                      </option>
+                      <option value="self_managed">Self Managed</option>
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                      <ChevronDown size={16} />
+                    </div>
+                  </div>
                 </div>
                 {/* 2. Assign Consultant */}
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase ml-2 text-slate-500 italic">
+                  <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                     Assign Consultant
                   </label>
-                  <select
-                    className="w-full p-3 bg-blue-50 text-blue-800 rounded-xl border-2 border-blue-100 font-bold outline-none text-xs"
-                    value={userForm.ref_code}
-                    required={userForm.user_type === "managed_by_consultant"}
-                    onChange={(e) =>
-                      setUserForm({ ...userForm, ref_code: e.target.value })
-                    }
-                  >
-                    <option value="">Select Consultant</option>
-                    {consultants
-                      .filter((c) => c.parent_id == null)
-                      .map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.business_name}
-                        </option>
-                      ))}
-                  </select>
+                  <div className="relative">
+                    <select
+                      className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all appearance-none"
+                      value={userForm.ref_code}
+                      required={userForm.user_type === "managed_by_consultant"}
+                      onChange={(e) =>
+                        setUserForm({ ...userForm, ref_code: e.target.value })
+                      }
+                    >
+                      <option value="">Select Consultant</option>
+                      {consultants
+                        .filter((c) => c.parent_id == null)
+                        .map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.business_name}
+                          </option>
+                        ))}
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                      <ChevronDown size={16} />
+                    </div>
+                  </div>
                 </div>
 
                 {/* 3. Company Type */}
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase ml-2 text-slate-500 italic">
+                  <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                     Company Type
                   </label>
-                  <select
-                    className="w-full p-3 bg-blue-50 text-blue-800 rounded-xl border-2 border-blue-100 font-bold outline-none text-xs"
-                    value={userForm.company_type}
-                    required
-                    onChange={(e) =>
-                      setUserForm({ ...userForm, company_type: e.target.value })
-                    }
-                  >
-                    <option value="">Select Company Type</option>
-                    {companyTypes.map((c) => (
-                      <option key={c.id} value={c.name}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <select
+                      className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all appearance-none"
+                      value={userForm.company_type}
+                      required
+                      onChange={(e) =>
+                        setUserForm({ ...userForm, company_type: e.target.value })
+                      }
+                    >
+                      <option value="">Select Company Type</option>
+                      {companyTypes.map((c) => (
+                        <option key={c.id} value={c.name}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                      <ChevronDown size={16} />
+                    </div>
+                  </div>
                 </div>
 
                 {/* 4. Alert */}
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase ml-2 text-slate-500">
+                  <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                     Alert
                   </label>
                   <input
-                    className="w-full p-3 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:border-emerald-500 text-xs"
+                    className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                     type="number"
                     value={userForm.alert}
                     onChange={(e) =>
@@ -1454,11 +1473,11 @@ export default function SuperAdminMaster() {
 
                 {/* 5. Leverage */}
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase ml-2 text-slate-500">
+                  <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                     Leverage
                   </label>
                   <input
-                    className="w-full p-3 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:border-emerald-500 text-xs"
+                    className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                     type="number"
                     value={userForm.leverage}
                     onChange={(e) =>
@@ -1476,7 +1495,7 @@ export default function SuperAdminMaster() {
                         </div> */}
             {isEditMode && (
               <div className="mt-8 pt-6 border-t border-slate-100">
-                <h4 className="text-xs font-black uppercase text-slate-400 tracking-widest border-b pb-1 mb-4">
+                <h4 className="text-xs font-black uppercase text-black tracking-widest border-b pb-1 mb-4">
                   Sub-Account Management
                 </h4>
 
@@ -1501,11 +1520,11 @@ export default function SuperAdminMaster() {
 
                       {/* 2. Display Name */}
                       <div className="flex-[1.5] flex flex-col w-full">
-                        <label className="text-[10px] font-bold uppercase ml-1 text-slate-500 mb-1">
+                        <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                           Display Name *
                         </label>
                         <input
-                          className="w-full p-2 bg-transparent border-b border-slate-200 focus:border-blue-400 outline-none text-xs font-bold text-slate-700 transition-colors"
+                          className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none border focus:border-blue-500 transition-all"
                           value={child.username}
                           placeholder="e.g. Abdullah"
                           onChange={(e) => {
@@ -1521,12 +1540,12 @@ export default function SuperAdminMaster() {
 
                       {/* 3. Domain Name */}
                       <div className="flex-[2] flex flex-col w-full">
-                        <label className="text-[10px] font-bold uppercase ml-1 text-slate-500 mb-1">
+                        <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                           Domain Name *
                         </label>
                         <div className="flex items-center border-b border-slate-200 focus-within:border-blue-400 transition-colors">
                           <input
-                            className="flex-1 p-2 bg-transparent outline-none text-xs text-slate-600"
+                            className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none border focus:border-blue-500 transition-all"
                             placeholder="login id"
                             value={child.domain_name}
                             onChange={(e) => {
@@ -1554,12 +1573,12 @@ export default function SuperAdminMaster() {
 
                       {/* 4. Password */}
                       <div className="flex-[1.5] flex flex-col w-full relative">
-                        <label className="text-[10px] font-bold uppercase ml-1 text-slate-500 mb-1">
+                        <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                           Password *
                         </label>
                         <div className="relative">
                           <input
-                            className="w-full p-2 pr-8 bg-transparent border-b border-slate-200 focus:border-blue-400 outline-none text-xs text-slate-600 transition-colors"
+                            className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none border focus:border-blue-500 transition-all"
                             type={
                               visibleSubUsersPasswords[idx]
                                 ? "text"
@@ -1595,11 +1614,11 @@ export default function SuperAdminMaster() {
                       </div>
 
                       <div className="flex-[1.5] flex flex-col w-full">
-                        <label className="text-[10px] font-bold uppercase ml-1 text-slate-500 mb-1">
+                        <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                           Contact
                         </label>
                         <input
-                          className="w-full p-2 bg-transparent border-b border-slate-200 focus:border-blue-400 outline-none text-xs font-bold text-slate-700 transition-colors"
+                          className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none border focus:border-blue-500 transition-all"
                           value={child.contact}
                           placeholder="e.g. 03XXXXX"
                           onChange={(e) => {
@@ -1610,11 +1629,11 @@ export default function SuperAdminMaster() {
                         />
                       </div>
                       <div className="flex-[1.5] flex flex-col w-full">
-                        <label className="text-[10px] font-bold uppercase ml-1 text-slate-500 mb-1">
+                        <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                           Email
                         </label>
                         <input
-                          className="w-full p-2 bg-transparent border-b border-slate-200 focus:border-blue-400 outline-none text-xs font-bold text-slate-700 transition-colors"
+                          className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none border focus:border-blue-500 transition-all"
                           value={child.email}
                           placeholder="e.g. example@mai.com"
                           onChange={(e) => {
@@ -1626,11 +1645,11 @@ export default function SuperAdminMaster() {
                         />
                       </div>
                       <div className="flex-[1.5] flex flex-col w-full">
-                        <label className="text-[10px] font-bold uppercase ml-1 text-slate-500 mb-1">
+                        <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                           Address
                         </label>
                         <input
-                          className="w-full p-2 bg-transparent border-b border-slate-200 focus:border-blue-400 outline-none text-xs font-bold text-slate-700 transition-colors"
+                          className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none border focus:border-blue-500 transition-all"
                           value={child.address}
                           placeholder="e.g. Washington DC"
                           onChange={(e) => {
@@ -1641,11 +1660,11 @@ export default function SuperAdminMaster() {
                         />
                       </div>
                       <div className="flex-[1.5] flex flex-col w-full">
-                        <label className="text-[10px] font-bold uppercase ml-1 text-slate-500 mb-1">
+                        <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                           Designation
                         </label>
                         <input
-                          className="w-full p-2 bg-transparent border-b border-slate-200 focus:border-blue-400 outline-none text-xs font-bold text-slate-700 transition-colors"
+                          className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none border focus:border-blue-500 transition-all"
                           value={child.designation}
                           placeholder="e.g. Assistant"
                           onChange={(e) => {
@@ -1661,7 +1680,7 @@ export default function SuperAdminMaster() {
                         <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-slate-100 shadow-sm">
                           <input
                             type="checkbox"
-                            className="h-4 w-4 accent-emerald-500 cursor-pointer"
+                            className="h-4 w-4 accent-blue-500 cursor-pointer"
                             checked={child.is_active == 1}
                             onChange={(e) => {
                               const newChildren = [...userForm.children];
@@ -1734,25 +1753,26 @@ export default function SuperAdminMaster() {
                                         Add To List
                                     </button>
                                 </div> */}
-                <div className="space-y-3 mb-6">
+                <div className="space-y-3 mb-6 bg-blue-50/30 px-3 py-6 rounded-lg shadow-md transition-all">
                   {/* New Child Row */}
-                  <div className="flex flex-col md:flex-row items-center gap-3 bg-blue-50/30 p-3 rounded-xl border border-blue-100 transition-all">
-                    <div className="flex items-center gap-3 shrink-0">
-                      <div className="h-8 w-8 bg-white rounded-lg flex items-center justify-center text-blue-600 border shadow-sm">
-                        <User size={14} />
-                      </div>
-                      <span className="bg-blue-100 text-blue-600 text-[8px] font-black px-1.5 py-0.5 rounded uppercase">
-                        New
-                      </span>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <div className="h-8 w-8 bg-white rounded-lg flex items-center justify-center text-blue-600 border shadow-sm">
+                      <User size={14} />
                     </div>
+                    <span className="bg-blue-100 text-blue-600 text-[8px] font-black px-1.5 py-0.5 rounded uppercase">
+                      New
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {/* <div className="flex flex-col md:flex-row items-center gap-3 bg-blue-50/30 px-3 py-10 rounded-lg shadow-md transition-all"> */}
 
                     {/* Display Name */}
                     <div className="flex-1 flex flex-col">
-                      <label className="text-[10px] font-bold uppercase ml-2 text-slate-500">
+                      <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                         Display Name *
                       </label>
                       <input
-                        className="flex-1 p-2 bg-transparent border-b border-transparent focus:border-blue-400 outline-none text-xs font-bold text-slate-700"
+                        className="w-full px-1 py-1 bg-slate-50 outline-none border-b focus:border-blue-500 transition-all"
                         placeholder="New Child Display Name"
                         value={userForm.newChildName || ""}
                         onChange={(e) =>
@@ -1765,13 +1785,13 @@ export default function SuperAdminMaster() {
                     </div>
 
                     {/* Domain Name */}
-                    <div className="flex-1 flex flex-col">
-                      <label className="text-[10px] font-bold uppercase ml-2 text-slate-500">
+                    <div className="relative flex-1 flex flex-col">
+                      <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                         Domain Name *
                       </label>
-                      <div className="flex items-center mt-1 border-b">
+                      <div className="flex items-center border-b">
                         <input
-                          className="flex-1 p-2 bg-transparent outline-none text-xs text-slate-600"
+                          className="w-full px-1 py-1 bg-slate-50 outline-none transition-all"
                           placeholder="Login ID"
                           value={userForm.newChildLogin || ""}
                           onChange={(e) => {
@@ -1785,7 +1805,7 @@ export default function SuperAdminMaster() {
                           @{userForm.root_domain || "domain.com"}
                         </span>
                       </div>
-                      <p className="text-[10px] text-slate-400 ml-2">
+                      <p className="absolute right-0 text-[10px] text-slate-400 ml-2">
                         Final Domain: {userForm.newChildLogin || "username"}@
                         {userForm.root_domain || "domain.com"}
                       </p>
@@ -1793,11 +1813,11 @@ export default function SuperAdminMaster() {
 
                     {/* Password */}
                     <div className="flex-1 flex flex-col">
-                      <label className="text-[10px] font-bold uppercase ml-2 text-slate-500">
+                      <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                         Password *
                       </label>
                       <input
-                        className="p-2 bg-transparent border-b border-transparent focus:border-blue-400 outline-none text-xs text-slate-500"
+                        className="w-full px-1 py-1 bg-slate-50 outline-none border-b focus:border-blue-500 transition-all"
                         type="password"
                         placeholder="Password"
                         value={userForm.newChildPassword || ""}
@@ -1810,11 +1830,11 @@ export default function SuperAdminMaster() {
                       />
                     </div>
                     <div className="flex-1 flex flex-col">
-                      <label className="text-[10px] font-bold uppercase ml-2 text-slate-500">
+                      <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                         Contact *
                       </label>
                       <input
-                        className="flex-1 p-2 bg-transparent border-b border-transparent focus:border-blue-400 outline-none text-xs font-bold text-slate-700"
+                        className="w-full px-1 py-1 bg-slate-50 outline-none border-b focus:border-blue-500 transition-all"
                         placeholder="New Child Contact"
                         value={userForm.newChildContact || ""}
                         onChange={(e) =>
@@ -1826,11 +1846,11 @@ export default function SuperAdminMaster() {
                       />
                     </div>
                     <div className="flex-1 flex flex-col">
-                      <label className="text-[10px] font-bold uppercase ml-2 text-slate-500">
+                      <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                         Email *
                       </label>
                       <input
-                        className="flex-1 p-2 bg-transparent border-b border-transparent focus:border-blue-400 outline-none text-xs font-bold text-slate-700"
+                        className="w-full px-1 py-1 bg-slate-50 outline-none border-b focus:border-blue-500 transition-all"
                         placeholder="New Child Email"
                         value={userForm.newChildEmail || ""}
                         onChange={(e) =>
@@ -1842,11 +1862,11 @@ export default function SuperAdminMaster() {
                       />
                     </div>
                     <div className="flex-1 flex flex-col">
-                      <label className="text-[10px] font-bold uppercase ml-2 text-slate-500">
+                      <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                         Address
                       </label>
                       <input
-                        className="flex-1 p-2 bg-transparent border-b border-transparent focus:border-blue-400 outline-none text-xs font-bold text-slate-700"
+                        className="w-full px-1 py-1 bg-slate-50 outline-none border-b focus:border-blue-500 transition-all"
                         placeholder="New Child Adress"
                         value={userForm.newChildAddress || ""}
                         onChange={(e) =>
@@ -1859,11 +1879,11 @@ export default function SuperAdminMaster() {
                     </div>
 
                     <div className="flex-1 flex flex-col">
-                      <label className="text-[10px] font-bold uppercase ml-2 text-slate-500">
+                      <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                         Designation
                       </label>
                       <input
-                        className="flex-1 p-2 bg-transparent border-b border-transparent focus:border-blue-400 outline-none text-xs font-bold text-slate-700"
+                        className="w-full px-1 py-1 bg-slate-50 outline-none border-b focus:border-blue-500 transition-all"
                         placeholder="New Child Email"
                         value={userForm.newChildDesignation || ""}
                         onChange={(e) =>
@@ -1876,52 +1896,52 @@ export default function SuperAdminMaster() {
                     </div>
 
                     {/* Add + Remove Buttons */}
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        type="button"
-                        className="bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase hover:bg-blue-700 transition-all py-2 px-3"
-                        onClick={() => {
-                          const name = userForm.newChildName?.trim();
-                          const login = userForm.newChildLogin?.trim();
-                          const password = userForm.newChildPassword?.trim();
-                          const contact = userForm.newChildContact?.trim();
-                          const email = userForm.newChildEmail?.trim();
-                          const address = userForm.newChildAddress?.trim();
-                          const designation =
-                            userForm.newChildDesignation?.trim();
-                          if (!name || !login || !password || !email) {
-                            alert("Please fill child details");
-                            return;
-                          }
+                    {/* <div className=""> */}
+                    <button
+                      type="button"
+                      className="w-full bg-blue-600 text-white rounded-lg font-semibold text-[14px] font-black uppercase hover:bg-blue-700 transition-all px-4 py-3"
+                      onClick={() => {
+                        const name = userForm.newChildName?.trim();
+                        const login = userForm.newChildLogin?.trim();
+                        const password = userForm.newChildPassword?.trim();
+                        const contact = userForm.newChildContact?.trim();
+                        const email = userForm.newChildEmail?.trim();
+                        const address = userForm.newChildAddress?.trim();
+                        const designation =
+                          userForm.newChildDesignation?.trim();
+                        if (!name || !login || !password || !email) {
+                          alert("Please fill child details");
+                          return;
+                        }
 
-                          setUserForm({
-                            ...userForm,
-                            children: [
-                              ...userForm.children,
-                              {
-                                username: name,
-                                domain_name: login,
-                                password: password,
-                                contact,
-                                email,
-                                address,
-                                designation,
-                                is_active: 1,
-                              },
-                            ],
-                            newChildName: "",
-                            newChildLogin: "",
-                            newChildPassword: "",
-                            newChildContact: "",
-                            newChildEmail: "",
-                            newChildAddress: "",
-                            newChildDesignation: "",
-                          });
-                        }}
-                      >
-                        Add
-                      </button>
-                    </div>
+                        setUserForm({
+                          ...userForm,
+                          children: [
+                            ...userForm.children,
+                            {
+                              username: name,
+                              domain_name: login,
+                              password: password,
+                              contact,
+                              email,
+                              address,
+                              designation,
+                              is_active: 1,
+                            },
+                          ],
+                          newChildName: "",
+                          newChildLogin: "",
+                          newChildPassword: "",
+                          newChildContact: "",
+                          newChildEmail: "",
+                          newChildAddress: "",
+                          newChildDesignation: "",
+                        });
+                      }}
+                    >
+                      Add
+                    </button>
+                    {/* </div> */}
                   </div>
                 </div>
               </div>
@@ -1929,14 +1949,14 @@ export default function SuperAdminMaster() {
             <div className="flex gap-4 mt-10">
               <button
                 type="submit"
-                className="flex-1 py-4 bg-emerald-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-emerald-100 hover:bg-emerald-700 hover:scale-[1.01] transition-all"
+                className="flex-1 py-4 bg-blue-600 text-white rounded-lg font-semibold font-black text-lg  hover:bg-blue-700 hover:scale-[1.01] transition-all"
               >
                 CONFIRM & SAVE BUSINESS USER
               </button>
               <button
                 type="button"
                 onClick={() => setShowUserModal(false)}
-                className="px-10 py-4 bg-slate-100 text-slate-400 rounded-2xl font-bold hover:bg-red-50 hover:text-red-500 transition-all"
+                className="px-10 py-4 bg-slate-100 text-slate-400 rounded-lg font-bold hover:bg-red-50 hover:text-red-500 transition-all"
               >
                 CANCEL
               </button>

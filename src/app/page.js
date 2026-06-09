@@ -417,11 +417,10 @@ export default function Home() {
                   {Object.keys(form).map((key, index) => (
                     <div
                       key={key}
-                      className={`mb-3 ${
-                        index === Object.keys(form).length - 1
-                          ? "md:col-span-2"
-                          : ""
-                      }`}
+                      className={`mb-3 ${index === Object.keys(form).length - 1
+                        ? "md:col-span-2"
+                        : ""
+                        }`}
                     >
                       <label className="block mb-1 capitalize text-[#1B1B1B] text-[14px]">
                         {key.replace("_", " ")}
@@ -455,7 +454,7 @@ export default function Home() {
               </form>
             )}
           </div>
-          <div className="bg-[#F7F8FA] w-full md:w-[80%] flex-col hidden md:flex">
+          <div className="bg-[#F7F8FA] w-full md:w-[80%] flex-col hidden md:flex overflow-hidden">
             <div className="p-6">
               <h1 className="text-[#1B1B1B] text-[26px] md:text-4xl font-semibold mb-2">
                 Welcome to Our Platform
@@ -466,9 +465,10 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="relative mt-6 flex-1 overflow-hidden">
+            <div className="relative mt-6 flex-1 overflow-visible">
               <img
-                src="/images/login/dashboardv1.jpeg"
+                src="/images/login/dashboardv2.png"
+                // src="/images/login/dashboardv1.jpeg"
                 alt="dashboard"
                 className="  
               h-full

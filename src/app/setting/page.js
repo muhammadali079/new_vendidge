@@ -447,7 +447,7 @@ const FieldItem = ({
           {f.name}
         </span>
         {isLocked && (
-          <span className="text-[9px] font-black text-amber-500 uppercase flex items-center gap-1">
+          <span className="text-[9px] font-black text-blue-500 uppercase flex items-center gap-1">
             <Lock size={10} /> Restricted by Admin
           </span>
         )}
@@ -462,7 +462,7 @@ const FieldItem = ({
             onChange={handleInputChange}
             onBlur={() => !isLocked && changeDisplayName(f.id, localName)}
             disabled={saving || isLocked}
-            className={`w-full px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${isLocked ? "bg-white cursor-not-allowed" : ""}`}
+            className={`w-full px-3 py-2 shadow-md rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none ${isLocked ? "bg-white cursor-not-allowed" : ""}`}
           />
           {localName && !isLocked && (
             <button
@@ -656,9 +656,9 @@ export default function SettingsPage() {
   const userDefinedFields = fields.slice(14);
 
   return (
-    <div className="relative max-w-4xl mx-auto py-8 px-4">
-      <div className="flex justify-between items-center mb-6 bg-white p-4 sticky top-0 z-10 border-b shadow-sm rounded-t-lg">
-        <h2 className="text-xl font-bold text-gray-800">
+    <div className="relative">
+      <div className="flex justify-between bg-gray-50 -top-5 items-center mb-6 p-4 sticky z-10 border-b">
+        <h2 className="text-[24px] md:text-3xl font-bold text-gray-800 bg-gray-50">
           Field Visibility & Printing
         </h2>
 
@@ -685,9 +685,9 @@ export default function SettingsPage() {
       <div className="space-y-6">
         {/* --- PRINT ORIENTATION --- */}
         <section
-          className={`bg-white rounded-lg shadow border border-gray-200 overflow-hidden ${isOrientationLocked ? "opacity-75" : ""}`}
+          className={`bg-white rounded-lg shadow-md overflow-hidden ${isOrientationLocked ? "opacity-75" : ""}`}
         >
-          <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+          <div className="bg-gray-200 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
             <div className="flex items-center gap-2">
               <h3 className="font-bold text-gray-700 text-sm uppercase tracking-wider">
                 Default Orientation
@@ -749,8 +749,8 @@ export default function SettingsPage() {
         </section>
 
         {/* --- ROW FIELDS --- */}
-        <section className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
-          <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+        <section className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="bg-gray-200 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
             <h3 className="font-bold text-gray-700 text-sm uppercase tracking-wider">
               Invoice Print Row Fields
             </h3>
@@ -777,8 +777,8 @@ export default function SettingsPage() {
         </section>
 
         {/* --- HEADER FIELDS --- */}
-        <section className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
-          <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+        <section className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="bg-gray-200 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
             <h3 className="font-bold text-gray-700 text-sm uppercase tracking-wider">
               Invoice Print Header
             </h3>
@@ -805,8 +805,8 @@ export default function SettingsPage() {
         </section>
 
         {/* --- USER DEFINED FIELDS --- */}
-        <section className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
-          <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+        <section className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="bg-gray-200 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
             <h3 className="font-bold text-gray-700 text-sm uppercase tracking-wider">
               Custom Labels
             </h3>

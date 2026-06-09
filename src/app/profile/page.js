@@ -8,6 +8,7 @@ import {
   Plus,
   User,
   Building2,
+  ChevronDown,
   Mail,
   Phone,
   Settings,
@@ -290,13 +291,13 @@ export default function ProfileScreen({ darkMode }) {
 
   return (
     <div
-      className={`min-h-screen px-4 py-8 ${darkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}
+      className={`min-h-screen mt-4 ${darkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}
     >
-      <div className="max-w-5xl mx-auto">
+      <div className="">
         {/* --- HEADER --- */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-10 gap-4">
           <div>
-            <h1 className="text-3xl font-black tracking-tight text-slate-800">
+            <h1 className="text-[24px] md:text-3xl font-bold font-black tracking-tight text-slate-800">
               Account Settings
             </h1>
             <p className="text-slate-500 font-medium">
@@ -307,7 +308,7 @@ export default function ProfileScreen({ darkMode }) {
             {!isEditing ? (
               <button
                 onClick={() => setIsEditing(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-blue-200 flex items-center gap-2"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg  font-semibold transition-all shadow-lg shadow-blue-200 flex items-center gap-2"
               >
                 <Edit3 size={18} /> Edit Profile
               </button>
@@ -316,12 +317,16 @@ export default function ProfileScreen({ darkMode }) {
                 <button
                   onClick={handleSave}
                   disabled={isSavingProfile}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-emerald-100 disabled:opacity-50"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-bold flex items-center gap-2 disabled:opacity-50"
                 >
-                  {isSavingProfile ? (
+                  {/* {isSavingProfile ? (
                     <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   ) : (
                     <Check size={20} />
+                  )}
+                  {isSavingProfile ? "Saving..." : "Save All Changes"} */}
+                  {isSavingProfile && (
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   )}
                   {isSavingProfile ? "Saving..." : "Save All Changes"}
                 </button>
@@ -330,7 +335,7 @@ export default function ProfileScreen({ darkMode }) {
                     setIsEditing(false);
                     loadProfileData();
                   }}
-                  className="bg-white border border-slate-200 text-slate-600 px-6 py-3 rounded-2xl font-bold hover:bg-slate-50"
+                  className="bg-white border border-slate-200 text-slate-600 px-6 py-3 rounded-lg font-bold hover:bg-slate-50"
                 >
                   Cancel
                 </button>
@@ -341,13 +346,13 @@ export default function ProfileScreen({ darkMode }) {
 
         <div className="space-y-8">
           {/* --- SECTION 1: ACCOUNT DETAILS --- */}
-          <section className="bg-white rounded-[2.5rem] border border-slate-200 p-8 shadow-sm">
-            <h2 className="text-sm font-black text-blue-600 uppercase tracking-widest mb-6 flex items-center gap-2">
+          <section className="bg-white rounded-lg shadow-md p-6 shadow-sm">
+            <h2 className="text-sm font-black uppercase tracking-widest mb-6 flex items-center gap-2">
               <User size={18} /> Primary User Information
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                   Full Name
                 </label>
                 <input
@@ -355,11 +360,11 @@ export default function ProfileScreen({ darkMode }) {
                   value={form.seller_name}
                   onChange={handleAccountChange}
                   disabled={!isEditing}
-                  className="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none disabled:opacity-50 font-bold"
+                  className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 disabled:opacity-50 transition-all"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                   CNIC / NTN
                 </label>
                 <input
@@ -369,18 +374,18 @@ export default function ProfileScreen({ darkMode }) {
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                   Invoice NTN
                 </label>
                 <input
                   name="invoice_ntn"
                   value={form.invoice_ntn}
                   readOnly
-                  className="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none disabled:opacity-50 font-bold"
+                  className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 disabled:opacity-50 transition-all"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                   STRN
                 </label>
                 <input
@@ -388,12 +393,12 @@ export default function ProfileScreen({ darkMode }) {
                   value={form.strn}
                   onChange={handleAccountChange}
                   disabled={!isEditing}
-                  className="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none disabled:opacity-50"
+                  className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 disabled:opacity-50 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                   Email Address
                 </label>
                 <input
@@ -401,11 +406,11 @@ export default function ProfileScreen({ darkMode }) {
                   value={form.email}
                   onChange={handleAccountChange}
                   disabled={!isEditing}
-                  className="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none disabled:opacity-50"
+                  className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 disabled:opacity-50 transition-all"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                   Contact Number
                 </label>
                 <input
@@ -413,11 +418,11 @@ export default function ProfileScreen({ darkMode }) {
                   value={form.contact}
                   onChange={handleAccountChange}
                   disabled={!isEditing}
-                  className="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none disabled:opacity-50"
+                  className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 disabled:opacity-50 transition-all"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                   FBR Token
                 </label>
                 <input
@@ -426,11 +431,11 @@ export default function ProfileScreen({ darkMode }) {
                   onChange={handleAccountChange}
                   required
                   disabled={!isEditing}
-                  className="w-full p-4 bg-slate-50 border-none rounded-2xl font-mono text-xs focus:ring-2 focus:ring-blue-500 outline-none disabled:opacity-50"
+                  className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 disabled:opacity-50 transition-all"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                   Designation
                 </label>
                 <input
@@ -438,7 +443,7 @@ export default function ProfileScreen({ darkMode }) {
                   value={form.designation}
                   onChange={handleAccountChange}
                   disabled={!isEditing}
-                  className="w-full p-4 bg-slate-50 border-none rounded-2xl font-mono text-xs focus:ring-2 focus:ring-blue-500 outline-none disabled:opacity-50"
+                  className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 disabled:opacity-50 transition-all"
                 />
               </div>
             </div>
@@ -447,13 +452,13 @@ export default function ProfileScreen({ darkMode }) {
           {/* --- SECTION 2: BUSINESS UNITS --- */}
           <section>
             <div className="flex justify-between items-center mb-6 px-2">
-              <h2 className="text-sm font-black text-emerald-600 uppercase tracking-widest flex items-center gap-2">
+              <h2 className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
                 <Building2 size={18} /> Registered Business Units
               </h2>
               {isEditing && (
                 <button
                   onClick={addNewBusiness}
-                  className="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl text-xs font-black hover:bg-emerald-100 flex items-center gap-1 transition-all"
+                  className="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-xs font-black hover:bg-blue-100 flex items-center gap-1 transition-all"
                 >
                   <Plus size={14} /> Add Business Entity
                 </button>
@@ -464,9 +469,9 @@ export default function ProfileScreen({ darkMode }) {
               {form.businesses.map((biz, index) => (
                 <div
                   key={index}
-                  className="bg-white border border-slate-200 rounded-[2rem] p-8 relative overflow-hidden group transition-all hover:border-emerald-200 shadow-sm"
+                  className="bg-white border border-slate-200 rounded-lg shadow-md p-6 relative overflow-hidden group transition-all"
                 >
-                  <div className="absolute top-0 left-0 w-2 h-full bg-emerald-500" />
+                  <div className="absolute top-0 left-0 w-1 h-full bg-blue-500" />
 
                   {isEditing && (
                     <button
@@ -479,7 +484,7 @@ export default function ProfileScreen({ darkMode }) {
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="md:col-span-2">
-                      <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                      <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                         Business Name
                       </label>
                       <input
@@ -493,40 +498,46 @@ export default function ProfileScreen({ darkMode }) {
                         }
                         disabled={!isEditing}
                         placeholder="Trading Name"
-                        className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold focus:ring-2 focus:ring-emerald-500 outline-none"
+                        className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200  transition-all"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                      <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                         Province
                       </label>
-                      <select
-                        value={biz.province}
-                        onChange={(e) =>
-                          handleBusinessChange(
-                            index,
-                            "province",
-                            e.target.value,
-                          )
-                        }
-                        disabled={!isEditing}
-                        className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold focus:ring-2 focus:ring-emerald-500 outline-none"
-                        required
-                      >
-                        <option value="">Select Province</option>
-                        {provinces.map((p) => (
-                          <option
-                            key={p.stateProvinceCode}
-                            value={p.stateProvinceDesc}
-                          >
-                            {p.stateProvinceDesc}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="relative">
+                        <select
+                          value={biz.province}
+                          onChange={(e) =>
+                            handleBusinessChange(
+                              index,
+                              "province",
+                              e.target.value,
+                            )
+                          }
+                          disabled={!isEditing}
+                          className="appearance-none w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200  transition-all"
+                          required
+                        >
+                          <option value="">Select Province</option>
+                          {provinces.map((p) => (
+                            <option
+                              key={p.stateProvinceCode}
+                              value={p.stateProvinceDesc}
+                            >
+                              {p.stateProvinceDesc}
+                            </option>
+                          ))}
+                        </select>
+
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                          <ChevronDown size={16} />
+                        </div>
+                      </div>
                     </div>
                     <div className="md:col-span-3">
-                      <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                      <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                         Physical Address
                       </label>
                       <textarea
@@ -537,7 +548,7 @@ export default function ProfileScreen({ darkMode }) {
                         disabled={!isEditing}
                         rows="2"
                         placeholder="Unit, Floor, Street, City..."
-                        className="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-emerald-500 outline-none"
+                        className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200  transition-all"
                         required
                       />
                     </div>
@@ -551,7 +562,7 @@ export default function ProfileScreen({ darkMode }) {
           <div className="pt-4 flex justify-center">
             <button
               onClick={() => setShowPasswordForm(true)}
-              className="bg-slate-800 text-white px-8 py-4 rounded-2xl font-black text-sm hover:bg-black transition-all flex items-center gap-2 shadow-xl shadow-slate-200"
+              className="bg-slate-800 text-white px-8 py-4 rounded-lg font-semibold font-black text-sm hover:bg-black transition-all flex items-center gap-2 shadow-xl shadow-slate-200"
             >
               <Settings size={18} /> Update Security Password
             </button>
@@ -562,9 +573,9 @@ export default function ProfileScreen({ darkMode }) {
       {/* --- PASSWORD MODAL --- */}
       {showPasswordForm && (
         <div className="fixed inset-0 backdrop-blur-md bg-slate-900/40 z-50 flex items-center justify-center px-4">
-          <div className="bg-white rounded-[2.5rem] shadow-2xl p-10 w-full max-w-xl">
+          <div className="bg-white rounded-lg shadow-,d p-6 w-full max-w-xl">
             <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl font-black text-slate-800">
+              <h2 className="text-2xl font-semibold font-black text-slate-800">
                 Change Password
               </h2>
               <button
@@ -576,7 +587,7 @@ export default function ProfileScreen({ darkMode }) {
             </div>
             <form onSubmit={saveNewPassword} className="space-y-6">
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                   Current Password
                 </label>
                 <PasswordInput
@@ -587,7 +598,7 @@ export default function ProfileScreen({ darkMode }) {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                  <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                     New Password
                   </label>
                   <PasswordInput
@@ -597,7 +608,7 @@ export default function ProfileScreen({ darkMode }) {
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                  <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                     Confirm New
                   </label>
                   <PasswordInput
@@ -610,12 +621,10 @@ export default function ProfileScreen({ darkMode }) {
               <button
                 type="submit"
                 disabled={isSavingPassword}
-                className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black shadow-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 bg-blue-600 text-white rounded-lg font-semibold font-black shadow-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
               >
-                {isSavingPassword ? (
+                {isSavingPassword && (
                   <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <Check size={20} />
                 )}
                 {isSavingPassword ? "Updating..." : "Confirm Update"}
               </button>

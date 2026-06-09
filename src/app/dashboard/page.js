@@ -46,12 +46,12 @@ export default function DashboardPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50/40 pb-12">
+    <div className="min-h-screen pb-12">
       {/* Header + Date Picker */}
-      <div className="border-b bg-white sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="border-b bg-gray-50 sticky -top-4 z-10">
+        <div className="py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+            <h1 className="text-[24px] md:text-3xl font-bold text-gray-900">Dashboard</h1>
             <p className="text-sm text-gray-500">
               {dateRange.start} → {dateRange.end}
             </p>
@@ -89,7 +89,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <main className="max-w-7xl mx-auto sm:px-6 lg:px-8 pt-8">
+      <main className="pt-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6 mb-10">
           <StatCard title="Total Sales" value="PKR 489,000" trend="+12.4%" />
           <StatCard title="Invoices" value="399" trend="+8.1%" />
@@ -175,7 +175,7 @@ function StatCard({ title, value, trend }) {
   const isPositive = trend.startsWith("+");
 
   return (
-    <div className="bg-white border rounded-xl p-5 shadow-sm hover:shadow transition-shadow">
+    <div className="bg-white shadow-md rounded-lg p-5  transition-shadow">
       <p className="text-sm font-medium text-gray-500">{title}</p>
       <p className="text-2xl font-bold mt-1">{value}</p>
       <p className={`text-sm mt-1 ${isPositive ? "text-green-600" : "text-red-600"}`}>
@@ -187,7 +187,7 @@ function StatCard({ title, value, trend }) {
 
 function ChartCard({ title, children }) {
   return (
-    <div className="bg-white border rounded-xl p-5 shadow-sm">
+    <div className="bg-white rounded-lg p-5 shadow-md">
       <h3 className="text-lg font-semibold mb-4 text-gray-800">{title}</h3>
       {children}
     </div>

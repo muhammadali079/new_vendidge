@@ -978,6 +978,7 @@ import {
   Plus,
   X,
   Package,
+  ChevronDown,
   Layers,
   Hash,
   DollarSign,
@@ -1402,13 +1403,13 @@ export default function ProductPage({ darkMode }) {
 
   return (
     <div
-      className={`min-h-screen px-4 py-8 ${darkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}
+      className={`min-h-screen pt-4 ${darkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}
     >
-      <div className="max-w-6xl mx-auto">
+      <div>
         {/* --- HEADER --- */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-10 gap-4">
           <div>
-            <h1 className="text-3xl font-black tracking-tight text-slate-800">
+            <h1 className="text-[24px] md:text-3xl font-bold font-black tracking-tight text-slate-800">
               Product Management
             </h1>
             <p className="text-slate-500 font-medium">
@@ -1431,7 +1432,7 @@ export default function ProductPage({ darkMode }) {
                 setSroItemOptions([]);
                 setShowForm(true);
               }}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-blue-200 flex items-center gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold transition-all flex items-center gap-2"
             >
               <Plus size={18} /> New Product
             </button>
@@ -1439,14 +1440,14 @@ export default function ProductPage({ darkMode }) {
         </div>
 
         {/* --- PRODUCT LIST --- */}
-        <section className="bg-white rounded-[2.5rem] border border-slate-200 p-8 shadow-sm overflow-hidden">
-          <h2 className="text-sm font-black text-blue-600 uppercase tracking-widest mb-6 flex items-center gap-2">
+        <section className="bg-white rounded-lg p-6 shadow-md overflow-hidden">
+          <h2 className="text-sm font-black uppercase tracking-widest mb-6 flex items-center gap-2">
             <Package size={18} /> Inventory Items
           </h2>
 
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left whitespace-nowrap">
-              <thead className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+              <thead className="text-[10px] font-black uppercase tracking-widest">
                 <tr>
                   <th className="px-4 py-4 ml-2">ID</th>
                   <th className="px-4 py-4">Description</th>
@@ -1532,9 +1533,9 @@ export default function ProductPage({ darkMode }) {
       {/* --- MODAL FORM --- */}
       {showForm && (
         <div className="fixed inset-0 backdrop-blur-md bg-slate-900/40 z-50 flex items-center justify-center px-4 py-6">
-          <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 md:p-10 w-full max-w-5xl max-h-full overflow-y-auto custom-scroll">
+          <div className="bg-white rounded-lg px-6 md:px-10 pt-0 w-full max-w-5xl max-h-full overflow-y-auto custom-scroll">
             <div className="flex justify-between items-center mb-8 sticky top-0 bg-white z-10 pb-4 border-b">
-              <h2 className="text-2xl font-black text-slate-800">
+              <h2 className="text-2xl font-black font-semibold text-slate-800 pt-6 md:pt-10">
                 {isFormReadOnly
                   ? "View Product Details"
                   : isEdit
@@ -1553,16 +1554,19 @@ export default function ProductPage({ darkMode }) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* --- BASIC INFO --- */}
                 <div className="space-y-5">
-                  <h3 className="text-xs font-black text-blue-600 uppercase tracking-widest flex items-center gap-2">
+                  <h3 className="text-xs font-black uppercase tracking-widest flex items-center gap-2">
                     <Package size={16} /> General Info
                   </h3>
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       Product Description *
                     </label>
                     <input
                       readOnly={isFormReadOnly}
-                      className={`w-full p-3 border-none rounded-2xl font-bold focus:ring-2 focus:ring-blue-500 outline-none ${isFormReadOnly ? "bg-gray-100 text-gray-500" : "bg-slate-50"}`}
+                      className={`w-full px-4 py-3 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all ${isFormReadOnly
+                        ? "bg-gray-100 text-gray-500"
+                        : "bg-slate-50"
+                        }`}
                       value={formData.product_description}
                       onChange={(e) =>
                         setFormData({
@@ -1574,12 +1578,15 @@ export default function ProductPage({ darkMode }) {
                     />
                   </div>
                   <div className="relative group">
-                    <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       HS Code *
                     </label>
                     <input
                       readOnly={isFormReadOnly}
-                      className={`w-full p-3 border-none rounded-2xl font-mono text-sm focus:ring-2 focus:ring-blue-500 outline-none ${isFormReadOnly ? "bg-gray-100 text-gray-500" : "bg-slate-50"}`}
+                      className={`w-full px-4 py-3 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all ${isFormReadOnly
+                        ? "bg-gray-100 text-gray-500"
+                        : "bg-slate-50"
+                        }`}
                       value={formData.hsCode}
                       onChange={(e) =>
                         setFormData({ ...formData, hsCode: e.target.value })
@@ -1597,8 +1604,10 @@ export default function ProductPage({ darkMode }) {
                                 // setFormData({ ...formData, hsCode: h.hS_CODE })
                                 handleHsCodeSelect(h.hS_CODE)
                               }
-                              className="p-3 hover:bg-slate-50 cursor-pointer text-xs font-bold border-b border-slate-50 last:border-none"
-                            >
+                              className={`w-full px-4 py-3 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all ${isFormReadOnly
+                                ? "bg-gray-100 text-gray-500"
+                                : "bg-slate-50"
+                                }`}                            >
                               {h.hS_CODE} -{" "}
                               <span className="text-slate-400 font-medium">
                                 {h.description}
@@ -1610,33 +1619,44 @@ export default function ProductPage({ darkMode }) {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                      <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                         FBR UoM *
                       </label>
-                      <select
-                        disabled={isFormReadOnly}
-                        className={`w-full p-3 border-none rounded-2xl font-bold text-sm focus:ring-2 focus:ring-blue-500 outline-none ${isFormReadOnly ? "bg-gray-100 text-gray-500" : "bg-slate-50"}`}
-                        value={formData.unit}
-                        onChange={(e) =>
-                          setFormData({ ...formData, unit: e.target.value })
-                        }
-                        required
-                      >
-                        <option value="">Select Unit</option>
-                        {uomList.map((u) => (
-                          <option key={u.uom_ID} value={u.description}>
-                            {u.description}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="relative">
+                        <select
+                          disabled={isFormReadOnly}
+                          className={`appearance-none w-full px-4 py-3 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all ${isFormReadOnly
+                            ? "bg-gray-100 text-gray-500"
+                            : "bg-slate-50"
+                            }`}
+                          value={formData.unit}
+                          onChange={(e) =>
+                            setFormData({ ...formData, unit: e.target.value })
+                          }
+                          required
+                        >
+                          <option value="">Select Unit</option>
+                          {uomList.map((u) => (
+                            <option key={u.uom_ID} value={u.description}>
+                              {u.description}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                          <ChevronDown size={16} />
+                        </div>
+                      </div>
                     </div>
                     <div>
-                      <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                      <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                         Internal UoM
                       </label>
                       <input
                         readOnly={isFormReadOnly}
-                        className={`w-full p-3 border-none rounded-2xl font-bold text-sm focus:ring-2 focus:ring-blue-500 outline-none ${isFormReadOnly ? "bg-gray-100 text-gray-500" : "bg-slate-50"}`}
+                        className={`w-full px-4 py-3 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all ${isFormReadOnly
+                          ? "bg-gray-100 text-gray-500"
+                          : "bg-slate-50"
+                          }`}
                         placeholder="e.g. Box, Dozen"
                         value={formData.internalUOM}
                         onChange={(e) =>
@@ -1652,18 +1672,21 @@ export default function ProductPage({ darkMode }) {
 
                 {/* --- PRICING --- */}
                 <div className="space-y-5">
-                  <h3 className="text-xs font-black text-emerald-600 uppercase tracking-widest flex items-center gap-2">
+                  <h3 className="text-xs font-black uppercase tracking-widest flex items-center gap-2">
                     <DollarSign size={16} /> Pricing
                   </h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1 tracking-widest">
+                      <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                         Single Unit Price *
                       </label>
                       <input
                         readOnly={isFormReadOnly}
                         type="text"
-                        className={`w-full p-3 border-none rounded-2xl font-bold focus:ring-2 outline-none ${isFormReadOnly ? "bg-gray-100 text-gray-500" : "bg-emerald-50/50 text-emerald-700 focus:ring-emerald-500"}`}
+                        className={`w-full px-4 py-3 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all ${isFormReadOnly
+                          ? "bg-gray-100 text-gray-500"
+                          : "bg-slate-50"
+                          }`}
                         value={
                           formData.singleUnitPrice == 0
                             ? ""
@@ -1676,13 +1699,16 @@ export default function ProductPage({ darkMode }) {
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1 tracking-widest">
+                      <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                         Internal Price
                       </label>
                       <input
                         readOnly={isFormReadOnly}
                         type="text"
-                        className={`w-full p-3 border-none rounded-2xl font-bold focus:ring-2 focus:ring-emerald-500 outline-none ${isFormReadOnly ? "bg-gray-100 text-gray-500" : "bg-slate-50"}`}
+                        className={`w-full px-4 py-3 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all ${isFormReadOnly
+                          ? "bg-gray-100 text-gray-500"
+                          : "bg-slate-50"
+                          }`}
                         value={formData.internalSinglePrice}
                         onChange={(e) =>
                           handleNumericInput(
@@ -1694,16 +1720,19 @@ export default function ProductPage({ darkMode }) {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1 tracking-widest">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       Fixed / Retail Price
                     </label>
                     <input
                       readOnly={isFormReadOnly}
                       type="text"
-                      className={`w-full p-3 border-none rounded-2xl font-bold focus:ring-2 focus:ring-emerald-500 outline-none ${isFormReadOnly ? "bg-gray-100 text-gray-500" : "bg-slate-50"}`}
+                      className={`w-full px-4 py-3 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all ${isFormReadOnly
+                        ? "bg-gray-100 text-gray-500"
+                        : "bg-slate-50"
+                        }`}
                       value={
                         formData.transactionTypeId === "23" &&
-                        Number(formData.fixedNotifiedValueOrRetailPrice) === 0
+                          Number(formData.fixedNotifiedValueOrRetailPrice) === 0
                           ? ""
                           : formData.fixedNotifiedValueOrRetailPrice
                       }
@@ -1720,8 +1749,8 @@ export default function ProductPage({ darkMode }) {
               </div>
 
               {/* --- TAXES --- */}
-              <section className="bg-orange-50/30 border border-orange-100 rounded-[2rem] p-6">
-                <h3 className="text-sm font-black text-orange-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+              <section className="shadow-md rounded-lg p-6">
+                <h3 className="text-sm font-black text-blue-600 uppercase tracking-widest mb-4 flex items-center gap-2">
                   <Calculator size={18} /> Additional Taxes
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -1732,13 +1761,16 @@ export default function ProductPage({ darkMode }) {
                     "fedPayable",
                   ].map((field) => (
                     <div key={field}>
-                      <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                      <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                         {field.replace(/([A-Z])/g, " $1")} %
                       </label>
                       <input
                         readOnly={isFormReadOnly}
                         type="text"
-                        className={`w-full p-3 border border-slate-200 rounded-2xl font-bold focus:ring-2 focus:ring-orange-500 outline-none ${isFormReadOnly ? "bg-gray-100 text-gray-500" : "bg-white"}`}
+                        className={`w-full px-4 py-3 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all ${isFormReadOnly
+                          ? "bg-gray-100 text-gray-500"
+                          : "bg-slate-50"
+                          }`}
                         value={formData[field]}
                         onChange={(e) =>
                           handleNumericInput(field, e.target.value)
@@ -1750,110 +1782,142 @@ export default function ProductPage({ darkMode }) {
               </section>
 
               {/* --- FBR MAPPING --- */}
-              <section className="bg-white border border-slate-200 rounded-[2rem] p-6 relative overflow-hidden shadow-sm">
-                <div className="absolute top-0 left-0 w-2 h-full bg-blue-500" />
+              <section className="bg-white rounded-lg p-6 relative overflow-hidden shadow-sm">
+                <div className="absolute top-0 left-0 w-1 h-full bg-blue-500" />
                 <h2 className="text-sm font-black text-blue-600 uppercase tracking-widest mb-4 flex items-center gap-2">
                   <Settings size={18} /> FBR Mapping *
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1 tracking-widest">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       Trans. Type *
                     </label>
-                    <select
-                      disabled={isFormReadOnly}
-                      className={`w-full p-3 border-none rounded-2xl font-bold text-xs focus:ring-2 focus:ring-blue-500 outline-none ${isFormReadOnly ? "bg-gray-100 text-gray-500" : "bg-slate-50"}`}
-                      value={formData.transactionTypeId}
-                      onChange={(e) => handleTransactionChange(e.target.value)}
-                      required
-                    >
-                      <option value="">Select Type</option>
-                      {transTypeList.map((t) => (
-                        <option
-                          key={t.transactioN_TYPE_ID}
-                          value={t.transactioN_TYPE_ID}
-                        >
-                          {t.transactioN_DESC}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        disabled={isFormReadOnly}
+                        className={`appearance-none w-full px-4 py-3 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all ${isFormReadOnly
+                          ? "bg-gray-100 text-gray-500"
+                          : "bg-slate-50"
+                          }`}
+                        value={formData.transactionTypeId}
+                        onChange={(e) => handleTransactionChange(e.target.value)}
+                        required
+                      >
+                        <option value="">Select Type</option>
+                        {transTypeList.map((t) => (
+                          <option
+                            key={t.transactioN_TYPE_ID}
+                            value={t.transactioN_TYPE_ID}
+                          >
+                            {t.transactioN_DESC}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                        <ChevronDown size={16} />
+                      </div>
+                    </div>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1 tracking-widest">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       Tax Rate *
                     </label>
-                    <select
-                      disabled={isFormReadOnly || !formData.transactionTypeId}
-                      className={`w-full p-3 border-none rounded-2xl font-bold text-xs focus:ring-2 focus:ring-blue-500 outline-none ${isFormReadOnly ? "bg-gray-100 text-gray-500" : "bg-slate-50"}`}
-                      value={formData.rateId}
-                      onChange={(e) => handleRateChange(e.target.value)}
-                      required
-                    >
-                      <option value="">Select Rate</option>
-                      {rateOptions.map((r) => (
-                        <option key={r.ratE_ID} value={r.ratE_ID}>
-                          {r.ratE_DESC}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        disabled={isFormReadOnly || !formData.transactionTypeId}
+                        className={`appearance-none w-full px-4 py-3 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all ${isFormReadOnly
+                          ? "bg-gray-100 text-gray-500"
+                          : "bg-slate-50"
+                          }`}
+                        value={formData.rateId}
+                        onChange={(e) => handleRateChange(e.target.value)}
+                        required
+                      >
+                        <option value="">Select Rate</option>
+                        {rateOptions.map((r) => (
+                          <option key={r.ratE_ID} value={r.ratE_ID}>
+                            {r.ratE_DESC}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                        <ChevronDown size={16} />
+                      </div>
+                    </div>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1 tracking-widest">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       SRO Schedule
                     </label>
-                    <select
-                      disabled={isFormReadOnly || !formData.rateId}
-                      className={`w-full p-3 border-none rounded-2xl font-bold text-xs focus:ring-2 focus:ring-blue-500 outline-none ${isFormReadOnly ? "bg-gray-100 text-gray-500" : "bg-slate-50"}`}
-                      value={formData.sroScheduleId || ""}
-                      onChange={(e) => handleSroChange(e.target.value)}
-                      required={sroOptions.length > 0}
-                    >
-                      <option value="">Select SRO</option>
-                      {sroOptions.map((s) => (
-                        <option key={s.srO_ID || s.id} value={s.srO_ID || s.id}>
-                          {s.srO_DESC}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        disabled={isFormReadOnly || !formData.rateId}
+                        className={`appearance-none w-full px-4 py-3 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all ${isFormReadOnly
+                          ? "bg-gray-100 text-gray-500"
+                          : "bg-slate-50"
+                          }`}
+                        value={formData.sroScheduleId || ""}
+                        onChange={(e) => handleSroChange(e.target.value)}
+                        required={sroOptions.length > 0}
+                      >
+                        <option value="">Select SRO</option>
+                        {sroOptions.map((s) => (
+                          <option key={s.srO_ID || s.id} value={s.srO_ID || s.id}>
+                            {s.srO_DESC}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                        <ChevronDown size={16} />
+                      </div>
+                    </div>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1 tracking-widest">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       SRO Item
                     </label>
-                    <select
-                      disabled={isFormReadOnly || !formData.sroScheduleId}
-                      className={`w-full p-3 border-none rounded-2xl font-bold text-xs focus:ring-2 focus:ring-blue-500 outline-none ${isFormReadOnly ? "bg-gray-100 text-gray-500" : "bg-slate-50"}`}
-                      value={formData.sroItemId}
-                      required={
-                        !!formData.sroScheduleId && sroItemOptions.length > 0
-                      }
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          sroItemId: e.target.value,
-                          sroItemSerialNo:
-                            sroItemOptions.find(
-                              (i) => (i.srO_ITEM_ID || i.id) == e.target.value,
-                            )?.srO_ITEM_DESC || "",
-                        })
-                      }
-                    >
-                      <option value="">Select Item</option>
-                      {sroItemOptions.map((i) => (
-                        <option
-                          key={i.srO_ITEM_ID || i.id}
-                          value={i.srO_ITEM_ID || i.id}
-                        >
-                          {i.srO_ITEM_DESC}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        disabled={isFormReadOnly || !formData.sroScheduleId}
+                        className={`appearance-none w-full px-4 py-3 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all ${isFormReadOnly
+                          ? "bg-gray-100 text-gray-500"
+                          : "bg-slate-50"
+                          }`}
+                        value={formData.sroItemId}
+                        required={
+                          !!formData.sroScheduleId && sroItemOptions.length > 0
+                        }
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            sroItemId: e.target.value,
+                            sroItemSerialNo:
+                              sroItemOptions.find(
+                                (i) => (i.srO_ITEM_ID || i.id) == e.target.value,
+                              )?.srO_ITEM_DESC || "",
+                          })
+                        }
+                      >
+                        <option value="">Select Item</option>
+                        {sroItemOptions.map((i) => (
+                          <option
+                            key={i.srO_ITEM_ID || i.id}
+                            value={i.srO_ITEM_ID || i.id}
+                          >
+                            {i.srO_ITEM_DESC}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                        <ChevronDown size={16} />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </section>
 
               {/* --- STATUS --- */}
-              <section className="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex items-center justify-between">
+              <section className="bg-slate-50 p-4 rounded-lg shadow-md flex items-center justify-between">
                 <div>
                   <h4 className="font-bold text-slate-800">Product Status</h4>
                   <p className="text-xs text-slate-500">
@@ -1871,12 +1935,12 @@ export default function ProductPage({ darkMode }) {
                     }
                   />
                   <div
-                    className={`w-11 h-6 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${isFormReadOnly ? "opacity-50" : "peer-checked:bg-emerald-500"}`}
+                    className={`w-11 h-6 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${isFormReadOnly ? "opacity-50" : "peer-checked:bg-blue-500"}`}
                   ></div>
                 </label>
               </section>
 
-              <div className="flex justify-end gap-3 pt-6 border-t sticky bottom-0 bg-white pb-2">
+              <div className="flex justify-end gap-3 pt-6 border-t sticky bottom-0 bg-white pb-6">
                 <button
                   type="button"
                   onClick={() => {
@@ -1898,16 +1962,15 @@ export default function ProductPage({ darkMode }) {
                       setShowForm(false);
                     }
                   }}
-                  className="bg-white border border-slate-200 px-6 py-3 rounded-xl font-bold"
+                  className="bg-white shadow-md px-6 py-3 rounded-lg hover:bg-slate-200 font-bold transition-all"
                 >
                   Cancel
                 </button>
                 {!isFormReadOnly && (
                   <button
                     type="submit"
-                    className="bg-blue-600 text-white px-8 py-3 rounded-xl font-black shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all flex items-center gap-2"
+                    className="bg-blue-600 font-semibold text-white px-8 py-3 rounded-lg font-black shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all flex items-center gap-2"
                   >
-                    <Check size={18} />{" "}
                     {isEdit ? "Update Product" : "Save Product"}
                   </button>
                 )}

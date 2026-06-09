@@ -90,11 +90,11 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
       <head>
         <link rel="apple-touch-icon" href="/images/login/logos.png" />
       </head>
-      <body className={`${inter.variable} antialiased`}>
+      <body className={`${inter.variable} antialiased h-full`}>
         <Providers>{children}</Providers>
       </body>
     </html>

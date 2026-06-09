@@ -147,15 +147,15 @@ export default function AdminConsultantPermPage() {
     );
 
   return (
-    <div className="min-h-screen bg-gray-50/50 p-8 font-sans">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <div className="min-h-screen pt-4 font-sans">
+      <div className="space-y-8">
         {/* HEADER */}
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-4xl font-black text-slate-800 tracking-tight leading-tight">
+            <h1 className="text-[24px] md:text-3xl font-bold font-black text-slate-800 tracking-tight leading-tight">
               Consultant Authority
             </h1>
-            <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-2 flex items-center gap-2">
+            <p className="text-slate-400 font-bold uppercase text-[12px] tracking-widest mt-2 flex items-center gap-2">
               <ShieldAlert size={14} className="text-amber-500" />
               Direct Control over Hired Tax Agency
             </p>
@@ -169,10 +169,10 @@ export default function AdminConsultantPermPage() {
 
         {/* AGENCY CARD */}
         {consultant && (
-          <div className="bg-white p-10 rounded-[3rem] border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-8 relative overflow-hidden">
+          <div className="bg-white p-6 rounded-lg shadow-md flex flex-col md:flex-row justify-between items-center gap-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-48 h-48 bg-blue-50/50 rounded-bl-[10rem] -mr-16 -mt-16" />
-            <div className="flex items-center gap-8 relative z-10">
-              <div className="h-20 w-20 bg-gradient-to-br from-slate-700 to-slate-900 rounded-3xl flex items-center justify-center text-white shadow-2xl">
+            <div className="flex items-center gap-6 relative z-10">
+              <div className="h-20 w-20 bg-gradient-to-br from-blue-700 to-blue-900 rounded-lg flex items-center justify-center text-white shadow-2xl">
                 <Briefcase size={36} />
               </div>
               <div>
@@ -182,11 +182,11 @@ export default function AdminConsultantPermPage() {
                 <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mt-1">
                   {consultant.ntn}
                 </p>
-                <div className="mt-3 flex gap-2">
-                  <span className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black rounded-lg border border-blue-100 uppercase">
+                <div className="mt-3 flex flex-col gap-2">
+                  <span className="px-3 py-1 shadow-md text-blue-600 text-[10px] font-black rounded-lg uppercase">
                     External Consultant
                   </span>
-                  <span className="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-black rounded-lg border border-amber-100 uppercase">
+                  <span className="px-3 py-1 shadow-md text-blue-600 text-[10px] font-black rounded-lg uppercase">
                     Revocable Access
                   </span>
                 </div>
@@ -197,7 +197,7 @@ export default function AdminConsultantPermPage() {
             {hasChanges && (
               <button
                 onClick={handleSave}
-                className="relative z-10 bg-blue-600 text-white px-12 py-5 rounded-2xl font-black text-sm shadow-2xl hover:bg-indigo-600 transition-all flex items-center gap-3 active:scale-95 animate-in slide-in-from-right-4 duration-300"
+                className="relative z-10 bg-blue-600 text-white px-6 py-4 rounded-lg font-semibold font-black text-sm shadow-2xl hover:bg-blue-600 transition-all flex items-center gap-3 active:scale-95 animate-in slide-in-from-right-4 duration-300"
               >
                 {loading ? (
                   <Loader2 className="animate-spin" size={20} />
@@ -210,28 +210,28 @@ export default function AdminConsultantPermPage() {
           </div>
         )}
 
-        <div className="bg-white rounded-[3rem] border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[700px]">
-          <div className="flex gap-4 p-8 bg-slate-50 border-b overflow-x-auto">
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-[700px]">
+          <div className="flex gap-4 p-6 border-b overflow-x-auto">
             {PERM_GROUPS.map((g) => (
               <button
                 key={g.id}
                 onClick={() => setActiveTab(g.id)}
-                className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-black text-xs transition-all whitespace-nowrap ${activeTab === g.id ? "bg-blue-600 text-white shadow-xl" : "text-slate-400 hover:bg-white hover:text-slate-600"}`}
+                className={`flex items-center gap-2 px-8 py-4 rounded-lg font-semibold font-black text-xs transition-all whitespace-nowrap ${activeTab === g.id ? "bg-blue-600 text-white shadow-xl" : "text-slate-400 hover:bg-white hover:text-slate-600"}`}
               >
                 <g.icon size={18} /> {g.title}
               </button>
             ))}
           </div>
 
-          <div className="flex-1 overflow-y-auto p-12 custom-scroll bg-white">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex-1 overflow-y-auto p-6 custom-scroll bg-white">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {editForm &&
                 PERM_GROUPS.find((g) => g.id === activeTab).fields.map((f) => (
                   <div
                     key={f.id}
-                    className="flex items-center justify-between p-6 rounded-[2.5rem] border border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all group bg-white"
+                    className="cursor-pointer flex items-center justify-between p-4 rounded-lg shadow-md hover:border-blue-300 hover:shadow-lg transition-all group bg-white"
                   >
-                    <span className="text-sm font-black text-slate-700 group-hover:text-blue-600 transition-colors">
+                    <span className="text-sm font-semibold font-black text-slate-700 group-hover:text-blue-600 transition-colors">
                       {f.label}
                     </span>
                     <label className="relative inline-flex items-center cursor-pointer">
