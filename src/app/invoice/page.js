@@ -67,6 +67,8 @@ export default function InvoicePage({ darkMode }) {
     exclTax: 0,
     tax: 0,
     inclTax: 0,
+    tax236H: 0,
+    grandTotal: 0,
     status: "",
     challanNo: "",
     challanNoLabel: "",
@@ -713,7 +715,7 @@ export default function InvoicePage({ darkMode }) {
         }
       }, 0);
 
-      const calculatedRow = calculateRow(row);
+      const calculatedRow = calculateRow(row, invoiceForm.tax236H);
       newRows[index] = calculatedRow;
 
       // Update Bottom Totals
@@ -728,7 +730,7 @@ export default function InvoicePage({ darkMode }) {
     return isNaN(parsed) ? 0 : parsed;
   };
 
-  const calculateRow = (row) => {
+  const calculateRow = (row, tax236HRate) => {
     const qty = n(row.qty);
     const price = n(row.singleUnitPrice);
     const discountPct = n(row.discount);
@@ -748,7 +750,12 @@ export default function InvoicePage({ darkMode }) {
     const fedAmt = (valueExcl * n(row.fedPayable)) / 100;
     const withheldAmt = (valueExcl * n(row.salesTaxWithheldAtSource)) / 100;
 
+    // 236H tax: applied on excl. value using the invoice-level percentage
+    const rate236H = tax236HRate !== undefined ? n(tax236HRate) : 0;
+    const tax236HAmt = (valueExcl * rate236H) / 100;
+
     const totalTaxPerRow = baseSalesTax + furtherTaxAmt + extraTaxAmt + fedAmt;
+    // totalValues (incl tax) includes 236H so the row reflects the full amount
     const totalInclTax = valueExcl + totalTaxPerRow;
 
     return {
@@ -759,6 +766,7 @@ export default function InvoicePage({ darkMode }) {
       calculatedExtraTax: extraTaxAmt,
       calculatedFed: fedAmt,
       calculatedWithheld: withheldAmt,
+      calculated236H: tax236HAmt,
       salesTaxApplicable: totalTaxPerRow.toFixed(2),
       totalValues: totalInclTax.toFixed(2),
       // Update the retail total field as requested
@@ -774,17 +782,8 @@ export default function InvoicePage({ darkMode }) {
     let totalWithheld = 0;
     let totalFed = 0;
     let totalIncl = 0;
+    let total236H = 0;
 
-    // allRows.forEach((r) => {
-    //   totalQty += n(r.qty);
-    //   totalExcl += n(r.valueSalesExcludingST);
-    //   totalTax += n(r.salesTaxApplicable);
-    //   totalFurther += n(r.furtherTax);
-    //   totalExtra += n(r.extraTax);
-    //   totalWithheld += n(r.salesTaxWithheldAtSource);
-    //   totalFed += n(r.fedPayable);
-    //   totalIncl += n(r.totalValues);
-    // });
     allRows.forEach((r) => {
       const qty = n(r.qty);
       const exclValue = n(r.valueSalesExcludingST);
@@ -792,10 +791,9 @@ export default function InvoicePage({ darkMode }) {
       // 1. Core values
       totalQty += qty;
       totalExcl += exclValue;
-      totalTax += n(r.salesTaxApplicable); // Assuming this is already a calculated value
+      totalTax += n(r.salesTaxApplicable); // Already a calculated value
 
       // 2. Calculate actual monetary value from tax percentages
-      // Formula: (Excluding Tax Value * Tax Rate Percentage) / 100
       const rowFurtherAmt = (parseInt(exclValue) * n(r.furtherTax)) / 100;
       const rowExtraAmt = (parseInt(exclValue) * n(r.extraTax)) / 100;
       const rowWithheldAmt =
@@ -807,10 +805,16 @@ export default function InvoicePage({ darkMode }) {
       totalExtra += rowExtraAmt;
       totalWithheld += rowWithheldAmt;
       totalFed += rowFedAmt;
+      console.log("row", r, "236H amt ", n(r.calculated236H));
+      // 4. Accumulate 236H tax amount per row (uses stored calculated value if available)
+      total236H += n(r.calculated236H);
 
-      // 4. Accumulate Total Inclusive value
+      // 5. Accumulate Total Inclusive value (already includes 236H per row)
       totalIncl += n(r.totalValues);
     });
+
+    // grandTotal = inclTax (which already includes 236H per row)
+    const grandTotal = totalIncl + total236H;
 
     setInvoiceForm((prev) => ({
       ...prev,
@@ -822,7 +826,9 @@ export default function InvoicePage({ darkMode }) {
       totalExtraTax: totalExtra.toFixed(2),
       totalSalesTaxWithheld: totalWithheld.toFixed(2),
       totalFedPayable: totalFed.toFixed(2),
-      inclTax: totalIncl.toFixed(2),
+      inclTax: totalIncl.toFixed(2), // incl tax without 236H
+      total236HTax: total236H.toFixed(2), // 236H tax amount total
+      grandTotal: grandTotal.toFixed(2), // final grand total
     }));
   };
 
@@ -1304,7 +1310,13 @@ export default function InvoicePage({ darkMode }) {
         (sum, r) => sum + Number(r.totalValues || 0),
         0,
       );
-
+      const rate236HValue = Number(inv.tax236H || 0);
+      let total236HAmt = 0;
+      itemsArray.forEach((item) => {
+        const exclVal = Number(item.valueSalesExcludingST || 0);
+        total236HAmt += (exclVal * rate236HValue) / 100;
+      });
+      const calculatedGrandTotal = totalInclTax + total236HAmt;
       inv.exclTax = totalExclTax.toFixed(2);
       inv.tax = totalTax.toFixed(2);
       inv.inclTax = totalInclTax.toFixed(2);
@@ -1345,11 +1357,14 @@ export default function InvoicePage({ darkMode }) {
         totalQty: totalQty.toFixed(4),
         exclTax: totalExclTax.toFixed(2),
         tax: totalTax.toFixed(2),
+        tax236H: inv.tax236H || "0.00",
         totalFurtherTax: totalFurther.toFixed(2),
         totalExtraTax: totalExtra.toFixed(2),
         totalSalesTaxWithheld: totalWithheld.toFixed(2),
         totalFedPayable: totalFed.toFixed(2),
         inclTax: totalInclTax.toFixed(2),
+        total236HTax: total236HAmt.toFixed(2),
+        grandTotal: calculatedGrandTotal.toFixed(2),
       }));
 
       setCustomerSearch(customerDisplay);
@@ -1601,6 +1616,14 @@ export default function InvoicePage({ darkMode }) {
         if (name === "saleType" && value !== "Debit Note") {
           updatedForm.fbrInvoiceRefNo = "";
         }
+        if (name === "tax236H") {
+          // Recalculate all rows with the new 236H rate and update totals
+          setRows((prevRows) => {
+            const updatedRows = prevRows.map((r) => calculateRow(r, value));
+            updateInvoiceTotals(updatedRows);
+            return updatedRows;
+          });
+        }
 
         return updatedForm;
       });
@@ -1668,6 +1691,8 @@ export default function InvoicePage({ darkMode }) {
       exclTax: invoiceForm.exclTax || "0.0",
       tax: invoiceForm.tax || "0.0",
       inclTax: invoiceForm.inclTax || "0.0",
+      tax236H: invoiceForm.tax236H || "0.0",
+      grandTotal: invoiceForm.grandTotal || "0.0",
       items: rows.map((row) => ({
         hsCode: row.hsCode,
         description: row.description,
@@ -1794,6 +1819,8 @@ export default function InvoicePage({ darkMode }) {
             exclTax: 0,
             tax: 0,
             inclTax: 0,
+            tax236H: 0,
+            grandTotal: 0,
             items: [
               {
                 hsCode: "",
@@ -1905,6 +1932,10 @@ export default function InvoicePage({ darkMode }) {
           return form.challanDate || "";
         case "Invoice Print Date":
           return form.invoicePostDate || "";
+        case "236H Tax":
+          return !!row.tax236H && parseFloat(row.tax236H) !== 0.0;
+        case "Grand Total":
+          return !!row.grandTotal && parseFloat(row.grandTotal) !== 0.0;
         default:
           return true;
       }
@@ -1951,6 +1982,10 @@ export default function InvoicePage({ darkMode }) {
               !!row.salesTaxWithheldAtSource &&
               Number(row.salesTaxWithheldAtSource) !== 0
             );
+          case "236H Tax":
+            return !!row.tax236H && parseFloat(row.tax236H) !== 0.0;
+          case "Grand Total":
+            return !!row.grandTotal && parseFloat(row.grandTotal) !== 0.0;
           default:
             return false;
         }
@@ -2250,66 +2285,10 @@ export default function InvoicePage({ darkMode }) {
         }
 
         // Recalculate row values
-        newRows[index] = calculateRow(row, invoiceForm);
+        newRows[index] = calculateRow(row, invoiceForm.tax236H);
 
-        // Recalculate totals
-
-        let totalQty = 0,
-          totalExcl = 0,
-          totalTax = 0,
-          totalFurther = 0;
-        let totalExtra = 0,
-          totalWithheld = 0,
-          totalFed = 0,
-          totalIncl = 0;
-
-        for (let r of newRows) {
-          // totalQty += n(r.qty);
-          // totalExcl += n(r.valueSalesExcludingST);
-          // totalTax += n(r.salesTaxApplicable);
-          // totalFurther += n(r.furtherTax);
-          // totalExtra += n(r.extraTax);
-          // totalWithheld += n(r.salesTaxWithheldAtSource);
-          // totalFed += n(r.fedPayable);
-          // totalIncl += n(r.totalValues);
-          const qty = n(r.qty);
-          const exclValue = n(r.valueSalesExcludingST);
-
-          // 1. Core values
-          totalQty += qty;
-          totalExcl += exclValue;
-          totalTax += n(r.salesTaxApplicable); // Assuming this is already a calculated value
-
-          // 2. Calculate actual monetary value from tax percentages
-          // Formula: (Excluding Tax Value * Tax Rate Percentage) / 100
-          const rowFurtherAmt = (exclValue * n(r.furtherTax)) / 100;
-          const rowExtraAmt = (exclValue * n(r.extraTax)) / 100;
-          const rowWithheldAmt =
-            (exclValue * n(r.salesTaxWithheldAtSource)) / 100;
-          const rowFedAmt = (exclValue * n(r.fedPayable)) / 100;
-
-          // 3. Accumulate calculated monetary values into totals
-          totalFurther += rowFurtherAmt;
-          totalExtra += rowExtraAmt;
-          totalWithheld += rowWithheldAmt;
-          totalFed += rowFedAmt;
-
-          // 4. Accumulate Total Inclusive value
-          totalIncl += n(r.totalValues);
-        }
-
-        setInvoiceForm((prev) => ({
-          ...prev,
-          totalProducts: newRows.length,
-          totalQty: totalQty.toFixed(4),
-          exclTax: totalExcl.toFixed(2),
-          tax: totalTax.toFixed(2),
-          totalFurtherTax: totalFurther.toFixed(2),
-          totalExtraTax: totalExtra.toFixed(2),
-          totalSalesTaxWithheld: totalWithheld.toFixed(2),
-          totalFedPayable: totalFed.toFixed(2),
-          inclTax: totalIncl.toFixed(2),
-        }));
+        // Recalculate totals (delegates to shared helper so 236H is always included)
+        updateInvoiceTotals(newRows);
 
         return newRows;
       });
@@ -3349,6 +3328,75 @@ export default function InvoicePage({ darkMode }) {
                           setHasChanged(true);
                         }}
                         className="w-full border rounded-md px-3 py-2"
+                        readOnly={isReadOnly}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        Tax 236H %
+                      </label>
+                      <input
+                        type="text"
+                        name="tax236H"
+                        value={invoiceForm.tax236H || ""}
+                        onChange={(e) => {
+                          if (isReadOnly) return;
+
+                          let val = e.target.value;
+
+                          // 1. Clean the input (allow only numbers and a single decimal point)
+                          const cleaned = val
+                            .replace(/[^0-9.]/g, "")
+                            .replace(/(\..*?)\./g, "$1");
+
+                          // 2. Enforce max 2 decimal places
+                          const decimalMatch = cleaned.match(/\.(\d*)/);
+                          if (decimalMatch && decimalMatch[1].length > 2) {
+                            return;
+                          }
+
+                          // 3. Pass the actual CLEANED value to the handler
+                          handleFormChange({
+                            target: { name: "tax236H", value: cleaned },
+                          });
+                          setHasChanged(true);
+                        }}
+                        onBlur={() => {
+                          if (isReadOnly) return;
+
+                          let current = String(
+                            invoiceForm.tax236H || "",
+                          ).trim();
+
+                          // If empty or invalid, default back to 0.00
+                          if (current === "" || isNaN(Number(current))) {
+                            handleFormChange({
+                              target: { name: "tax236H", value: "0.00" },
+                            });
+                            setHasChanged(true);
+                            return;
+                          }
+
+                          // Format valid numbers to 2 decimal places on blur
+                          const num = Number(current);
+                          if (num >= 0) {
+                            handleFormChange({
+                              target: {
+                                name: "tax236H",
+                                value: num.toFixed(2),
+                              },
+                            });
+                          } else {
+                            handleFormChange({
+                              target: { name: "tax236H", value: "0.00" },
+                            });
+                          }
+                          setHasChanged(true);
+                        }}
+                        className="w-full border rounded-md px-3 py-2"
+                        inputMode="decimal"
+                        pattern="[0-9]*\.?[0-9]*"
+                        placeholder="0.00"
                         readOnly={isReadOnly}
                       />
                     </div>
@@ -4706,7 +4754,7 @@ export default function InvoicePage({ darkMode }) {
                     </button>
 
                     {/* Totals */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-9 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-inner">
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-11 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-inner">
                       <div className="flex flex-col">
                         <span className="text-[9px] text-slate-500 uppercase font-black tracking-widest">
                           Total Products
@@ -4771,12 +4819,28 @@ export default function InvoicePage({ darkMode }) {
                           {invoiceForm.totalFedPayable || "0.00"}
                         </span>
                       </div>
+                      <div className="flex flex-col">
+                        <span className="text-[9px] text-slate-500 uppercase font-black tracking-widest">
+                          236H Tax
+                        </span>
+                        <span className="text-sm font-bold text-purple-600">
+                          {invoiceForm.total236HTax || "0.00"}
+                        </span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[9px] text-slate-500 uppercase font-black tracking-widest">
+                          Incl. Tax
+                        </span>
+                        <span className="text-sm font-bold text-slate-800">
+                          {invoiceForm.inclTax || "0.00"}
+                        </span>
+                      </div>
                       <div className="flex flex-col md:col-span-4 lg:col-span-1 lg:text-right border-t lg:border-t-0 lg:border-l border-slate-200 lg:pl-4 pt-3 lg:pt-0">
                         <span className="text-[9px] text-slate-500 uppercase font-black tracking-widest">
-                          Total Amount
+                          Grand Total
                         </span>
                         <span className="text-lg font-black text-blue-600 leading-none mt-1">
-                          {invoiceForm.inclTax || "0.00"}
+                          {invoiceForm.grandTotal || "0.00"}
                         </span>
                       </div>
                     </div>
@@ -4889,7 +4953,7 @@ export default function InvoicePage({ darkMode }) {
                     "Items",
                     "Excl. Tax",
                     "Tax",
-                    "Other Taxes %",
+                    "Other Taxes",
                     "Total",
                     "Status",
                     "Action",
@@ -4911,15 +4975,36 @@ export default function InvoicePage({ darkMode }) {
                       (sum, item) => sum + Number(item.qty || 0),
                       0,
                     ) || 0;
+                  // const otherTaxesSum =
+                  //   inv.items?.reduce(
+                  //     (sum, item) =>
+                  //       sum +
+                  //       Number(item.fedPayable || 0) +
+                  //       Number(item.furtherTax || 0) +
+                  //       Number(item.extraTax || 0) +
+                  //       Number(item.calculated236H || 0),
+                  //     0,
+                  //   ) || 0;
                   const otherTaxesSum =
-                    inv.items?.reduce(
-                      (sum, item) =>
-                        sum +
-                        Number(item.fedPayable || 0) +
-                        Number(item.furtherTax || 0) +
-                        Number(item.extraTax || 0),
-                      0,
-                    ) || 0;
+                    inv.items?.reduce((sum, item) => {
+                      // Get the base row monetary value
+                      const exclVal = Number(item.valueSalesExcludingST || 0);
+
+                      // Convert percentage rates to actual monetary amounts
+                      const fedAmt =
+                        (exclVal * Number(item.fedPayable || 0)) / 100;
+                      const furtherAmt =
+                        (exclVal * Number(item.furtherTax || 0)) / 100;
+                      const extraAmt =
+                        (exclVal * Number(item.extraTax || 0)) / 100;
+
+                      // Calculate 236H monetary amount using the invoice-level percentage
+                      const rate236H = Number(inv.tax236H || 0);
+                      const tax236HAmt = (exclVal * rate236H) / 100;
+
+                      // Add them all up cleanly
+                      return sum + fedAmt + furtherAmt + extraAmt + tax236HAmt;
+                    }, 0) || 0;
 
                   return (
                     <tr

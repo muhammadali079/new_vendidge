@@ -39,6 +39,8 @@ export async function POST(req) {
       exclTax,
       tax,
       inclTax,
+      tax236H,
+      grandTotal,
       items,
     } = body;
 
@@ -106,8 +108,10 @@ export async function POST(req) {
         exclTax,
         tax,
         inclTax,
+        tax236H,
+        grandTotal,
         invoice_created_date
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE())`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE())`,
       [
         nextInvoiceNo,
         internal_inv_ref_no,
@@ -129,6 +133,8 @@ export async function POST(req) {
         exclTax || "0.0",
         tax || "0.0",
         inclTax || "0.0",
+        tax236H || "0.0",
+        grandTotal || "0.0",
       ],
     );
 
@@ -398,6 +404,8 @@ export async function PUT(req) {
       exclTax,
       tax,
       inclTax,
+      tax236H,
+      grandTotal,
     } = body;
     console.log(
       JSON.stringify(
@@ -1778,6 +1786,18 @@ export async function PUT(req) {
     if (typeof tax !== "undefined") {
       updates.push("tax = ?");
       params.push(tax || "0.0");
+    }
+    if (typeof inclTax !== "undefined") {
+      updates.push("inclTax = ?");
+      params.push(inclTax || "0.0");
+    }
+    if (typeof tax236H !== "undefined") {
+      updates.push("tax236H = ?");
+      params.push(tax236H || "0.0");
+    }
+    if (typeof grandTotal !== "undefined") {
+      updates.push("grandTotal = ?");
+      params.push(grandTotal || "0.0");
     }
     if (typeof inclTax !== "undefined") {
       updates.push("inclTax = ?");
