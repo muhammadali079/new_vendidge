@@ -324,6 +324,7 @@ export default function ConsultantMasterInvoices() {
       formatNumber,
       shouldShow,
       shouldShowHeader,
+      fields,
     );
   };
   const handleBatchPrint = async () => {

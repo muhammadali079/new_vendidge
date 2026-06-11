@@ -1051,16 +1051,19 @@ export const handlePrintInvoice = async (
         ${hasFed ? `<td style="border:1px solid #000; padding:2px; text-align:center;">${r.fedPayable ? formatNumber(r.fedPayable) : ""}</td>` : ""}
         ${hasStwh ? `<td style="border:1px solid #000; padding:2px; text-align:center;">${r.salesTaxWithheldAtSource ? formatNumber(r.salesTaxWithheldAtSource) : ""}</td>` : ""}
         <td style="border:1px solid #000; padding:2px; text-align:right;"><strong>${formatNumber(r.totalValues || r.valueInclTax || 0, 2)}</strong></td>
-         <td style="border:1px solid #000; padding:2px; text-align:center; font-size:9px;">
-            ${tax236HRateDisplay}<br><strong>${formatNumber((r.valueSalesExcludingST * targetInvoice.tax236H) / 100 || 0, 2)}</strong>
-        </td>
+           ${
+             hasTax236H
+               ? `<td style="border:1px solid #000; padding:2px; text-align:center; font-size:9px;">
+            ${tax236HRateDisplay}<br><strong>${formatNumber((r.totalValues * targetInvoice.tax236H) / 100 || 0, 2)}</strong>
+        </td>`
+               : ""
+           }
         ${
           hasGrandTotal
             ? `<td style="border:1px solid #000; padding:2px; text-align:center;">
       ${formatNumber(
         Number(r.totalValues || r.valueInclTax || 0) +
-          (Number(targetInvoice.tax236H || 0) *
-            Number(r.valueSalesExcludingST || 0)) /
+          (Number(targetInvoice.tax236H || 0) * Number(r.totalValues || 0)) /
             100,
         2,
       )}
@@ -1121,9 +1124,7 @@ export const handlePrintInvoice = async (
     const totalTax236H = activeRows.reduce(
       (sum, r) =>
         sum +
-        (Number(targetInvoice.tax236H || 0) *
-          Number(r.valueSalesExcludingST || 0)) /
-          100,
+        (Number(targetInvoice.tax236H || 0) * Number(r.totalValues || 0)) / 100,
       0,
     );
     const totalGrandTotal = totalInclTax + totalTax236H;
@@ -1604,7 +1605,7 @@ export const handleBatchPrintInvoices = async (
                         ${formatNumber(
                           Number(r.totalValues || r.valueInclTax || 0) +
                             (Number(targetInvoice.tax236H || 0) *
-                              Number(r.valueSalesExcludingST || 0)) /
+                              Number(r.totalValues || 0)) /
                               100,
                           2,
                         )}
@@ -1652,14 +1653,7 @@ export const handleBatchPrintInvoices = async (
         (sum, r) => sum + Number(r.salesTaxApplicable || 0),
         0,
       );
-      const totalTax236H = activeRows.reduce(
-        (sum, r) =>
-          sum +
-          (Number(targetInvoice.tax236H || 0) *
-            Number(r.valueSalesExcludingST || 0)) /
-            100,
-        0,
-      );
+
       const totalTax =
         totalSaleTaxApplicable +
         totalSalesTaxWithheldAtSource +
@@ -1667,6 +1661,13 @@ export const handleBatchPrintInvoices = async (
         totalFurthurTax +
         totalFedPayable;
       const totalInclTax = totalExclTax + totalTax;
+      const totalTax236H = activeRows.reduce(
+        (sum, r) =>
+          sum +
+          (Number(targetInvoice.tax236H || 0) * Number(r.totalValues || 0)) /
+            100,
+        0,
+      );
       const totalInternalQty = activeRows.reduce(
         (sum, r) => sum + Number(r.internalQty || 0),
         0,

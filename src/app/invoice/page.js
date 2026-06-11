@@ -753,11 +753,11 @@ export default function InvoicePage({ darkMode }) {
 
     // 236H tax: applied on excl. value using the invoice-level percentage
     const rate236H = tax236HRate !== undefined ? n(tax236HRate) : 0;
-    const tax236HAmt = (valueExcl * rate236H) / 100;
 
     const totalTaxPerRow = baseSalesTax + furtherTaxAmt + extraTaxAmt + fedAmt;
     // totalValues (incl tax) includes 236H so the row reflects the full amount
     const totalInclTax = valueExcl + totalTaxPerRow;
+    const tax236HAmt = (totalInclTax * rate236H) / 100;
 
     return {
       ...row,
@@ -1313,10 +1313,11 @@ export default function InvoicePage({ darkMode }) {
       );
       const rate236HValue = Number(inv.tax236H || 0);
       let total236HAmt = 0;
-      itemsArray.forEach((item) => {
-        const exclVal = Number(item.valueSalesExcludingST || 0);
-        total236HAmt += (exclVal * rate236HValue) / 100;
-      });
+      // itemsArray.forEach((item) => {
+      //   const exclVal = Number(item.valueSalesExcludingST || 0);
+      //   total236HAmt += (exclVal * rate236HValue) / 100;
+      // });
+      total236HAmt += (totalInclTax * rate236HValue) / 100;
       const calculatedGrandTotal = totalInclTax + total236HAmt;
       inv.exclTax = totalExclTax.toFixed(2);
       inv.tax = totalTax.toFixed(2);
@@ -5048,7 +5049,7 @@ export default function InvoicePage({ darkMode }) {
 
                       // Calculate 236H monetary amount using the invoice-level percentage
                       const rate236H = Number(inv.tax236H || 0);
-                      const tax236HAmt = (exclVal * rate236H) / 100;
+                      const tax236HAmt = (inv.total * rate236H) / 100;
 
                       // Add them all up cleanly
                       return sum + fedAmt + furtherAmt + extraAmt + tax236HAmt;
