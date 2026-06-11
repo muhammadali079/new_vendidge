@@ -453,7 +453,7 @@ export default function InvoicePage({ darkMode }) {
             Array.isArray(scenarioCodeToTransactionTypeData)
               ? scenarioCodeToTransactionTypeData
               : scenarioCodeToTransactionTypeData.scenarioCodeToTransactionType ||
-              [],
+                  [],
           );
         } catch (err) {
           console.warn("Failed to load Master Data:", err);
@@ -628,6 +628,7 @@ export default function InvoicePage({ darkMode }) {
         formatNumber,
         shouldShow,
         shouldShowHeader,
+        fields,
       );
     } catch (err) {
       console.warn("Batch print failed:", err);
@@ -922,12 +923,12 @@ export default function InvoicePage({ darkMode }) {
           prev.map((item, i) =>
             i === index
               ? {
-                ...item,
-                rateOptions: rates,
-                rate: String(r.ratE_VALUE ?? r.ratE_ID ?? ""),
-                rateId: r.ratE_ID ?? 0,
-                rateDesc: r.ratE_DESC ?? "",
-              }
+                  ...item,
+                  rateOptions: rates,
+                  rate: String(r.ratE_VALUE ?? r.ratE_ID ?? ""),
+                  rateId: r.ratE_ID ?? 0,
+                  rateDesc: r.ratE_DESC ?? "",
+                }
               : item,
           ),
         );
@@ -1000,11 +1001,11 @@ export default function InvoicePage({ darkMode }) {
           prev.map((item, i) =>
             i === index
               ? {
-                ...item,
-                sroOptions: opts,
-                sroScheduleNo: String(o.srO_DESC || ""),
-                sroScheduleId: String(sroId),
-              }
+                  ...item,
+                  sroOptions: opts,
+                  sroScheduleNo: String(o.srO_DESC || ""),
+                  sroScheduleId: String(sroId),
+                }
               : item,
           ),
         );
@@ -1381,57 +1382,57 @@ export default function InvoicePage({ darkMode }) {
         const sanitized =
           Array.isArray(items) && items.length
             ? items.map((r) => {
-              // FIXED: Move matchedProduct inside the map so 'r' is defined
-              const matchedProduct = allProducts.find(
-                (p) =>
-                  // 1. Basic Identifiers
-                  String(p.hsCode) === String(r.hsCode) &&
-                  String(p.product_name).trim().toLowerCase() ===
-                  String(r.description).trim().toLowerCase() &&
-                  // 2. Transaction Type
-                  Number(p.transactionTypeId) ===
-                  Number(r.TransactionTypeId || r.transaction_type_id) &&
-                  // 3. Tax Rate
-                  Number(p.rateId) === Number(r.rateId || r.rate_id) &&
-                  // 4. SRO Schedule
-                  String(p.sroScheduleId) ===
-                  String(r.sroScheduleId || r.sro_id || r.srO_ID || "") &&
-                  // 5. SRO Item
-                  String(p.sroItemId) ===
-                  String(
-                    r.sroItemId || r.srO_ITEM_ID || r.sro_item_id || "",
+                // FIXED: Move matchedProduct inside the map so 'r' is defined
+                const matchedProduct = allProducts.find(
+                  (p) =>
+                    // 1. Basic Identifiers
+                    String(p.hsCode) === String(r.hsCode) &&
+                    String(p.product_name).trim().toLowerCase() ===
+                      String(r.description).trim().toLowerCase() &&
+                    // 2. Transaction Type
+                    Number(p.transactionTypeId) ===
+                      Number(r.TransactionTypeId || r.transaction_type_id) &&
+                    // 3. Tax Rate
+                    Number(p.rateId) === Number(r.rateId || r.rate_id) &&
+                    // 4. SRO Schedule
+                    String(p.sroScheduleId) ===
+                      String(r.sroScheduleId || r.sro_id || r.srO_ID || "") &&
+                    // 5. SRO Item
+                    String(p.sroItemId) ===
+                      String(
+                        r.sroItemId || r.srO_ITEM_ID || r.sro_item_id || "",
+                      ),
+                );
+                console.log("matched product ", matchedProduct);
+                return {
+                  ...emptyRow,
+                  ...r,
+                  productId: matchedProduct?.id || null, // Links to your new searchable dropdown
+                  rowId: r.rowId ?? genRowId(),
+                  rate:
+                    r.rate === undefined || r.rate === null
+                      ? ""
+                      : String(r.rate),
+                  rateId: r.rateId ?? r.rate_id ?? 0,
+                  rateDesc: r.rateDesc ?? r.rate_desc ?? "",
+                  salesTaxApplicable: r.salesTaxApplicable ?? 0,
+                  TransactionTypeId:
+                    r.TransactionTypeId ?? r.TransactionTypeId ?? 0,
+                  TransactionType: r.TransactionType ?? r.TransactionType ?? "",
+                  sroOptions: r.sroOptions ?? [],
+                  sroScheduleId: String(
+                    r.sroScheduleId ?? r.sro_id ?? r.srO_ID ?? "",
                   ),
-              );
-              console.log("matched product ", matchedProduct);
-              return {
-                ...emptyRow,
-                ...r,
-                productId: matchedProduct?.id || null, // Links to your new searchable dropdown
-                rowId: r.rowId ?? genRowId(),
-                rate:
-                  r.rate === undefined || r.rate === null
-                    ? ""
-                    : String(r.rate),
-                rateId: r.rateId ?? r.rate_id ?? 0,
-                rateDesc: r.rateDesc ?? r.rate_desc ?? "",
-                salesTaxApplicable: r.salesTaxApplicable ?? 0,
-                TransactionTypeId:
-                  r.TransactionTypeId ?? r.TransactionTypeId ?? 0,
-                TransactionType: r.TransactionType ?? r.TransactionType ?? "",
-                sroOptions: r.sroOptions ?? [],
-                sroScheduleId: String(
-                  r.sroScheduleId ?? r.sro_id ?? r.srO_ID ?? "",
-                ),
-                sroScheduleNo: String(r.sroScheduleNo ?? ""),
-                sroItemOptions: r.sroItemOptions ?? [],
-                sroItemId: String(
-                  r.sroItemId ?? r.srO_ITEM_ID ?? r.sro_item_id ?? "",
-                ),
-                sroItemSerialNo:
-                  r.sroItemSerialNo ?? r.sro_item_serial_no ?? "",
-                rateOptions: r.rateOptions ?? [],
-              };
-            })
+                  sroScheduleNo: String(r.sroScheduleNo ?? ""),
+                  sroItemOptions: r.sroItemOptions ?? [],
+                  sroItemId: String(
+                    r.sroItemId ?? r.srO_ITEM_ID ?? r.sro_item_id ?? "",
+                  ),
+                  sroItemSerialNo:
+                    r.sroItemSerialNo ?? r.sro_item_serial_no ?? "",
+                  rateOptions: r.rateOptions ?? [],
+                };
+              })
             : [{ ...emptyRow, rowId: genRowId() }];
         // ensure existing sanitized rows include a stable rowId
         const enriched = sanitized.map((s) => ({
@@ -1652,7 +1653,7 @@ export default function InvoicePage({ darkMode }) {
         if (Math.abs(calculatedTotal - exclTax) > 0.01) {
           alert(
             `Validation Error at Row ${i + 1}:\n` +
-            `Internal Total (${calculatedTotal.toFixed(2)}) does not match Excl. Tax (${exclTax.toFixed(2)})`,
+              `Internal Total (${calculatedTotal.toFixed(2)}) does not match Excl. Tax (${exclTax.toFixed(2)})`,
           );
           return false;
         }
@@ -2008,6 +2009,7 @@ export default function InvoicePage({ darkMode }) {
         formatNumber,
         shouldShow,
         shouldShowHeader,
+        fields,
       );
     } catch (err) {
       console.warn("Print failed:", err);
@@ -2015,10 +2017,10 @@ export default function InvoicePage({ darkMode }) {
     }
   };
 
-  const formatNumber = (num) => {
+  const formatNumber = (num, fractionDigits = 0) => {
     return Number(num).toLocaleString("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
+      minimumFractionDigits: fractionDigits,
+      maximumFractionDigits: fractionDigits,
     });
   };
   const handleInputChange = useCallback(
@@ -2210,8 +2212,8 @@ export default function InvoicePage({ darkMode }) {
                 row,
                 undefined,
                 invoiceForm.sellerProvinceId ??
-                invoiceForm.sellerProvince ??
-                undefined,
+                  invoiceForm.sellerProvince ??
+                  undefined,
               ),
             0,
           );
@@ -2638,10 +2640,11 @@ export default function InvoicePage({ darkMode }) {
                               disabled={isSubmitting} // Disable during request
                               onClick={() => handleInvoiceSubmit(null, false)}
                               className={`px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-all 
-                                                                 ${isSubmitting
-                                  ? "bg-gray-400 cursor-not-allowed text-white"
-                                  : "bg-blue-600 hover:bg-blue-700 text-white active:scale-95 shadow-sm"
-                                }`}
+                                                                 ${
+                                                                   isSubmitting
+                                                                     ? "bg-gray-400 cursor-not-allowed text-white"
+                                                                     : "bg-blue-600 hover:bg-blue-700 text-white active:scale-95 shadow-sm"
+                                                                 }`}
                             >
                               {isSubmitting ? (
                                 <svg
@@ -2677,10 +2680,11 @@ export default function InvoicePage({ darkMode }) {
                                 disabled={isSubmitting} // Disable during request
                                 onClick={() => handleInvoiceSubmit(null, true)}
                                 className={`px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-all 
-                                                                     ${isSubmitting
-                                    ? "bg-gray-400 cursor-not-allowed text-white"
-                                    : "bg-green-600 hover:bg-green-700 text-white active:scale-95"
-                                  }`}
+                                                                     ${
+                                                                       isSubmitting
+                                                                         ? "bg-gray-400 cursor-not-allowed text-white"
+                                                                         : "bg-green-600 hover:bg-green-700 text-white active:scale-95"
+                                                                     }`}
                               >
                                 {isSubmitting ? (
                                   <svg
@@ -2716,10 +2720,11 @@ export default function InvoicePage({ darkMode }) {
                               disabled={isLoadingError} // Prevent multiple clicks
                               onClick={() => handleErrorClick(editingInvoiceId)}
                               className={`px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-all shadow-sm
-                                                            ${isLoadingError
-                                  ? "bg-gray-400 cursor-not-allowed text-white"
-                                  : "bg-red-600 hover:bg-red-700 text-white active:scale-95"
-                                }`}
+                                                            ${
+                                                              isLoadingError
+                                                                ? "bg-gray-400 cursor-not-allowed text-white"
+                                                                : "bg-red-600 hover:bg-red-700 text-white active:scale-95"
+                                                            }`}
                             >
                               {isLoadingError ? (
                                 // Simple Spinner SVG
@@ -3149,10 +3154,11 @@ export default function InvoicePage({ darkMode }) {
                           type="text"
                           value={
                             invoiceForm.scenarioCode
-                              ? `${invoiceForm.scenarioCode} - ${scenarioCodes.find(
-                                (s) => s.code === invoiceForm.scenarioCode,
-                              )?.description || ""
-                              }`
+                              ? `${invoiceForm.scenarioCode} - ${
+                                  scenarioCodes.find(
+                                    (s) => s.code === invoiceForm.scenarioCode,
+                                  )?.description || ""
+                                }`
                               : ""
                           }
                           placeholder="Select scenario code..."
@@ -3206,10 +3212,11 @@ export default function InvoicePage({ darkMode }) {
                           placeholder="Select or type sale type..."
                           className={`
                           className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
-                                                         ${isReadOnly
-                              ? "bg-gray-50 text-gray-700 cursor-default"
-                              : "bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                            }
+                                                         ${
+                                                           isReadOnly
+                                                             ? "bg-gray-50 text-gray-700 cursor-default"
+                                                             : "bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                                         }
                                              `}
                           readOnly={true}
                           //  onFocus={(e) => !isReadOnly && e.target.select()}
@@ -3231,11 +3238,12 @@ export default function InvoicePage({ darkMode }) {
                                 className={`
                                                                 px-4 py-2.5 text-sm cursor-pointer
                                                                 hover:bg-blue-50 transition-colors
-                                                                ${item.docDescription ===
-                                    invoiceForm.saleType
-                                    ? "bg-blue-100 font-medium text-blue-800"
-                                    : "text-gray-800"
-                                  }
+                                                                ${
+                                                                  item.docDescription ===
+                                                                  invoiceForm.saleType
+                                                                    ? "bg-blue-100 font-medium text-blue-800"
+                                                                    : "text-gray-800"
+                                                                }
                                                             `}
                                 onMouseDown={(e) => {
                                   e.preventDefault(); // prevents input blur before selection
@@ -3798,11 +3806,12 @@ export default function InvoicePage({ darkMode }) {
                                 // 2. Visual feedback for locked fields
                                 className={`w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all
 
-                                   ${isReadOnly ||
-                                    permissions.can_edit_transaction_type === 0
-                                    ? "bg-slate-100 cursor-not-allowed text-slate-500"
-                                    : "bg-white text-slate-800"
-                                  }`}
+                                   ${
+                                     isReadOnly ||
+                                     permissions.can_edit_transaction_type === 0
+                                       ? "bg-slate-100 cursor-not-allowed text-slate-500"
+                                       : "bg-white text-slate-800"
+                                   }`}
                               />
 
                               {/* 3. The Dropdown Menu (only shows if allowed to edit) */}
@@ -3810,42 +3819,42 @@ export default function InvoicePage({ darkMode }) {
                                 isReadOnly ||
                                 permissions.can_edit_transaction_type === 0
                               ) && (
-                                  <div className="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-md max-h-48 overflow-y-auto z-[100] shadow-2xl hidden group-focus-within:block">
-                                    {transTypeList
-                                      // .filter((t) =>
-                                      //   (t.transactioN_DESC || "")
-                                      //     .toLowerCase()
-                                      //     .includes(
-                                      //       (
-                                      //         row.TransactionType || ""
-                                      //       ).toLowerCase(),
-                                      //     ),
-                                      // )
-                                      .map((t) => (
-                                        <div
-                                          key={t.transactioN_TYPE_ID} // Unique key prop
-                                          className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
-                                          onMouseDown={() => {
-                                            // Ensure we pass the ID to handle the cascade (Rates, SROs)
-                                            handleInputChange(
-                                              index,
-                                              "TransactionTypeId",
-                                              t.transactioN_TYPE_ID,
-                                            );
-                                            setHasChanged(true);
-                                          }}
-                                        >
-                                          {t.transactioN_DESC}
-                                        </div>
-                                      ))}
-                                    {/* Helper if no matches found */}
-                                    {transTypeList.length === 0 && (
-                                      <div className="px-3 py-2 text-xs text-slate-400 italic">
-                                        No types loaded...
+                                <div className="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-md max-h-48 overflow-y-auto z-[100] shadow-2xl hidden group-focus-within:block">
+                                  {transTypeList
+                                    // .filter((t) =>
+                                    //   (t.transactioN_DESC || "")
+                                    //     .toLowerCase()
+                                    //     .includes(
+                                    //       (
+                                    //         row.TransactionType || ""
+                                    //       ).toLowerCase(),
+                                    //     ),
+                                    // )
+                                    .map((t) => (
+                                      <div
+                                        key={t.transactioN_TYPE_ID} // Unique key prop
+                                        className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
+                                        onMouseDown={() => {
+                                          // Ensure we pass the ID to handle the cascade (Rates, SROs)
+                                          handleInputChange(
+                                            index,
+                                            "TransactionTypeId",
+                                            t.transactioN_TYPE_ID,
+                                          );
+                                          setHasChanged(true);
+                                        }}
+                                      >
+                                        {t.transactioN_DESC}
                                       </div>
-                                    )}
-                                  </div>
-                                )}
+                                    ))}
+                                  {/* Helper if no matches found */}
+                                  {transTypeList.length === 0 && (
+                                    <div className="px-3 py-2 text-xs text-slate-400 italic">
+                                      No types loaded...
+                                    </div>
+                                  )}
+                                </div>
+                              )}
                             </td>
 
                             {/* Rate */}
@@ -4128,11 +4137,12 @@ export default function InvoicePage({ darkMode }) {
                                 }}
                                 className={`w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all
 
-                                   ${isReadOnly ||
-                                    permissions.can_edit_sales_tax === 0
-                                    ? "bg-slate-50 text-slate-400"
-                                    : "bg-white text-slate-800 focus:ring-1 focus:ring-blue-500 outline-none"
-                                  }`}
+                                   ${
+                                     isReadOnly ||
+                                     permissions.can_edit_sales_tax === 0
+                                       ? "bg-slate-50 text-slate-400"
+                                       : "bg-white text-slate-800 focus:ring-1 focus:ring-blue-500 outline-none"
+                                   }`}
                                 readOnly={
                                   isReadOnly ||
                                   permissions.can_edit_sales_tax === 0
@@ -4197,10 +4207,11 @@ export default function InvoicePage({ darkMode }) {
                                 }}
                                 className={`w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all
 
-                                  ${isReadOnly ||
+                                  ${
+                                    isReadOnly ||
                                     permissions.can_edit_extra_tax === 0
-                                    ? "bg-slate-50 text-slate-400"
-                                    : "bg-white text-slate-800 focus:ring-1 focus:ring-blue-500 outline-none"
+                                      ? "bg-slate-50 text-slate-400"
+                                      : "bg-white text-slate-800 focus:ring-1 focus:ring-blue-500 outline-none"
                                   }`}
                                 readOnly={
                                   isReadOnly ||
@@ -4265,10 +4276,11 @@ export default function InvoicePage({ darkMode }) {
                                 }}
                                 className={`w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all
 
-                                  ${isReadOnly ||
+                                  ${
+                                    isReadOnly ||
                                     permissions.can_edit_furthur_tax === 0
-                                    ? "bg-slate-50 text-slate-400 cursor-not-allowed"
-                                    : "bg-white text-slate-800 focus:ring-1 focus:ring-blue-500 outline-none"
+                                      ? "bg-slate-50 text-slate-400 cursor-not-allowed"
+                                      : "bg-white text-slate-800 focus:ring-1 focus:ring-blue-500 outline-none"
                                   }`}
                                 readOnly={
                                   isReadOnly ||
@@ -4283,7 +4295,7 @@ export default function InvoicePage({ darkMode }) {
                             <td className="px-4 py-3 whitespace-nowrap">
                               {/* {row.sroOptions && row.sroOptions.length > 0 ? ( */}
                               {Array.isArray(row.sroOptions) &&
-                                row.sroOptions.length > 0 ? (
+                              row.sroOptions.length > 0 ? (
                                 <select
                                   key={`select-${row.rateId}`} // 👈 force re-mount when rate changes
                                   value={row.sroScheduleId ?? ""}
@@ -4402,10 +4414,11 @@ export default function InvoicePage({ darkMode }) {
                                 }}
                                 className={`w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all
 
-                                  ${isReadOnly ||
+                                  ${
+                                    isReadOnly ||
                                     permissions.can_edit_fed_payable === 0
-                                    ? "bg-slate-50 text-slate-400 cursor-not-allowed"
-                                    : "bg-white text-slate-800 focus:ring-1 focus:ring-blue-500 outline-none"
+                                      ? "bg-slate-50 text-slate-400 cursor-not-allowed"
+                                      : "bg-white text-slate-800 focus:ring-1 focus:ring-blue-500 outline-none"
                                   }`}
                                 readOnly={
                                   isReadOnly ||
@@ -4479,10 +4492,11 @@ export default function InvoicePage({ darkMode }) {
                                 }}
                                 className={`w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all
 
-                                   ${isReadOnly
-                                    ? "bg-slate-50 text-slate-400"
-                                    : "bg-white text-slate-800 focus:ring-1 focus:ring-blue-500 outline-none"
-                                  }`}
+                                   ${
+                                     isReadOnly
+                                       ? "bg-slate-50 text-slate-400"
+                                       : "bg-white text-slate-800 focus:ring-1 focus:ring-blue-500 outline-none"
+                                   }`}
                                 readOnly={isReadOnly}
                                 inputMode="decimal"
                                 pattern="[0-9]*\.?[0-9]*"
@@ -4491,7 +4505,7 @@ export default function InvoicePage({ darkMode }) {
                             </td>
                             <td className="px-4 py-3 whitespace-nowrap">
                               {row.sroItemOptions &&
-                                row.sroItemOptions.length > 0 ? (
+                              row.sroItemOptions.length > 0 ? (
                                 <select
                                   value={row.sroItemId ?? ""}
                                   onChange={(e) => {
@@ -4684,7 +4698,7 @@ export default function InvoicePage({ darkMode }) {
                                 readOnly={
                                   isReadOnly ||
                                   permissions.can_edit_internal_single_unit_price ===
-                                  0
+                                    0
                                 }
                                 inputMode="decimal"
                                 pattern="[0-9]*\.?[0-9]*"
@@ -4970,13 +4984,23 @@ export default function InvoicePage({ darkMode }) {
                     { label: "Int. Inv. Ref No.", width: "130px" },
                     { label: "Inv. Date", width: "110px" },
                     { label: "Created Date", width: "120px" },
-                    { label: "P/O No.", width: "100px" },
-                    { label: "P/O Date", width: "110px" },
+                    {
+                      label:
+                        fields.find((f) => f.name === "Challan No")
+                          ?.user_defined_display_name || "Challan No.",
+                      width: "100px",
+                    },
+                    {
+                      label:
+                        fields.find((f) => f.name === "Challan Date")
+                          ?.user_defined_display_name || "Challan Date",
+                      width: "110px",
+                    },
                     { label: "Buyer", width: "200px" },
                     { label: "Items", width: "80px" },
                     { label: "Excl. Tax", width: "120px" },
                     { label: "Tax", width: "100px" },
-                    { label: "Other Taxes %", width: "120px" },
+                    { label: "Other Taxes", width: "120px" },
                     { label: "Total", width: "120px" },
                     { label: "Status", width: "110px" },
                     { label: "Action", width: "100px" },
@@ -5096,10 +5120,11 @@ export default function InvoicePage({ darkMode }) {
                       <td className="px-4 py-4 text-center">
                         <button
                           onClick={(e) => toggleMenu(e, inv.id)}
-                          className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${menuConfig.id === inv.id
-                            ? "bg-blue-600 text-white shadow-lg"
-                            : "bg-blue-50 text-blue-600 hover:bg-blue-100"
-                            }`}
+                          className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                            menuConfig.id === inv.id
+                              ? "bg-blue-600 text-white shadow-lg"
+                              : "bg-blue-50 text-blue-600 hover:bg-blue-100"
+                          }`}
                         >
                           Actions {menuConfig.id === inv.id ? "▴" : "▾"}
                         </button>
@@ -5155,13 +5180,13 @@ export default function InvoicePage({ darkMode }) {
                       {/* VALIDATE (Uses currentInv instead of inv) */}
                       {(currentInv.status === "Pending" ||
                         currentInv.status === "Failed") && (
-                          <button
-                            onClick={() => validateInvoiceDirectly(currentInv)}
-                            className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-slate-600 hover:bg-slate-50 rounded-lg flex items-center gap-3 transition-colors"
-                          >
-                            <Settings size={14} /> Validate Inv.
-                          </button>
-                        )}
+                        <button
+                          onClick={() => validateInvoiceDirectly(currentInv)}
+                          className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-slate-600 hover:bg-slate-50 rounded-lg flex items-center gap-3 transition-colors"
+                        >
+                          <Settings size={14} /> Validate Inv.
+                        </button>
+                      )}
 
                       {/* PRINT BILL */}
                       <button

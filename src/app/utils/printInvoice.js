@@ -890,6 +890,7 @@ export const handlePrintInvoice = async (
   formatNumber,
   shouldShow,
   shouldShowHeader,
+  fields,
 ) => {
   try {
     const sellerName = sessionStorage.getItem("sellerBusinessName") || "";
@@ -912,9 +913,17 @@ export const handlePrintInvoice = async (
       formatDateForInput(invoiceForm.date || targetInvoice.invoice_date) || "";
     const challanNo = invoiceForm.challanNo || targetInvoice.challanNo || "";
     const challanNoLabel =
-      invoiceForm.challanNoLabel || targetInvoice.challanNoLabel || "";
+      fields.find((f) => f.name === "Challan No")?.user_defined_display_name ||
+      "Challan No.";
     const challanDateLabel =
-      invoiceForm.challanDateLabel || targetInvoice.challanDateLabel || "";
+      fields.find((f) => f.name === "Challan Date")
+        ?.user_defined_display_name || "Challan Date";
+    const tax236HLabel =
+      fields.find((f) => f.name === "236H Tax")?.user_defined_display_name ||
+      "236H Tax";
+    const grandTotalLabel =
+      fields.find((f) => f.name === "Grand Total")?.user_defined_display_name ||
+      "Grand Total";
     const challanDate =
       formatDateForInput(
         invoiceForm.challan_date || targetInvoice.challan_date,
@@ -964,6 +973,11 @@ export const handlePrintInvoice = async (
       targetInvoice.scenario_code || invoiceForm.scenarioCode || "";
     console.log("Active Scenario Code:", activeScenarioCode);
     console.log("Scenario Codes List:", scenarioCodes);
+
+    const tax236HRateDisplay = `(${targetInvoice.tax236H || invoiceForm.tax236H || 0}%)`;
+
+    const hasTax236H = shouldShowHeader("236H Tax", activeRows);
+    const hasGrandTotal = shouldShowHeader("Grand Total", activeRows);
 
     const scenarioCodeDescription =
       scenarioCodes.find((sc) => sc.code === activeScenarioCode)?.description ||
@@ -1029,15 +1043,30 @@ export const handlePrintInvoice = async (
         ${hasRetailPrice ? `<td style="border:1px solid #000; padding:2px; text-align:center;">${r.fixedNotifiedValueOrRetailPrice ? formatNumber(r.fixedNotifiedValueOrRetailPrice) : ""}</td>` : ""}
         
         <td style="border:1px solid #000; padding:2px; text-align:center; font-size:9px;">
-            ${taxRateDisplay}<br><strong>${formatNumber(r.salesTaxApplicable || 0)}</strong>
+            ${taxRateDisplay}<br><strong>${formatNumber(r.salesTaxApplicable || 0, 2)}</strong>
         </td>
         
         ${hasExtraTax ? `<td style="border:1px solid #000; padding:2px; text-align:center;">${r.extraTax ? formatNumber(r.extraTax) : ""}</td>` : ""}
         ${hasFurtherTax ? `<td style="border:1px solid #000; padding:2px; text-align:center;">${r.furtherTax ? formatNumber(r.furtherTax) : ""}</td>` : ""}
         ${hasFed ? `<td style="border:1px solid #000; padding:2px; text-align:center;">${r.fedPayable ? formatNumber(r.fedPayable) : ""}</td>` : ""}
         ${hasStwh ? `<td style="border:1px solid #000; padding:2px; text-align:center;">${r.salesTaxWithheldAtSource ? formatNumber(r.salesTaxWithheldAtSource) : ""}</td>` : ""}
-        
-        <td style="border:1px solid #000; padding:2px; text-align:right;"><strong>${formatNumber(r.totalValues || r.valueInclTax || 0)}</strong></td>
+        <td style="border:1px solid #000; padding:2px; text-align:right;"><strong>${formatNumber(r.totalValues || r.valueInclTax || 0, 2)}</strong></td>
+         <td style="border:1px solid #000; padding:2px; text-align:center; font-size:9px;">
+            ${tax236HRateDisplay}<br><strong>${formatNumber((r.valueSalesExcludingST * targetInvoice.tax236H) / 100 || 0, 2)}</strong>
+        </td>
+        ${
+          hasGrandTotal
+            ? `<td style="border:1px solid #000; padding:2px; text-align:center;">
+      ${formatNumber(
+        Number(r.totalValues || r.valueInclTax || 0) +
+          (Number(targetInvoice.tax236H || 0) *
+            Number(r.valueSalesExcludingST || 0)) /
+            100,
+        2,
+      )}
+     </td>`
+            : ""
+        }
     </tr>`;
       })
       .join("");
@@ -1089,6 +1118,15 @@ export const handlePrintInvoice = async (
       activeRows.reduce((sum, r) => sum + Number(r.fedPayable || 0), 0);
 
     const totalInclTax = totalExclTax + totalTax;
+    const totalTax236H = activeRows.reduce(
+      (sum, r) =>
+        sum +
+        (Number(targetInvoice.tax236H || 0) *
+          Number(r.valueSalesExcludingST || 0)) /
+          100,
+      0,
+    );
+    const totalGrandTotal = totalInclTax + totalTax236H;
 
     const totalInternalQty = activeRows.reduce(
       (sum, r) => sum + Number(r.internalQty || 0),
@@ -1303,6 +1341,8 @@ export const handlePrintInvoice = async (
                             ${hasFed ? `<th style="border:1px solid #000; padding:2px; width:3%; text-align:center;">FED</th>` : ""}
                             ${hasStwh ? `<th style="border:1px solid #000; padding:2px; width:3%; text-align:center;">STWH</th>` : ""}   
                             <th style="border:1px solid #000; padding:2px; width:10%; text-align:right;">Total Incl. Tax</th>
+                            ${hasTax236H ? `<th style="border:1px solid #000; padding:2px; width:3%; text-align:center;">${tax236HLabel}</th>` : ""}
+                             ${hasGrandTotal ? `<th style="border:1px solid #000; padding:2px; width:3%; text-align:center;">${grandTotalLabel}</th>` : ""}
                         </tr>
                     </thead>
                     <tbody>
@@ -1314,13 +1354,15 @@ export const handlePrintInvoice = async (
                             <td style="border:1px solid #000; padding:2px; text-align:center;">${formatNumber(totalDisc)}</td>
                             <td style="border:1px solid #000; padding:2px; text-align:center;">${formatNumber(totalExclTax)}</td>
                             ${hasRetailPrice ? `<td style="border:1px solid #000; padding:2px; text-align:center;">${formatNumber(totalFixednotifiedretailPrice)}</td>` : ""}
-                            <td style="border:1px solid #000; padding:2px; text-align:center;">${formatNumber(totalSaleTaxApplicable)}</td>
+                            <td style="border:1px solid #000; padding:2px; text-align:center;">${formatNumber(totalSaleTaxApplicable, 2)}</td>
             
                             ${hasExtraTax ? `<td style="border:1px solid #000; padding:2px; text-align:center;">${formatNumber(totalExtraTax)}</td>` : ""}
                             ${hasFurtherTax ? `<td style="border:1px solid #000; padding:2px; text-align:center;">${formatNumber(totalFurthurTax)}</td>` : ""}
                             ${hasFed ? `<td style="border:1px solid #000; padding:2px; text-align:center;">${formatNumber(totalFedPayable)}</td>` : ""}
                             ${hasStwh ? `<td style="border:1px solid #000; padding:2px; text-align:center;">${formatNumber(totalSalesTaxWithheldAtSource)}</td>` : ""}
-                            <td style="border:1px solid #000; padding:2px; text-align:right;">${formatNumber(totalInclTax)}</td>
+                            <td style="border:1px solid #000; padding:2px; text-align:right;">${formatNumber(totalInclTax, 2)}</td>
+                             ${hasTax236H ? `<th style="border:1px solid #000; padding:2px; width:3%; text-align:center;">${formatNumber(totalTax236H)}</th>` : ""}
+                                            ${hasGrandTotal ? `<th style="border:1px solid #000; padding:2px; width:3%; text-align:center;">${formatNumber(totalGrandTotal)}</th>` : ""}
                         </tr>
                     </tbody>
                 </table>
@@ -1388,6 +1430,7 @@ export const handleBatchPrintInvoices = async (
   formatNumber,
   shouldShow,
   shouldShowHeader,
+  fields,
 ) => {
   try {
     const sellerName = sessionStorage.getItem("sellerBusinessName") || "";
@@ -1433,6 +1476,7 @@ export const handleBatchPrintInvoices = async (
 
     for (let i = 0; i < targetInvoices.length; i++) {
       const targetInvoice = targetInvoices[i];
+      console.log("Processing invoice:", targetInvoice);
 
       const mockForm = {
         challanNo: targetInvoice.challanNo || "",
@@ -1446,8 +1490,18 @@ export const handleBatchPrintInvoices = async (
 
       const invoiceNo = targetInvoice.invoice_no || "";
       const invoiceDate = formatDateForInput(targetInvoice.invoice_date) || "";
-      const challanNoLabel = targetInvoice.challanNoLabel || "Challan No";
-      const challanDateLabel = targetInvoice.challanDateLabel || "Challan Date";
+      const challanNoLabel =
+        fields.find((f) => f.name === "Challan No")
+          ?.user_defined_display_name || "Challan No.";
+      const challanDateLabel =
+        fields.find((f) => f.name === "Challan Date")
+          ?.user_defined_display_name || "Challan Date";
+      const tax236HLabel =
+        fields.find((f) => f.name === "236H Tax")?.user_defined_display_name ||
+        "236H Tax";
+      const grandTotalLabel =
+        fields.find((f) => f.name === "Grand Total")
+          ?.user_defined_display_name || "Grand Total";
       console.log("target invoice customer ", targetInvoice.customer_name);
       const customerName = targetInvoice.customer_name || "";
 
@@ -1491,6 +1545,9 @@ export const handleBatchPrintInvoices = async (
         "Sales Tax With-Held at SOURCE",
         activeRows,
       );
+      const tax236HRateDisplay = `(${targetInvoice.tax236H || 0}%)`;
+      const hasTax236H = shouldShowHeader("236H Tax", activeRows);
+      const hasGrandTotal = shouldShowHeader("Grand Total", activeRows);
 
       let visibleColsBeforeQty = 3;
       if (hasSroSchedule) visibleColsBeforeQty++;
@@ -1532,15 +1589,29 @@ export const handleBatchPrintInvoices = async (
                     ${hasRetailPrice ? `<td style="border:1px solid #000; padding:2px; text-align:center;">${r.fixedNotifiedValueOrRetailPrice ? formatNumber(r.fixedNotifiedValueOrRetailPrice) : ""}</td>` : ""}
                     
                     <td style="border:1px solid #000; padding:2px; text-align:center; font-size:9px;">
-                        ${taxRateDisplay}<br><strong>${formatNumber(r.salesTaxApplicable || 0)}</strong>
+                        ${taxRateDisplay}<br><strong>${formatNumber(r.salesTaxApplicable || 0, 2)}</strong>
                     </td>
                     
                     ${hasExtraTax ? `<td style="border:1px solid #000; padding:2px; text-align:center;">${r.extraTax ? formatNumber(r.extraTax) : ""}</td>` : ""}
                     ${hasFurtherTax ? `<td style="border:1px solid #000; padding:2px; text-align:center;">${r.furtherTax ? formatNumber(r.furtherTax) : ""}</td>` : ""}
                     ${hasFed ? `<td style="border:1px solid #000; padding:2px; text-align:center;">${r.fedPayable ? formatNumber(r.fedPayable) : ""}</td>` : ""}
                     ${hasStwh ? `<td style="border:1px solid #000; padding:2px; text-align:center;">${r.salesTaxWithheldAtSource ? formatNumber(r.salesTaxWithheldAtSource) : ""}</td>` : ""}
+                    <td style="border:1px solid #000; padding:2px; text-align:right;"><strong>${formatNumber(r.totalValues || r.valueInclTax || 0, 2)}</strong></td>
+                    ${hasTax236H ? `<td style="border:1px solid #000; padding:2px; text-align:center;"> ${tax236HRateDisplay}<br><strong>${formatNumber((targetInvoice.tax236H * r.valueSalesExcludingST) / 100 || 0, 2)}</strong></td>` : ""}
+                    ${
+                      hasGrandTotal
+                        ? `<td style="border:1px solid #000; padding:2px; text-align:center;">
+                        ${formatNumber(
+                          Number(r.totalValues || r.valueInclTax || 0) +
+                            (Number(targetInvoice.tax236H || 0) *
+                              Number(r.valueSalesExcludingST || 0)) /
+                              100,
+                          2,
+                        )}
+                      </td>`
+                        : ""
+                    }
                     
-                    <td style="border:1px solid #000; padding:2px; text-align:right;"><strong>${formatNumber(r.totalValues || r.valueInclTax || 0)}</strong></td>
                 </tr>`;
         })
         .join("");
@@ -1581,6 +1652,14 @@ export const handleBatchPrintInvoices = async (
         (sum, r) => sum + Number(r.salesTaxApplicable || 0),
         0,
       );
+      const totalTax236H = activeRows.reduce(
+        (sum, r) =>
+          sum +
+          (Number(targetInvoice.tax236H || 0) *
+            Number(r.valueSalesExcludingST || 0)) /
+            100,
+        0,
+      );
       const totalTax =
         totalSaleTaxApplicable +
         totalSalesTaxWithheldAtSource +
@@ -1592,6 +1671,7 @@ export const handleBatchPrintInvoices = async (
         (sum, r) => sum + Number(r.internalQty || 0),
         0,
       );
+      const totalGrandTotal = totalInclTax + totalTax236H;
 
       const fbrInvoiceNo = targetInvoice.fbr_invoice_no || "";
       let qrCodeUrl = "";
@@ -1660,6 +1740,8 @@ export const handleBatchPrintInvoices = async (
                                             ${hasFed ? `<th style="border:1px solid #000; padding:2px; width:3%; text-align:center;">FED</th>` : ""}
                                             ${hasStwh ? `<th style="border:1px solid #000; padding:2px; width:3%; text-align:center;">STWH</th>` : ""}
                                             <th style="border:1px solid #000; padding:2px; width:10%; text-align:right;">Total Incl. Tax</th>
+                                            ${hasTax236H ? `<th style="border:1px solid #000; padding:2px; width:3%; text-align:center;">${tax236HLabel}</th>` : ""}
+                                            ${hasGrandTotal ? `<th style="border:1px solid #000; padding:2px; width:3%; text-align:center;">${grandTotalLabel}</th>` : ""}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1677,6 +1759,8 @@ export const handleBatchPrintInvoices = async (
                                             ${hasFed ? `<td style="border:1px solid #000; padding:2px; text-align:center;">${formatNumber(totalFedPayable)}</td>` : ""}
                                             ${hasStwh ? `<td style="border:1px solid #000; padding:2px; text-align:center;">${formatNumber(totalSalesTaxWithheldAtSource)}</td>` : ""}
                                             <td style="border:1px solid #000; padding:2px; text-align:right;">${formatNumber(totalInclTax)}</td>
+                                            ${hasTax236H ? `<td style="border:1px solid #000; padding:2px; text-align:center;">${formatNumber(totalTax236H)}</td>` : ""}
+                                            ${hasGrandTotal ? `<td style="border:1px solid #000; padding:2px; text-align:center;">${formatNumber(totalGrandTotal)}</td>` : ""}
                                         </tr>
                                     </tbody>
                                 </table>

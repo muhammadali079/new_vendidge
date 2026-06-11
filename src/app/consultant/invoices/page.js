@@ -382,6 +382,7 @@ export default function ConsultantMasterInvoices() {
         formatNumber,
         shouldShow,
         shouldShowHeader,
+        fields,
       );
     } catch (error) {
       console.error("Batch print preparation failed:", error);
