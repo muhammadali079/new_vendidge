@@ -153,11 +153,11 @@ export default function SubUserManagement() {
     );
 
   return (
-    <div className="min-h-screen bg-gray-50/50 p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="mt-4">
+      <div className=" space-y-8">
         <div className="flex justify-between items-end">
           <div>
-            <h1 className="text-4xl font-black text-slate-800 tracking-tight">
+            <h1 className="text-[24px] md:text-3xl font-bold font-black text-slate-800 tracking-tight">
               Team Access
             </h1>
             <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-2 flex items-center gap-2">

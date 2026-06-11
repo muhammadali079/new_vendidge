@@ -12,6 +12,7 @@ import {
   Check,
   Trash2,
   MapPin,
+  ChevronDown,
   Edit3,
   User,
   Phone,
@@ -183,13 +184,13 @@ export default function CustomersPage({ darkMode }) {
           customer.locations?.length > 0
             ? JSON.parse(JSON.stringify(customer.locations))
             : [
-                {
-                  business_name: "",
-                  province_id: "",
-                  province_name: "",
-                  address: "",
-                },
-              ],
+              {
+                business_name: "",
+                province_id: "",
+                province_name: "",
+                address: "",
+              },
+            ],
       });
     }
 
@@ -303,12 +304,12 @@ export default function CustomersPage({ darkMode }) {
 
   return (
     <div
-      className={`min-h-screen px-4 py-8 ${darkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}
+      className={`min-h-screen pt-4 ${darkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-10 gap-4">
           <div>
-            <h1 className="text-3xl font-black tracking-tight text-slate-800">
+            <h1 className="text-[24px] md:text-3xl font-black font-bold tracking-tight text-slate-800">
               Customers
             </h1>
             <p className="text-slate-500 font-medium">
@@ -316,13 +317,13 @@ export default function CustomersPage({ darkMode }) {
             </p>
           </div>
           <div className="flex gap-3">
-            <button className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-sm">
+            <button className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-3 rounded-lg font-bold flex items-center gap-2 shadow-sm">
               <DownloadCloud size={18} /> Export
             </button>
             {perms.can_create_customer === 1 && (
               <button
                 onClick={() => handleOpenForm()}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-blue-200"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2"
               >
                 <Plus size={18} /> Add Customer
               </button>
@@ -330,14 +331,14 @@ export default function CustomersPage({ darkMode }) {
           </div>
         </div>
 
-        <section className="bg-white rounded-[2.5rem] border border-slate-200 p-8 shadow-sm overflow-hidden">
-          <h2 className="text-sm font-black text-blue-600 uppercase tracking-widest mb-6 flex items-center gap-2">
+        <section className="bg-white rounded-lg shadow-md p-6 shadow-sm overflow-hidden">
+          <h2 className="text-sm font-black uppercase tracking-widest mb-6 flex items-center gap-2">
             <Users size={18} /> Client Directory
           </h2>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left whitespace-nowrap">
-              <thead className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+              <thead className="text-[10px] font-black uppercase tracking-widest">
                 <tr>
                   <th className="px-4 py-4">ID</th>
                   <th className="px-4 py-4">Customer Name</th>
@@ -394,9 +395,9 @@ export default function CustomersPage({ darkMode }) {
 
       {showForm && (
         <div className="fixed inset-0 backdrop-blur-md bg-slate-900/40 z-50 flex items-center justify-center px-4 py-6">
-          <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 w-full max-w-4xl max-h-full overflow-y-auto custom-scroll">
+          <div className="bg-white rounded-lg p-8 w-full max-w-4xl max-h-full overflow-y-auto custom-scroll">
             <div className="flex justify-between items-center mb-8 sticky top-0 bg-white z-10 pb-4 border-b">
-              <h2 className="text-2xl font-black text-slate-800">
+              <h2 className="text-2xl font-black font-semibold text-slate-800">
                 {isFormReadOnly
                   ? "View Customer Details"
                   : editingCustomer
@@ -414,18 +415,21 @@ export default function CustomersPage({ darkMode }) {
             <form onSubmit={handleSubmit} className="space-y-8">
               {/* --- CONTACT SECTION --- */}
               <section>
-                <h3 className="text-sm font-black text-blue-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <h3 className="text-sm font-black uppercase tracking-widest mb-4 flex items-center gap-2">
                   <User size={16} /> Contact Details
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       Customer Name
                     </label>
                     <input
                       readOnly={isFormReadOnly}
                       type="text"
-                      className={`w-full p-3 border-none rounded-xl font-bold focus:ring-2 focus:ring-blue-500 outline-none ${isFormReadOnly ? "bg-gray-100 text-gray-500" : "bg-slate-50"}`}
+                      className={`w-full px-4 py-3 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all ${isFormReadOnly
+                        ? "bg-gray-100 text-gray-500"
+                        : "bg-slate-50"
+                        }`}
                       value={form.customer_name}
                       onChange={(e) =>
                         setForm({ ...form, customer_name: e.target.value })
@@ -433,13 +437,16 @@ export default function CustomersPage({ darkMode }) {
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       Contact
                     </label>
                     <input
                       readOnly={isFormReadOnly}
                       type="text"
-                      className={`w-full p-3 border-none rounded-xl font-medium focus:ring-2 focus:ring-blue-500 outline-none ${isFormReadOnly ? "bg-gray-100 text-gray-500" : "bg-slate-50"}`}
+                      className={`w-full px-4 py-3 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all ${isFormReadOnly
+                        ? "bg-gray-100 text-gray-500"
+                        : "bg-slate-50"
+                        }`}
                       value={form.contact}
                       onChange={(e) =>
                         setForm({ ...form, contact: e.target.value })
@@ -447,13 +454,16 @@ export default function CustomersPage({ darkMode }) {
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       Email
                     </label>
                     <input
                       readOnly={isFormReadOnly}
                       type="email"
-                      className={`w-full p-3 border-none rounded-xl font-medium focus:ring-2 focus:ring-blue-500 outline-none ${isFormReadOnly ? "bg-gray-100 text-gray-500" : "bg-slate-50"}`}
+                      className={`w-full px-4 py-3 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all ${isFormReadOnly
+                        ? "bg-gray-100 text-gray-500"
+                        : "bg-slate-50"
+                        }`}
                       value={form.email}
                       onChange={(e) =>
                         setForm({ ...form, email: e.target.value })
@@ -465,18 +475,21 @@ export default function CustomersPage({ darkMode }) {
 
               {/* --- TAX SECTION --- */}
               <section>
-                <h3 className="text-sm font-black text-indigo-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <h3 className="text-sm font-black uppercase tracking-widest mb-4 flex items-center gap-2">
                   <FileText size={16} /> Tax Data
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       NTN *
                     </label>
                     <input
                       readOnly={isFormReadOnly}
                       type="text"
-                      className={`w-full p-3 border-none rounded-xl font-mono text-sm ${isFormReadOnly ? "bg-gray-100 text-gray-500" : "bg-indigo-50/50"}`}
+                      className={`w-full px-4 py-3 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all ${isFormReadOnly
+                        ? "bg-gray-100 text-gray-500"
+                        : "bg-slate-50"
+                        }`}
                       value={form.ntn}
                       onChange={(e) =>
                         setForm({ ...form, ntn: e.target.value })
@@ -485,13 +498,16 @@ export default function CustomersPage({ darkMode }) {
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       CNIC
                     </label>
                     <input
                       readOnly={isFormReadOnly}
                       type="text"
-                      className={`w-full p-3 border-none rounded-xl font-mono text-sm ${isFormReadOnly ? "bg-gray-100 text-gray-500" : "bg-slate-50"}`}
+                      className={`w-full px-4 py-3 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all ${isFormReadOnly
+                        ? "bg-gray-100 text-gray-500"
+                        : "bg-slate-50"
+                        }`}
                       value={form.cnic}
                       onChange={(e) =>
                         setForm({ ...form, cnic: e.target.value })
@@ -499,13 +515,16 @@ export default function CustomersPage({ darkMode }) {
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase ml-2 mb-1">
+                    <label className="text-[10px] font-black mb-2 font-semibold uppercase">
                       STRN
                     </label>
                     <input
                       readOnly={isFormReadOnly}
                       type="text"
-                      className={`w-full p-3 border-none rounded-xl font-mono text-sm ${isFormReadOnly ? "bg-gray-100 text-gray-500" : "bg-slate-50"}`}
+                      className={`w-full px-4 py-3 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all ${isFormReadOnly
+                        ? "bg-gray-100 text-gray-500"
+                        : "bg-slate-50"
+                        }`}
                       value={form.strn}
                       onChange={(e) =>
                         setForm({ ...form, strn: e.target.value })
@@ -518,7 +537,7 @@ export default function CustomersPage({ darkMode }) {
               {/* --- BRANCHES SECTION --- */}
               <section>
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-sm font-black text-emerald-600 uppercase tracking-widest flex items-center gap-2">
+                  <h3 className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
                     <MapPin size={16} /> Branches
                   </h3>
                   {/* {!isFormReadOnly && (
@@ -545,7 +564,7 @@ export default function CustomersPage({ darkMode }) {
                   )} */}
                 </div>
                 <div className="space-y-4">
-                  <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100 relative group">
+                  <div className="bg-slate-50 rounded-lg shadow-md p-5 border border-slate-100 relative group">
                     {/* {!isFormReadOnly && (
                         <button
                           type="button"
@@ -566,37 +585,51 @@ export default function CustomersPage({ darkMode }) {
                       <input
                         readOnly={isFormReadOnly}
                         placeholder="Branch Name *"
-                        className={`w-full p-3 border rounded-xl font-bold ${isFormReadOnly ? "bg-white text-gray-400" : "bg-white"}`}
+                        className={`w-full px-4 py-3 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all ${isFormReadOnly
+                          ? "bg-gray-100 text-gray-500"
+                          : "bg-slate-50"
+                          }`}
                         value={form.locations[0].business_name}
                         onChange={(e) =>
                           handleLocationChange("business_name", e.target.value)
                         }
                         required
                       />
-                      <select
-                        disabled={isFormReadOnly}
-                        className={`w-full p-3 border rounded-xl font-bold ${isFormReadOnly ? "bg-white text-gray-400" : "bg-white"}`}
-                        value={form.locations[0].province_name}
-                        onChange={(e) =>
-                          handleLocationChange("province", e.target.value)
-                        }
-                        required
-                      >
-                        <option value="">Select Province</option>
-                        {provinces.map((p) => (
-                          <option
-                            key={p.stateProvinceCode}
-                            value={p.stateProvinceDesc}
-                          >
-                            {p.stateProvinceDesc}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="relative">
+                        <select
+                          disabled={isFormReadOnly}
+                          className={`w-full px-4 py-3 rounded-lg appearance-none outline-none shadow-md focus:shadow-blue-200 transition-all ${isFormReadOnly
+                            ? "bg-gray-100 text-gray-500"
+                            : "bg-slate-50"
+                            }`}
+                          value={form.locations[0].province_name}
+                          onChange={(e) =>
+                            handleLocationChange("province", e.target.value)
+                          }
+                          required
+                        >
+                          <option value="">Select Province</option>
+                          {provinces.map((p) => (
+                            <option
+                              key={p.stateProvinceCode}
+                              value={p.stateProvinceDesc}
+                            >
+                              {p.stateProvinceDesc}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                          <ChevronDown size={16} />
+                        </div>
+                      </div>
                     </div>
                     <input
                       readOnly={isFormReadOnly}
                       placeholder="Address *"
-                      className={`w-full p-3 border rounded-xl ${isFormReadOnly ? "bg-white text-gray-400" : "bg-white"}`}
+                      className={`w-full px-4 py-3 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all ${isFormReadOnly
+                        ? "bg-gray-100 text-gray-500"
+                        : "bg-slate-50"
+                        }`}
                       value={form.locations[0].address}
                       onChange={(e) =>
                         handleLocationChange("address", e.target.value)
@@ -631,7 +664,7 @@ export default function CustomersPage({ darkMode }) {
                       setShowForm(false);
                     }
                   }}
-                  className="bg-white border border-slate-200 text-slate-600 px-6 py-3 rounded-xl font-bold"
+                  className="bg-white border border-slate-200 hover:bg-slate-100 text-slate-600 px-6 py-3 rounded-lg font-bold"
                 >
                   Close
                 </button>
@@ -639,9 +672,9 @@ export default function CustomersPage({ darkMode }) {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="bg-blue-600 text-white px-8 py-3 rounded-xl font-black shadow-lg shadow-blue-200 flex items-center justify-center gap-2"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold font-black flex items-center justify-center gap-2"
                   >
-                    <Check size={18} />{" "}
+                    {/* <Check size={18} />{" "} */}
                     {loading ? "Saving..." : "Save Customer"}
                   </button>
                 )}

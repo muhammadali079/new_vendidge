@@ -453,7 +453,7 @@ export default function InvoicePage({ darkMode }) {
             Array.isArray(scenarioCodeToTransactionTypeData)
               ? scenarioCodeToTransactionTypeData
               : scenarioCodeToTransactionTypeData.scenarioCodeToTransactionType ||
-                  [],
+              [],
           );
         } catch (err) {
           console.warn("Failed to load Master Data:", err);
@@ -922,12 +922,12 @@ export default function InvoicePage({ darkMode }) {
           prev.map((item, i) =>
             i === index
               ? {
-                  ...item,
-                  rateOptions: rates,
-                  rate: String(r.ratE_VALUE ?? r.ratE_ID ?? ""),
-                  rateId: r.ratE_ID ?? 0,
-                  rateDesc: r.ratE_DESC ?? "",
-                }
+                ...item,
+                rateOptions: rates,
+                rate: String(r.ratE_VALUE ?? r.ratE_ID ?? ""),
+                rateId: r.ratE_ID ?? 0,
+                rateDesc: r.ratE_DESC ?? "",
+              }
               : item,
           ),
         );
@@ -1000,11 +1000,11 @@ export default function InvoicePage({ darkMode }) {
           prev.map((item, i) =>
             i === index
               ? {
-                  ...item,
-                  sroOptions: opts,
-                  sroScheduleNo: String(o.srO_DESC || ""),
-                  sroScheduleId: String(sroId),
-                }
+                ...item,
+                sroOptions: opts,
+                sroScheduleNo: String(o.srO_DESC || ""),
+                sroScheduleId: String(sroId),
+              }
               : item,
           ),
         );
@@ -1381,57 +1381,57 @@ export default function InvoicePage({ darkMode }) {
         const sanitized =
           Array.isArray(items) && items.length
             ? items.map((r) => {
-                // FIXED: Move matchedProduct inside the map so 'r' is defined
-                const matchedProduct = allProducts.find(
-                  (p) =>
-                    // 1. Basic Identifiers
-                    String(p.hsCode) === String(r.hsCode) &&
-                    String(p.product_name).trim().toLowerCase() ===
-                      String(r.description).trim().toLowerCase() &&
-                    // 2. Transaction Type
-                    Number(p.transactionTypeId) ===
-                      Number(r.TransactionTypeId || r.transaction_type_id) &&
-                    // 3. Tax Rate
-                    Number(p.rateId) === Number(r.rateId || r.rate_id) &&
-                    // 4. SRO Schedule
-                    String(p.sroScheduleId) ===
-                      String(r.sroScheduleId || r.sro_id || r.srO_ID || "") &&
-                    // 5. SRO Item
-                    String(p.sroItemId) ===
-                      String(
-                        r.sroItemId || r.srO_ITEM_ID || r.sro_item_id || "",
-                      ),
-                );
-                console.log("matched product ", matchedProduct);
-                return {
-                  ...emptyRow,
-                  ...r,
-                  productId: matchedProduct?.id || null, // Links to your new searchable dropdown
-                  rowId: r.rowId ?? genRowId(),
-                  rate:
-                    r.rate === undefined || r.rate === null
-                      ? ""
-                      : String(r.rate),
-                  rateId: r.rateId ?? r.rate_id ?? 0,
-                  rateDesc: r.rateDesc ?? r.rate_desc ?? "",
-                  salesTaxApplicable: r.salesTaxApplicable ?? 0,
-                  TransactionTypeId:
-                    r.TransactionTypeId ?? r.TransactionTypeId ?? 0,
-                  TransactionType: r.TransactionType ?? r.TransactionType ?? "",
-                  sroOptions: r.sroOptions ?? [],
-                  sroScheduleId: String(
-                    r.sroScheduleId ?? r.sro_id ?? r.srO_ID ?? "",
+              // FIXED: Move matchedProduct inside the map so 'r' is defined
+              const matchedProduct = allProducts.find(
+                (p) =>
+                  // 1. Basic Identifiers
+                  String(p.hsCode) === String(r.hsCode) &&
+                  String(p.product_name).trim().toLowerCase() ===
+                  String(r.description).trim().toLowerCase() &&
+                  // 2. Transaction Type
+                  Number(p.transactionTypeId) ===
+                  Number(r.TransactionTypeId || r.transaction_type_id) &&
+                  // 3. Tax Rate
+                  Number(p.rateId) === Number(r.rateId || r.rate_id) &&
+                  // 4. SRO Schedule
+                  String(p.sroScheduleId) ===
+                  String(r.sroScheduleId || r.sro_id || r.srO_ID || "") &&
+                  // 5. SRO Item
+                  String(p.sroItemId) ===
+                  String(
+                    r.sroItemId || r.srO_ITEM_ID || r.sro_item_id || "",
                   ),
-                  sroScheduleNo: String(r.sroScheduleNo ?? ""),
-                  sroItemOptions: r.sroItemOptions ?? [],
-                  sroItemId: String(
-                    r.sroItemId ?? r.srO_ITEM_ID ?? r.sro_item_id ?? "",
-                  ),
-                  sroItemSerialNo:
-                    r.sroItemSerialNo ?? r.sro_item_serial_no ?? "",
-                  rateOptions: r.rateOptions ?? [],
-                };
-              })
+              );
+              console.log("matched product ", matchedProduct);
+              return {
+                ...emptyRow,
+                ...r,
+                productId: matchedProduct?.id || null, // Links to your new searchable dropdown
+                rowId: r.rowId ?? genRowId(),
+                rate:
+                  r.rate === undefined || r.rate === null
+                    ? ""
+                    : String(r.rate),
+                rateId: r.rateId ?? r.rate_id ?? 0,
+                rateDesc: r.rateDesc ?? r.rate_desc ?? "",
+                salesTaxApplicable: r.salesTaxApplicable ?? 0,
+                TransactionTypeId:
+                  r.TransactionTypeId ?? r.TransactionTypeId ?? 0,
+                TransactionType: r.TransactionType ?? r.TransactionType ?? "",
+                sroOptions: r.sroOptions ?? [],
+                sroScheduleId: String(
+                  r.sroScheduleId ?? r.sro_id ?? r.srO_ID ?? "",
+                ),
+                sroScheduleNo: String(r.sroScheduleNo ?? ""),
+                sroItemOptions: r.sroItemOptions ?? [],
+                sroItemId: String(
+                  r.sroItemId ?? r.srO_ITEM_ID ?? r.sro_item_id ?? "",
+                ),
+                sroItemSerialNo:
+                  r.sroItemSerialNo ?? r.sro_item_serial_no ?? "",
+                rateOptions: r.rateOptions ?? [],
+              };
+            })
             : [{ ...emptyRow, rowId: genRowId() }];
         // ensure existing sanitized rows include a stable rowId
         const enriched = sanitized.map((s) => ({
@@ -1652,7 +1652,7 @@ export default function InvoicePage({ darkMode }) {
         if (Math.abs(calculatedTotal - exclTax) > 0.01) {
           alert(
             `Validation Error at Row ${i + 1}:\n` +
-              `Internal Total (${calculatedTotal.toFixed(2)}) does not match Excl. Tax (${exclTax.toFixed(2)})`,
+            `Internal Total (${calculatedTotal.toFixed(2)}) does not match Excl. Tax (${exclTax.toFixed(2)})`,
           );
           return false;
         }
@@ -2210,8 +2210,8 @@ export default function InvoicePage({ darkMode }) {
                 row,
                 undefined,
                 invoiceForm.sellerProvinceId ??
-                  invoiceForm.sellerProvince ??
-                  undefined,
+                invoiceForm.sellerProvince ??
+                undefined,
               ),
             0,
           );
@@ -2553,10 +2553,10 @@ export default function InvoicePage({ darkMode }) {
 
   return (
     <>
-      <div className="max-w-8xl mx-auto flex flex-col min-h-[85vh]">
+      <div className=" flex flex-col min-h-[85vh] mt-4">
         {!isConsultantMode && (
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-2xl md:text-4xl font-bold">Invoice Table</h1>
+            <h1 className="text-[24px] md:text-3xl font-bold">Invoice Table</h1>
 
             <div className="flex gap-3">
               {permissions.can_create_invoice === 1 && (
@@ -2592,7 +2592,7 @@ export default function InvoicePage({ darkMode }) {
                     setScenarioSearch("");
                     setHasChanged(false);
                   }}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3 py-1 rounded-lg"
                 >
                   +
                 </button>
@@ -2600,7 +2600,7 @@ export default function InvoicePage({ darkMode }) {
 
               <button
                 onClick={exportToExcel}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                className="bg-blue-600 hover:bg-green-700 text-white px-3 py-1  rounded-lg flex items-center gap-2"
               >
                 <DocumentArrowDownIcon className="h-5 w-5" />
               </button>
@@ -2638,11 +2638,10 @@ export default function InvoicePage({ darkMode }) {
                               disabled={isSubmitting} // Disable during request
                               onClick={() => handleInvoiceSubmit(null, false)}
                               className={`px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-all 
-                                                                 ${
-                                                                   isSubmitting
-                                                                     ? "bg-gray-400 cursor-not-allowed text-white"
-                                                                     : "bg-blue-600 hover:bg-blue-700 text-white active:scale-95 shadow-sm"
-                                                                 }`}
+                                                                 ${isSubmitting
+                                  ? "bg-gray-400 cursor-not-allowed text-white"
+                                  : "bg-blue-600 hover:bg-blue-700 text-white active:scale-95 shadow-sm"
+                                }`}
                             >
                               {isSubmitting ? (
                                 <svg
@@ -2678,11 +2677,10 @@ export default function InvoicePage({ darkMode }) {
                                 disabled={isSubmitting} // Disable during request
                                 onClick={() => handleInvoiceSubmit(null, true)}
                                 className={`px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-all 
-                                                                     ${
-                                                                       isSubmitting
-                                                                         ? "bg-gray-400 cursor-not-allowed text-white"
-                                                                         : "bg-green-600 hover:bg-green-700 text-white active:scale-95"
-                                                                     }`}
+                                                                     ${isSubmitting
+                                    ? "bg-gray-400 cursor-not-allowed text-white"
+                                    : "bg-green-600 hover:bg-green-700 text-white active:scale-95"
+                                  }`}
                               >
                                 {isSubmitting ? (
                                   <svg
@@ -2718,11 +2716,10 @@ export default function InvoicePage({ darkMode }) {
                               disabled={isLoadingError} // Prevent multiple clicks
                               onClick={() => handleErrorClick(editingInvoiceId)}
                               className={`px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-all shadow-sm
-                                                            ${
-                                                              isLoadingError
-                                                                ? "bg-gray-400 cursor-not-allowed text-white"
-                                                                : "bg-red-600 hover:bg-red-700 text-white active:scale-95"
-                                                            }`}
+                                                            ${isLoadingError
+                                  ? "bg-gray-400 cursor-not-allowed text-white"
+                                  : "bg-red-600 hover:bg-red-700 text-white active:scale-95"
+                                }`}
                             >
                               {isLoadingError ? (
                                 // Simple Spinner SVG
@@ -2862,7 +2859,7 @@ export default function InvoicePage({ darkMode }) {
                             setHasChanged(true);
                           }
                         }}
-                        className="w-full border rounded-md px-3 py-2"
+                        className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                         required
                         readOnly={
                           isEditMode ||
@@ -2892,7 +2889,7 @@ export default function InvoicePage({ darkMode }) {
                           handleFormChange(e);
                           setHasChanged(true);
                         }}
-                        className="w-full border rounded-md px-3 py-2"
+                        className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                         min={minDate}
                         max={today}
                         required
@@ -2912,7 +2909,7 @@ export default function InvoicePage({ darkMode }) {
                           setHasChanged(true);
                         }}
                         placeholder="Search customer..."
-                        className="w-full border rounded-md px-3 py-2"
+                        className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                         readOnly={isReadOnly}
                         required
                       />
@@ -2995,7 +2992,7 @@ export default function InvoicePage({ darkMode }) {
                           <input
                             type="text"
                             value={invoiceForm.buyerProvince || ""}
-                            className="w-full border border-[#B0B0B0] rounded-md p-2 bg-gray-100 text-[#4E4E4E]"
+                            className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                             readOnly
                           />
                           <input
@@ -3012,7 +3009,7 @@ export default function InvoicePage({ darkMode }) {
                             handleFormChange(e);
                             setHasChanged(true);
                           }}
-                          className="w-full border border-[#B0B0B0] rounded-md p-2 bg-white text-[#4E4E4E] focus:border-[#5AB3E8] focus:ring-1 focus:ring-[#5AB3E8] transition-all duration-300 outline-none"
+                          className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                           required
                           disabled={loading}
                         >
@@ -3051,7 +3048,7 @@ export default function InvoicePage({ darkMode }) {
                                   invoiceForm.sellerProvinceId,
                               )?.stateProvinceDesc || ""
                             }
-                            className="w-full border border-[#B0B0B0] rounded-md p-2 bg-gray-100 text-[#4E4E4E]"
+                            className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                             readOnly
                           />
                           <input
@@ -3068,7 +3065,7 @@ export default function InvoicePage({ darkMode }) {
                             handleFormChange(e);
                             setHasChanged(true);
                           }}
-                          className="w-full border border-[#B0B0B0] rounded-md p-2 bg-white text-[#4E4E4E] focus:border-[#5AB3E8] focus:ring-1 focus:ring-[#5AB3E8] transition-all duration-300 outline-none"
+                          className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                           required
                           disabled={loading}
                         >
@@ -3152,15 +3149,14 @@ export default function InvoicePage({ darkMode }) {
                           type="text"
                           value={
                             invoiceForm.scenarioCode
-                              ? `${invoiceForm.scenarioCode} - ${
-                                  scenarioCodes.find(
-                                    (s) => s.code === invoiceForm.scenarioCode,
-                                  )?.description || ""
-                                }`
+                              ? `${invoiceForm.scenarioCode} - ${scenarioCodes.find(
+                                (s) => s.code === invoiceForm.scenarioCode,
+                              )?.description || ""
+                              }`
                               : ""
                           }
                           placeholder="Select scenario code..."
-                          className="w-full border rounded-md px-3 py-2 cursor-pointer bg-white"
+                          className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                           readOnly={true} // allow click but prevent typing if you want
                           onClick={(e) => e.currentTarget.focus()} // focus triggers dropdown via group-focus-within
                           required
@@ -3209,12 +3205,11 @@ export default function InvoicePage({ darkMode }) {
                           }}
                           placeholder="Select or type sale type..."
                           className={`
-                                                        w-full border rounded px-3 py-2 text-sm
-                                                         ${
-                                                           isReadOnly
-                                                             ? "bg-gray-50 text-gray-700 cursor-default"
-                                                             : "bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                                                         }
+                          className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
+                                                         ${isReadOnly
+                              ? "bg-gray-50 text-gray-700 cursor-default"
+                              : "bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                            }
                                              `}
                           readOnly={true}
                           //  onFocus={(e) => !isReadOnly && e.target.select()}
@@ -3236,12 +3231,11 @@ export default function InvoicePage({ darkMode }) {
                                 className={`
                                                                 px-4 py-2.5 text-sm cursor-pointer
                                                                 hover:bg-blue-50 transition-colors
-                                                                ${
-                                                                  item.docDescription ===
-                                                                  invoiceForm.saleType
-                                                                    ? "bg-blue-100 font-medium text-blue-800"
-                                                                    : "text-gray-800"
-                                                                }
+                                                                ${item.docDescription ===
+                                    invoiceForm.saleType
+                                    ? "bg-blue-100 font-medium text-blue-800"
+                                    : "text-gray-800"
+                                  }
                                                             `}
                                 onMouseDown={(e) => {
                                   e.preventDefault(); // prevents input blur before selection
@@ -3272,7 +3266,7 @@ export default function InvoicePage({ darkMode }) {
                           handleFormChange(e);
                           setHasChanged(true);
                         }}
-                        className="w-full border rounded-md px-3 py-2"
+                        className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                         required
                         disabled={isReadOnly}
                       >
@@ -3291,7 +3285,7 @@ export default function InvoicePage({ darkMode }) {
                           name="fbrInvoiceRefNo"
                           value={invoiceForm.fbrInvoiceRefNo || ""}
                           onChange={handleFormChange}
-                          className="w-full border rounded-md px-3 py-2"
+                          className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                           placeholder="Enter FBR Invoice Ref No"
                           readOnly={isReadOnly}
                         />
@@ -3309,7 +3303,7 @@ export default function InvoicePage({ darkMode }) {
                           handleFormChange(e);
                           setHasChanged(true);
                         }}
-                        className="w-full border rounded-md px-3 py-2"
+                        className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                         placeholder="Enter Challan No"
                         readOnly={isReadOnly}
                       />
@@ -3327,7 +3321,7 @@ export default function InvoicePage({ darkMode }) {
                           handleFormChange(e);
                           setHasChanged(true);
                         }}
-                        className="w-full border rounded-md px-3 py-2"
+                        className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                         readOnly={isReadOnly}
                       />
                     </div>
@@ -3412,7 +3406,7 @@ export default function InvoicePage({ darkMode }) {
                     <table className="w-full text-sm min-w-max">
                       <thead className="bg-gray-50">
                         <tr>
-                          <th className="px-4 py-3 font-semibold bg-blue-50 text-blue-700">
+                          <th className="px-4 py-3 font-semibold">
                             Select Product
                           </th>
                           <th className="px-4 py-3 font-semibold">HS Code</th>
@@ -3490,7 +3484,7 @@ export default function InvoicePage({ darkMode }) {
                               <input
                                 type="text"
                                 placeholder="Search product..."
-                                className="w-full border border-blue-300 rounded px-2 py-1 bg-blue-50 font-medium"
+                                className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                                 value={row.product_description || ""}
                                 onChange={(e) => {
                                   handleInputChange(
@@ -3521,7 +3515,7 @@ export default function InvoicePage({ darkMode }) {
                                   .map((p) => (
                                     <div
                                       key={p.id}
-                                      className="px-3 py-2 hover:bg-blue-100 cursor-pointer border-b last:border-0"
+                                      className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                                       onMouseDown={() =>
                                         handleProductSelect(index, p)
                                       }
@@ -3570,7 +3564,7 @@ export default function InvoicePage({ darkMode }) {
                                   setHasChanged(true);
                                 }}
                                 placeholder="Search HS Code..."
-                                className="w-full border rounded px-2 py-1"
+                                className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                                 onFocus={(e) => {
                                   const dropdown = e.target.nextSibling;
                                   if (dropdown)
@@ -3597,7 +3591,7 @@ export default function InvoicePage({ darkMode }) {
                                   .map((h) => (
                                     <div
                                       key={h.hS_CODE}
-                                      className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                                      className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                                       onMouseDown={() => {
                                         handleInputChange(
                                           index,
@@ -3626,7 +3620,7 @@ export default function InvoicePage({ darkMode }) {
                                   );
                                   setHasChanged(true);
                                 }}
-                                className="w-full border rounded px-2 py-1"
+                                className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                               />
                             </td>
                             {/* Single Unit Price */}
@@ -3698,7 +3692,7 @@ export default function InvoicePage({ darkMode }) {
                                     setHasChanged(true);
                                   }
                                 }}
-                                className="w-full border rounded px-2 py-1"
+                                className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                                 inputMode="decimal"
                                 pattern="[0-9]*\.?[0-9]*"
                                 placeholder="1.0000"
@@ -3756,7 +3750,7 @@ export default function InvoicePage({ darkMode }) {
                                     setHasChanged(true);
                                   }
                                 }}
-                                className="w-full border rounded px-2 py-1"
+                                className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                                 readOnly={isReadOnly}
                                 inputMode="decimal"
                                 pattern="[0-9]*\.?[0-9]*"
@@ -3802,12 +3796,13 @@ export default function InvoicePage({ darkMode }) {
                                 }}
                                 placeholder="Select Transaction Type..."
                                 // 2. Visual feedback for locked fields
-                                className={`w-full border rounded px-2 py-1 ${
-                                  isReadOnly ||
-                                  permissions.can_edit_transaction_type === 0
+                                className={`w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all
+
+                                   ${isReadOnly ||
+                                    permissions.can_edit_transaction_type === 0
                                     ? "bg-slate-100 cursor-not-allowed text-slate-500"
                                     : "bg-white text-slate-800"
-                                }`}
+                                  }`}
                               />
 
                               {/* 3. The Dropdown Menu (only shows if allowed to edit) */}
@@ -3815,42 +3810,42 @@ export default function InvoicePage({ darkMode }) {
                                 isReadOnly ||
                                 permissions.can_edit_transaction_type === 0
                               ) && (
-                                <div className="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-md max-h-48 overflow-y-auto z-[100] shadow-2xl hidden group-focus-within:block">
-                                  {transTypeList
-                                    // .filter((t) =>
-                                    //   (t.transactioN_DESC || "")
-                                    //     .toLowerCase()
-                                    //     .includes(
-                                    //       (
-                                    //         row.TransactionType || ""
-                                    //       ).toLowerCase(),
-                                    //     ),
-                                    // )
-                                    .map((t) => (
-                                      <div
-                                        key={t.transactioN_TYPE_ID} // Unique key prop
-                                        className="px-3 py-2 hover:bg-blue-100 cursor-pointer text-xs font-bold border-b last:border-0"
-                                        onMouseDown={() => {
-                                          // Ensure we pass the ID to handle the cascade (Rates, SROs)
-                                          handleInputChange(
-                                            index,
-                                            "TransactionTypeId",
-                                            t.transactioN_TYPE_ID,
-                                          );
-                                          setHasChanged(true);
-                                        }}
-                                      >
-                                        {t.transactioN_DESC}
+                                  <div className="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-md max-h-48 overflow-y-auto z-[100] shadow-2xl hidden group-focus-within:block">
+                                    {transTypeList
+                                      // .filter((t) =>
+                                      //   (t.transactioN_DESC || "")
+                                      //     .toLowerCase()
+                                      //     .includes(
+                                      //       (
+                                      //         row.TransactionType || ""
+                                      //       ).toLowerCase(),
+                                      //     ),
+                                      // )
+                                      .map((t) => (
+                                        <div
+                                          key={t.transactioN_TYPE_ID} // Unique key prop
+                                          className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
+                                          onMouseDown={() => {
+                                            // Ensure we pass the ID to handle the cascade (Rates, SROs)
+                                            handleInputChange(
+                                              index,
+                                              "TransactionTypeId",
+                                              t.transactioN_TYPE_ID,
+                                            );
+                                            setHasChanged(true);
+                                          }}
+                                        >
+                                          {t.transactioN_DESC}
+                                        </div>
+                                      ))}
+                                    {/* Helper if no matches found */}
+                                    {transTypeList.length === 0 && (
+                                      <div className="px-3 py-2 text-xs text-slate-400 italic">
+                                        No types loaded...
                                       </div>
-                                    ))}
-                                  {/* Helper if no matches found */}
-                                  {transTypeList.length === 0 && (
-                                    <div className="px-3 py-2 text-xs text-slate-400 italic">
-                                      No types loaded...
-                                    </div>
-                                  )}
-                                </div>
-                              )}
+                                    )}
+                                  </div>
+                                )}
                             </td>
 
                             {/* Rate */}
@@ -3866,7 +3861,7 @@ export default function InvoicePage({ darkMode }) {
                                     );
                                     setHasChanged(true);
                                   }}
-                                  className="w-full border rounded px-2 py-1"
+                                  className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                                   readOnly={
                                     isReadOnly ||
                                     permissions.can_edit_rate === 0
@@ -3900,7 +3895,7 @@ export default function InvoicePage({ darkMode }) {
                                     );
                                     setHasChanged(true);
                                   }}
-                                  className="w-full border rounded px-2 py-1"
+                                  className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                                   readOnly
                                 />
                               )}
@@ -3938,7 +3933,7 @@ export default function InvoicePage({ darkMode }) {
                                   setHasChanged(true);
                                 }}
                                 placeholder="Select UOM..."
-                                className="w-full border rounded px-2 py-1"
+                                className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                                 readOnly
                               />
                               <div className="absolute top-full left-0 right-0 bg-white border rounded-md max-h-40 overflow-y-auto z-50 shadow-lg hidden group-focus-within:block">
@@ -3966,7 +3961,7 @@ export default function InvoicePage({ darkMode }) {
                                 type="text"
                                 name="totalValues"
                                 value={row.totalValues}
-                                className="w-full border rounded px-2 py-1"
+                                className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                                 readOnly
                               />
                             </td>
@@ -3976,7 +3971,7 @@ export default function InvoicePage({ darkMode }) {
                                 type="number"
                                 name="valueSalesExcludingST"
                                 value={row.valueSalesExcludingST}
-                                className="w-full border rounded px-2 py-1"
+                                className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                                 readOnly
                               />
                             </td>
@@ -4047,7 +4042,7 @@ export default function InvoicePage({ darkMode }) {
                                     setHasChanged(true);
                                   }
                                 }}
-                                className="w-full border rounded px-2 py-1"
+                                className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                                 readOnly={
                                   isReadOnly ||
                                   permissions.can_edit_retail_price === 0
@@ -4063,7 +4058,7 @@ export default function InvoicePage({ darkMode }) {
                                 type="number"
                                 name="salesTaxApplicable"
                                 value={row.salesTaxApplicable}
-                                className="w-full border rounded px-2 py-1"
+                                className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                                 readOnly
                               />
                             </td>
@@ -4131,12 +4126,13 @@ export default function InvoicePage({ darkMode }) {
                                   }
                                   setHasChanged(true);
                                 }}
-                                className={`w-full border rounded px-2 py-1 transition-all ${
-                                  isReadOnly ||
-                                  permissions.can_edit_sales_tax === 0
+                                className={`w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all
+
+                                   ${isReadOnly ||
+                                    permissions.can_edit_sales_tax === 0
                                     ? "bg-slate-50 text-slate-400"
                                     : "bg-white text-slate-800 focus:ring-1 focus:ring-blue-500 outline-none"
-                                }`}
+                                  }`}
                                 readOnly={
                                   isReadOnly ||
                                   permissions.can_edit_sales_tax === 0
@@ -4199,12 +4195,13 @@ export default function InvoicePage({ darkMode }) {
                                   }
                                   setHasChanged(true);
                                 }}
-                                className={`w-full border rounded px-2 py-1 ${
-                                  isReadOnly ||
-                                  permissions.can_edit_extra_tax === 0
+                                className={`w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all
+
+                                  ${isReadOnly ||
+                                    permissions.can_edit_extra_tax === 0
                                     ? "bg-slate-50 text-slate-400"
                                     : "bg-white text-slate-800 focus:ring-1 focus:ring-blue-500 outline-none"
-                                }`}
+                                  }`}
                                 readOnly={
                                   isReadOnly ||
                                   permissions.can_edit_extra_tax === 0
@@ -4266,12 +4263,13 @@ export default function InvoicePage({ darkMode }) {
                                   }
                                   setHasChanged(true);
                                 }}
-                                className={`w-full border rounded px-2 py-1 transition-all ${
-                                  isReadOnly ||
-                                  permissions.can_edit_furthur_tax === 0
+                                className={`w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all
+
+                                  ${isReadOnly ||
+                                    permissions.can_edit_furthur_tax === 0
                                     ? "bg-slate-50 text-slate-400 cursor-not-allowed"
                                     : "bg-white text-slate-800 focus:ring-1 focus:ring-blue-500 outline-none"
-                                }`}
+                                  }`}
                                 readOnly={
                                   isReadOnly ||
                                   permissions.can_edit_furthur_tax === 0
@@ -4285,7 +4283,7 @@ export default function InvoicePage({ darkMode }) {
                             <td className="px-4 py-3 whitespace-nowrap">
                               {/* {row.sroOptions && row.sroOptions.length > 0 ? ( */}
                               {Array.isArray(row.sroOptions) &&
-                              row.sroOptions.length > 0 ? (
+                                row.sroOptions.length > 0 ? (
                                 <select
                                   key={`select-${row.rateId}`} // 👈 force re-mount when rate changes
                                   value={row.sroScheduleId ?? ""}
@@ -4297,7 +4295,7 @@ export default function InvoicePage({ darkMode }) {
                                     );
                                     setHasChanged(true);
                                   }}
-                                  className="w-full border rounded px-2 py-1"
+                                  className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                                   readOnly={
                                     isReadOnly ||
                                     permissions.can_edit_sro_schedule === 0
@@ -4332,7 +4330,7 @@ export default function InvoicePage({ darkMode }) {
                                     );
                                     setHasChanged(true);
                                   }}
-                                  className="w-full border rounded px-2 py-1"
+                                  className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                                   readOnly
                                 />
                               )}
@@ -4402,12 +4400,13 @@ export default function InvoicePage({ darkMode }) {
                                   }
                                   setHasChanged(true);
                                 }}
-                                className={`w-full border rounded px-2 py-1 transition-all ${
-                                  isReadOnly ||
-                                  permissions.can_edit_fed_payable === 0
+                                className={`w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all
+
+                                  ${isReadOnly ||
+                                    permissions.can_edit_fed_payable === 0
                                     ? "bg-slate-50 text-slate-400 cursor-not-allowed"
                                     : "bg-white text-slate-800 focus:ring-1 focus:ring-blue-500 outline-none"
-                                }`}
+                                  }`}
                                 readOnly={
                                   isReadOnly ||
                                   permissions.can_edit_fed_payable === 0
@@ -4478,11 +4477,12 @@ export default function InvoicePage({ darkMode }) {
                                   }
                                   setHasChanged(true);
                                 }}
-                                className={`w-full border rounded px-2 py-1 transition-all ${
-                                  isReadOnly
+                                className={`w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all
+
+                                   ${isReadOnly
                                     ? "bg-slate-50 text-slate-400"
                                     : "bg-white text-slate-800 focus:ring-1 focus:ring-blue-500 outline-none"
-                                }`}
+                                  }`}
                                 readOnly={isReadOnly}
                                 inputMode="decimal"
                                 pattern="[0-9]*\.?[0-9]*"
@@ -4491,7 +4491,7 @@ export default function InvoicePage({ darkMode }) {
                             </td>
                             <td className="px-4 py-3 whitespace-nowrap">
                               {row.sroItemOptions &&
-                              row.sroItemOptions.length > 0 ? (
+                                row.sroItemOptions.length > 0 ? (
                                 <select
                                   value={row.sroItemId ?? ""}
                                   onChange={(e) => {
@@ -4502,7 +4502,7 @@ export default function InvoicePage({ darkMode }) {
                                     );
                                     setHasChanged(true);
                                   }}
-                                  className="w-full border rounded px-2 py-1"
+                                  className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                                   readOnly={
                                     isReadOnly ||
                                     permissions.can_edit_sro_item === 0
@@ -4530,7 +4530,7 @@ export default function InvoicePage({ darkMode }) {
                                     );
                                     setHasChanged(true);
                                   }}
-                                  className="w-full border rounded px-2 py-1"
+                                  className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                                   readOnly={
                                     isReadOnly ||
                                     permissions.can_edit_sro_item === 0
@@ -4608,7 +4608,7 @@ export default function InvoicePage({ darkMode }) {
                                     setHasChanged(true);
                                   }
                                 }}
-                                className="w-full border rounded px-2 py-1"
+                                className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                                 readOnly={isReadOnly}
                                 inputMode="decimal"
                                 pattern="[0-9]*\.?[0-9]*"
@@ -4680,11 +4680,11 @@ export default function InvoicePage({ darkMode }) {
                                     setHasChanged(true);
                                   }
                                 }}
-                                className="w-full border rounded px-2 py-1"
+                                className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                                 readOnly={
                                   isReadOnly ||
                                   permissions.can_edit_internal_single_unit_price ===
-                                    0
+                                  0
                                 }
                                 inputMode="decimal"
                                 pattern="[0-9]*\.?[0-9]*"
@@ -4703,7 +4703,7 @@ export default function InvoicePage({ darkMode }) {
                                   );
                                   setHasChanged(true);
                                 }}
-                                className="w-full border rounded px-2 py-1"
+                                className="w-full px-4 py-3 bg-slate-50 rounded-lg outline-none shadow-md focus:shadow-blue-200 transition-all"
                                 readOnly={
                                   isReadOnly ||
                                   permissions.can_edit_internal_uom === 0
@@ -4721,7 +4721,8 @@ export default function InvoicePage({ darkMode }) {
                             >
                               <button
                                 type="button"
-                                className={`bg-red-500 text-white px-3 py-1 rounded ${isReadOnly ? "opacity-50 cursor-not-allowed" : ""}`}
+                                className={`bg-red-500 text-white px-3 py-1 rounded 
+                                  ${isReadOnly ? "opacity-50 cursor-not-allowed" : ""}`}
                                 onClick={() => {
                                   if (!isReadOnly) {
                                     removeRow(index);
@@ -4851,8 +4852,8 @@ export default function InvoicePage({ darkMode }) {
           </div>
         )}
 
-        <div className="bg-white rounded-xl shadow overflow-x-auto custom-scroll">
-          <div className="flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-xl shadow mb-4 gap-4">
+        <div className="overflow-x-auto custom-scroll">
+          <div className="flex flex-col md:flex-row justify-between items-center p-4 rounded-lg shadow-md mb-4 gap-4">
             <div className="flex gap-4 items-center w-full md:w-auto">
               <div>
                 <label className="block text-xs font-medium text-gray-500 mb-1">
@@ -4903,7 +4904,7 @@ export default function InvoicePage({ darkMode }) {
                 <button
                   onClick={handleBatchPostToFBR}
                   disabled={isBatchProcessing}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all"
                 >
                   {isBatchProcessing
                     ? "Posting..."
@@ -4921,9 +4922,9 @@ export default function InvoicePage({ darkMode }) {
             </div>
           </div>
           {/* Removed pb-64 and min-height */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-x-auto custom-scroll">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-slate-50 border-b border-slate-100">
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-x-auto custom-scroll">
+            <table className="min-w-max text-sm text-left">
+              <thead className="bg-gray-200 border-b border-slate-100">
                 <tr>
                   <th className="p-4">
                     {/* Fixed "Select All" Alignment */}
@@ -4938,12 +4939,12 @@ export default function InvoicePage({ darkMode }) {
                           selectedInvoices.length === invoices.length
                         }
                       />
-                      <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">
+                      <span className="text-[10px] font-black uppercase tracking-wider">
                         Select All
                       </span>
                     </div>
                   </th>
-                  {[
+                  {/* {[
                     "Int. Inv. Ref No.",
                     "Inv. Date",
                     "Created Date",
@@ -4960,9 +4961,32 @@ export default function InvoicePage({ darkMode }) {
                   ].map((h) => (
                     <th
                       key={h}
-                      className="px-4 py-4 text-center text-[10px] font-black uppercase text-slate-400 tracking-wider whitespace-nowrap"
+                      className="px-4 py-4 text-center text-[10px] font-black uppercase tracking-wider whitespace-nowrap"
                     >
                       {h}
+                    </th>
+                  ))} */}
+                  {[
+                    { label: "Int. Inv. Ref No.", width: "130px" },
+                    { label: "Inv. Date", width: "110px" },
+                    { label: "Created Date", width: "120px" },
+                    { label: "P/O No.", width: "100px" },
+                    { label: "P/O Date", width: "110px" },
+                    { label: "Buyer", width: "200px" },
+                    { label: "Items", width: "80px" },
+                    { label: "Excl. Tax", width: "120px" },
+                    { label: "Tax", width: "100px" },
+                    { label: "Other Taxes %", width: "120px" },
+                    { label: "Total", width: "120px" },
+                    { label: "Status", width: "110px" },
+                    { label: "Action", width: "100px" },
+                  ].map((h) => (
+                    <th
+                      key={h.label}
+                      style={{ minWidth: h.width }}
+                      className="px-4 py-4 text-center text-[10px] font-black uppercase tracking-wider whitespace-nowrap"
+                    >
+                      {h.label}
                     </th>
                   ))}
                 </tr>
@@ -5019,64 +5043,63 @@ export default function InvoicePage({ darkMode }) {
                           onChange={() => handleSelectRow(inv.id)}
                         />
                       </td>
-                      <td className="px-4 py-4 text-center font-mono text-xs text-slate-500">
+                      <td className="px-4 py-4 text-center whitespace-nowrap font-mono text-xs text-slate-500">
                         {inv.internal_inv_ref_no || "-"}
                       </td>
-                      <td className="px-4 py-4 text-center">
+                      <td className="px-4 py-4 text-center whitespace-nowrap">
                         {inv.invoice_date
                           ? formatDateForInput(inv.invoice_date)
                           : "-"}
                       </td>
-                      <td className="px-4 py-4 text-center text-slate-400 text-xs">
+                      <td className="px-4 py-4 text-center whitespace-nowrap text-slate-400 text-xs">
                         {inv.invoice_created_date
                           ? formatDateForInput(inv.invoice_created_date)
                           : "-"}
                       </td>
-                      <td className="px-4 py-4 text-center font-bold">
+                      <td className="px-4 py-4 text-center whitespace-nowrap font-bold">
                         {inv.challanNo || "-"}
                       </td>
-                      <td className="px-4 py-4 text-center">
+                      <td className="px-4 py-4 text-center whitespace-nowrap">
                         {inv.challanDate
                           ? formatDateForInput(inv.challanDate)
                           : "-"}
                       </td>
-                      <td className="px-4 py-4 text-center font-bold text-blue-600">
+                      <td className="px-4 py-4 text-center whitespace-nowrap font-bold text-blue-600">
                         {inv.customer_name + " - " + inv.ntn || "-"}
                       </td>
-                      <td className="px-4 py-4 text-center font-bold">
+                      <td className="px-4 py-4 text-center whitespace-nowrap font-bold">
                         {totalQty}
                       </td>
-                      <td className="px-4 py-4 text-center">
+                      <td className="px-4 py-4 text-center whitespace-nowrap">
                         {/* {Number(inv.exclTax).toLocaleString()} */}
                         {Number(
                           String(inv.exclTax).replace(/,/g, ""),
                         ).toLocaleString()}
                       </td>
-                      <td className="px-4 py-4 text-center">
+                      <td className="px-4 py-4 text-center whitespace-nowrap">
                         {Number(
                           String(inv.tax).replace(/,/g, ""),
                         ).toLocaleString()}
                       </td>
-                      <td className="px-4 py-4 text-center font-bold text-orange-600">
+                      <td className="px-4 py-4 text-center whitespace-nowrap font-bold text-orange-600">
                         {otherTaxesSum.toLocaleString()}
                       </td>
-                      <td className="px-4 py-4 text-center font-black text-emerald-600">
+                      <td className="px-4 py-4 text-center whitespace-nowrap font-black">
                         {Number(
                           String(inv.inclTax || 0).replace(/,/g, ""),
                         ).toLocaleString()}
                       </td>
-                      <td className="px-4 py-4 text-center">
+                      <td className="px-4 py-4 text-center whitespace-nowrap">
                         {getStatusBadge(inv.status, inv.id)}
                       </td>
 
                       <td className="px-4 py-4 text-center">
                         <button
                           onClick={(e) => toggleMenu(e, inv.id)}
-                          className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                            menuConfig.id === inv.id
-                              ? "bg-blue-600 text-white shadow-lg"
-                              : "bg-blue-50 text-blue-600 hover:bg-blue-100"
-                          }`}
+                          className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${menuConfig.id === inv.id
+                            ? "bg-blue-600 text-white shadow-lg"
+                            : "bg-blue-50 text-blue-600 hover:bg-blue-100"
+                            }`}
                         >
                           Actions {menuConfig.id === inv.id ? "▴" : "▾"}
                         </button>
@@ -5123,7 +5146,7 @@ export default function InvoicePage({ darkMode }) {
                         minUnpostedInvoiceNo == currentInv.invoice_no && (
                           <button
                             onClick={() => postInvoiceToFBR(currentInv.id)}
-                            className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-emerald-600 hover:bg-emerald-50 rounded-lg flex items-center gap-3 transition-colors border-t border-slate-50 pt-3"
+                            className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-blue-600 hover:bg-blue-50 rounded-lg flex items-center gap-3 transition-colors border-t border-slate-50 pt-3"
                           >
                             <Check size={14} /> Post to FBR
                           </button>
@@ -5132,13 +5155,13 @@ export default function InvoicePage({ darkMode }) {
                       {/* VALIDATE (Uses currentInv instead of inv) */}
                       {(currentInv.status === "Pending" ||
                         currentInv.status === "Failed") && (
-                        <button
-                          onClick={() => validateInvoiceDirectly(currentInv)}
-                          className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-slate-600 hover:bg-slate-50 rounded-lg flex items-center gap-3 transition-colors"
-                        >
-                          <Settings size={14} /> Validate Inv.
-                        </button>
-                      )}
+                          <button
+                            onClick={() => validateInvoiceDirectly(currentInv)}
+                            className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-slate-600 hover:bg-slate-50 rounded-lg flex items-center gap-3 transition-colors"
+                          >
+                            <Settings size={14} /> Validate Inv.
+                          </button>
+                        )}
 
                       {/* PRINT BILL */}
                       <button
@@ -5254,7 +5277,7 @@ export default function InvoicePage({ darkMode }) {
           </div>
         )}
       </div>
-      <div className="sticky bottom-0 mt-auto z-40 bg-white/95 backdrop-blur-sm border-t border-gray-200 py-3 flex flex-wrap justify-between md:justify-start gap-4 text-sm shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]">
+      <div className="sticky -bottom-4 mt-auto z-40 bg-white border-t border-gray-200 py-3 flex flex-wrap justify-between md:justify-start gap-4 text-sm shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]">
         <div className="flex gap-2 bg-gray-50 border border-gray-200 rounded-lg p-2 shadow-sm">
           <div className="px-3 py-1 bg-gray-200 text-gray-800 rounded font-medium">
             Total: {invoiceStats.total}
