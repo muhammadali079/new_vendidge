@@ -509,7 +509,8 @@ export async function PUT(req) {
               uoM: item.unit,
               quantity: Number(item.qty),
               totalValues: Number(item.totalValues || item.valueInclTax || 0),
-              valueSalesExcludingST: Number(item.valueSalesExcludingST),
+             valueSalesExcludingST: +Number(item.valueSalesExcludingST),
+          
               fixedNotifiedValueOrRetailPrice: Number(
                 item.fixedNotifiedValueOrRetailPrice || 0,
               ),
@@ -1582,6 +1583,45 @@ export async function PUT(req) {
               // extraTax: Number(item.extraTax || ""),
               extraTax: Number(item.extraTax) > 0 ? Number(item.extraTax) : "",
 
+              furtherTax: Number(item.furtherTax || 0),
+              sroScheduleNo: item.sroScheduleNo || "",
+              fedPayable: Number(item.fedPayable || 0),
+              discount: Number(item.discount || 0),
+              saleType: item.TransactionType || "",
+              sroItemSerialNo: item.sroItemSerialNo || "",
+            })),
+          };
+        default:
+          return {
+            invoiceType: saleType,
+            invoiceDate: date,
+            sellerNTNCNIC: sellerNTNCNIC,
+            sellerBusinessName: sellerBusinessName,
+            sellerProvince: sellerProvince,
+            sellerAddress: sellerAddress,
+            buyerNTNCNIC: buyerInfo.buyerNTNCNIC,
+            buyerBusinessName: buyerInfo.buyerBusinessName,
+            buyerProvince: buyerInfo.buyerProvince,
+            buyerAddress: buyerInfo.buyerAddress,
+            buyerRegistrationType: buyerType,
+            invoiceRefNo: fbrInvoiceRefNo || "",
+            sourceInvoiceNo: internal_inv_ref_no,
+            items: items.map((item) => ({
+              hsCode: item.hsCode,
+              productDescription: item.description,
+              rate: item.rateDesc,
+              uoM: item.unit,
+              quantity: Number(item.qty),
+              totalValues: Number(item.totalValues || item.valueInclTax || 0),
+              valueSalesExcludingST: Number(item.valueSalesExcludingST),
+              fixedNotifiedValueOrRetailPrice: Number(
+                item.fixedNotifiedValueOrRetailPrice || 0,
+              ),
+              salesTaxApplicable: Number(item.salesTaxApplicable || 0),
+              salesTaxWithheldAtSource: Number(
+                item.salesTaxWithheldAtSource || 0,
+              ),
+              extraTax: Number(item.extraTax || 0),
               furtherTax: Number(item.furtherTax || 0),
               sroScheduleNo: item.sroScheduleNo || "",
               fedPayable: Number(item.fedPayable || 0),

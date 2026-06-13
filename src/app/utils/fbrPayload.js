@@ -1047,5 +1047,46 @@ export const getFbrPayload = (
           sroItemSerialNo: item.sroItemSerialNo || "",
         })),
       };
+    default:
+      return {
+        invoiceType: invoice.saleType,
+        invoiceDate: formatDateForInput(invoice.invoice_date),
+        sellerBusinessName: sessionStorage.getItem("sellerBusinessName") || "",
+        sellerProvince: invoice.sellerProvince,
+        sellerNTNCNIC: sessionStorage.getItem("sellerNTNCNIC") || "",
+        sellerAddress: sessionStorage.getItem("sellerAddress") || "",
+        sellerBusinessName: sessionStorage.getItem("sellerBusinessName") || "",
+        sellerProvince: invoice.sellerProvince,
+        sellerNTNCNIC: sessionStorage.getItem("sellerNTNCNIC") || "",
+        sellerAddress: sessionStorage.getItem("sellerAddress") || "",
+        buyerNTNCNIC: customer.ntn || customer.cnic || "",
+        buyerBusinessName: invoice.customer_name,
+        buyerProvince: invoice.buyerProvince,
+        buyerAddress: customer.locations[0]?.address || "",
+        invoiceRefNo: invoice.fbrInvoiceRefNo ?? "",
+        buyerRegistrationType: invoice.buyerType,
+        invoiceRefNo: invoice.fbrInvoiceRefNo ?? "",
+        sourceInvoiceNo: invoice.internal_inv_ref_no,
+        items: items.map((item) => ({
+          hsCode: item.hsCode,
+          productDescription: item.description,
+          rate: item.rateDesc,
+          uoM: item.unit,
+          quantity: Number(item.qty),
+          totalValues: Number(item.totalValues),
+          valueSalesExcludingST: Number(item.valueSalesExcludingST),
+          fixedNotifiedValueOrRetailPrice:
+            Number(item.fixedNotifiedValueOrRetailPrice) || 0.0,
+          salesTaxApplicable: Number(item.salesTaxApplicable) || 0,
+          salesTaxWithheldAtSource: Number(item.salesTaxWithheldAtSource) || 0,
+          extraTax: Number(item.extraTax) || "",
+          furtherTax: Number(item.furtherTax) || 0,
+          sroScheduleNo: item.sroScheduleNo || "",
+          fedPayable: Number(item.fedPayable) || 0,
+          discount: Number(item.discount) || 0,
+          saleType: item.TransactionType || "",
+          sroItemSerialNo: item.sroItemSerialNo || "",
+        })),
+      }
   }
 };

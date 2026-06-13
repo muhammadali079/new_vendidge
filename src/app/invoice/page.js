@@ -761,17 +761,17 @@ export default function InvoicePage({ darkMode }) {
 
     return {
       ...row,
-      valueSalesExcludingST: valueExcl.toFixed(2),
+      valueSalesExcludingST: valueExcl.toFixed(4),
 
       calculatedFurtherTax: furtherTaxAmt,
       calculatedExtraTax: extraTaxAmt,
       calculatedFed: fedAmt,
       calculatedWithheld: withheldAmt,
       calculated236H: tax236HAmt,
-      salesTaxApplicable: totalTaxPerRow.toFixed(2),
-      totalValues: totalInclTax.toFixed(2),
+      salesTaxApplicable: totalTaxPerRow.toFixed(4),
+      totalValues: totalInclTax.toFixed(4),
       // Update the retail total field as requested
-      retailPriceTotal: retailPriceTotal.toFixed(2),
+      retailPriceTotal: retailPriceTotal.toFixed(4),
     };
   };
   const updateInvoiceTotals = (allRows) => {
@@ -821,15 +821,15 @@ export default function InvoicePage({ darkMode }) {
       ...prev,
       totalProducts: allRows.length,
       totalQty: totalQty.toFixed(4),
-      exclTax: totalExcl.toFixed(2),
-      tax: totalTax.toFixed(2),
-      totalFurtherTax: totalFurther.toFixed(2),
-      totalExtraTax: totalExtra.toFixed(2),
-      totalSalesTaxWithheld: totalWithheld.toFixed(2),
-      totalFedPayable: totalFed.toFixed(2),
-      inclTax: totalIncl.toFixed(2), // incl tax without 236H
-      total236HTax: total236H.toFixed(2), // 236H tax amount total
-      grandTotal: grandTotal.toFixed(2), // final grand total
+      exclTax: totalExcl.toFixed(4),
+      tax: totalTax.toFixed(4),
+      totalFurtherTax: totalFurther.toFixed(4),
+      totalExtraTax: totalExtra.toFixed(4),
+      totalSalesTaxWithheld: totalWithheld.toFixed(4),
+      totalFedPayable: totalFed.toFixed(4),
+      inclTax: totalIncl.toFixed(4), // incl tax without 236H
+      total236HTax: total236H.toFixed(4), // 236H tax amount total
+      grandTotal: grandTotal.toFixed(4), // final grand total
     }));
   };
 
@@ -1319,9 +1319,9 @@ export default function InvoicePage({ darkMode }) {
       // });
       total236HAmt += (totalInclTax * rate236HValue) / 100;
       const calculatedGrandTotal = totalInclTax + total236HAmt;
-      inv.exclTax = totalExclTax.toFixed(2);
-      inv.tax = totalTax.toFixed(2);
-      inv.inclTax = totalInclTax.toFixed(2);
+      inv.exclTax = totalExclTax.toFixed(4);
+      inv.tax = totalTax.toFixed(4);
+      inv.inclTax = totalInclTax.toFixed(4);
       console.log("inv:", inv);
 
       const defaultBiz = userBusinesses.length > 0 ? userBusinesses[0] : null;
@@ -1357,16 +1357,16 @@ export default function InvoicePage({ darkMode }) {
         challanNoLabel: inv.challanNoLabel || "",
         totalProducts: itemsArray.length,
         totalQty: totalQty.toFixed(4),
-        exclTax: totalExclTax.toFixed(2),
-        tax: totalTax.toFixed(2),
+        exclTax: totalExclTax.toFixed(4),
+        tax: totalTax.toFixed(4),
         tax236H: inv.tax236H || "0.00",
-        totalFurtherTax: totalFurther.toFixed(2),
-        totalExtraTax: totalExtra.toFixed(2),
-        totalSalesTaxWithheld: totalWithheld.toFixed(2),
-        totalFedPayable: totalFed.toFixed(2),
-        inclTax: totalInclTax.toFixed(2),
-        total236HTax: total236HAmt.toFixed(2),
-        grandTotal: calculatedGrandTotal.toFixed(2),
+        totalFurtherTax: totalFurther.toFixed(4),
+        totalExtraTax: totalExtra.toFixed(4),
+        totalSalesTaxWithheld: totalWithheld.toFixed(4),
+        totalFedPayable: totalFed.toFixed(4),
+        inclTax: totalInclTax.toFixed(4),
+        total236HTax: total236HAmt.toFixed(4),
+        grandTotal: calculatedGrandTotal.toFixed(4),
       }));
 
       setCustomerSearch(customerDisplay);
@@ -1654,7 +1654,7 @@ export default function InvoicePage({ darkMode }) {
         if (Math.abs(calculatedTotal - exclTax) > 0.01) {
           alert(
             `Validation Error at Row ${i + 1}:\n` +
-              `Internal Total (${calculatedTotal.toFixed(2)}) does not match Excl. Tax (${exclTax.toFixed(2)})`,
+              `Internal Total (${calculatedTotal.toFixed(4)}) does not match Excl. Tax (${exclTax.toFixed(4)})`,
           );
           return false;
         }
@@ -3386,7 +3386,7 @@ export default function InvoicePage({ darkMode }) {
                             handleFormChange({
                               target: {
                                 name: "tax236H",
-                                value: num.toFixed(2),
+                                value: num.toFixed(4),
                               },
                             });
                           } else {
