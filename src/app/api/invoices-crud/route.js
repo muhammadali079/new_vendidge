@@ -484,8 +484,8 @@ export async function PUT(req) {
     //   );
     //   const scenarioCode = scenarioCodeRow[0];
     //   console.log("Scenario Code:", scenarioCode.code);
-const roundTo4Num = (num) => Math.round(roundTo2Num(num || 0) * 10000) / 10000;
-const roundTo2Num = (num) => Math.round(roundTo2Num(num || 0) * 100) / 100;
+const roundTo4Num = (num) => Math.round(Number(num || 0) * 10000) / 10000;
+const roundTo2Num = (num) => Math.round(Number(num || 0) * 100) / 100;
     const fbrPayload = (() => {
       switch (scenarioCode) {
         case "SN001":

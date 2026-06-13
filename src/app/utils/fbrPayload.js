@@ -6,8 +6,8 @@ export const getFbrPayload = (
   formatDateForInput,
 ) => {
   const customer = customers.find((c) => c.id === invoice.customer_id);
-  const roundTo4Num = (num) => Math.round(roundTo2Num(num || 0) * 10000) / 10000;
-const roundTo2Num = (num) => Math.round(roundTo2Num(num || 0) * 100) / 100;
+  const roundTo4Num = (num) => Math.round(Number(num || 0) * 10000) / 10000;
+const roundTo2Num = (num) => Math.round(Number(num || 0) * 100) / 100;
   switch (invoice.scenario_code) {
     case "SN001":
       return {
