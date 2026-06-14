@@ -92,21 +92,49 @@ export async function POST(request) {
         ? "new_invoices_prod"
         : "new_invoices";
 
+    // if (userId && invoiceId) {
+    //   try {
+    //     await db.query(
+    //       `UPDATE ${tableName} 
+    //                  SET status = 'Processing'
+    //                  WHERE user_id = ? AND id = ?`,
+    //       [userId, invoiceId],
+    //     );
+    //   } catch (dbErr) {
+    //     console.error("Database update failed after FBR call:", dbErr);
+    //   }
+    // }
+
     if (userId && invoiceId) {
       try {
-        await db.query(
+        const [result] = await db.query(
           `UPDATE ${tableName} 
-                     SET status = 'Processing'
-                     WHERE user_id = ? AND id = ?`,
+           SET status = 'Processing'
+           WHERE user_id = ? AND id = ? AND status = 'Validated'`,
           [userId, invoiceId],
         );
+
+        if (result.affectedRows === 0) {
+          return NextResponse.json(
+            { 
+              message: "This invoice is already being processed or has already been posted.", 
+              success: false 
+            },
+            { status: 409 } 
+          );
+        }
+
       } catch (dbErr) {
-        console.error("Database update failed after FBR call:", dbErr);
+        console.error("Database update failed inside FBR lock:", dbErr);
+        return NextResponse.json(
+          { message: "Database transaction error" },
+          { status: 500 }
+        );
       }
     }
 
-    //    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-    //    await sleep(10000);
+       const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+       await sleep(10000);
 
     let fbrUrl =
       isProd === "1" || isProd === "true"

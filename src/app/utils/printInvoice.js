@@ -934,7 +934,7 @@ export const handlePrintInvoice = async (
       ) || "";
 
     const customerName =
-      invoiceForm.customer.split(" - ")[0] || targetInvoice.customer_name || "";
+      invoiceForm.customer?.split(" - ")[0] || targetInvoice.customer_name || "";
     const isEvent = targetInvoice && targetInvoice.nativeEvent;
 
     const activeCustomerId =

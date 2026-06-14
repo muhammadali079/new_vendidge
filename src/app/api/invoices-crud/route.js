@@ -1,12 +1,32 @@
 import { db } from "../../../../lib/db";
 import { NextResponse } from "next/server";
 
+async function checkIsProdUser(connectionOrDb, userId) {
+  try {
+
+    const [userRows] = await connectionOrDb.query(
+      `SELECT isProd FROM new_users WHERE id = ? LIMIT 1`,
+      [userId]
+    );
+    
+    if (userRows && userRows.length > 0) {
+      const isProdVal = userRows[0].isProd;
+      console.log("isProd val" , isProdVal);
+      return  isProdVal === "1" || isProdVal === "true" || isProdVal === 1 || isProdVal === true;
+    }
+    return false; 
+  } catch (err) {
+    console.error("Error looking up user environment config:", err);
+    return false;
+  }
+}
+
 export async function POST(req) {
-  // 1. Get a dedicated connection from the pool for transaction control
   const connection = await db.getConnection();
 
   try {
-    const isProd = req.cookies.get("isProd")?.value === "1";
+    //const isProd = req.cookies.get("isProd")?.value === "1";
+    const isProd = await checkIsProdUser(connection, userId);
     const authHeader =
       req.headers.get("authorization") || req.headers.get("Authorization");
 
@@ -362,8 +382,8 @@ export async function GET(req) {
 export async function PUT(req) {
   const connection = await db.getConnection();
   try {
-    const isProd = req.cookies.get("isProd")?.value === "1";
-    //const isProd = req.cookies.get('isProd')?.value;
+   //const isProd = req.cookies.get("isProd")?.value === "1";
+    const isProd = await checkIsProdUser(connection, userId);
 
     console.log("isProd:", isProd, typeof isProd);
     const authHeader =

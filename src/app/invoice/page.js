@@ -5135,81 +5135,131 @@ export default function InvoicePage({ darkMode }) {
                 })}
               </tbody>
             </table>
-            {menuConfig.open &&
-              (() => {
-                // 1. Find the specific invoice object once
-                const currentInv = invoices.find((i) => i.id === menuConfig.id);
+          {menuConfig.open &&
+  (() => {
+    const currentInv = invoices.find((i) => i.id === menuConfig.id);
+    if (!currentInv) return null;
 
-                // 2. Safety check: If for some reason it's not found, don't render
-                if (!currentInv) return null;
+    // Evaluates if either this specific row is executing OR a batch loop is live
+    const isUiLocked = 
+      currentInv.status === "Processing" || 
+      processingInvoiceId === currentInv.id || 
+      isBatchProcessing;
 
-                return (
-                  <div
-                    style={{ top: menuConfig.top, left: menuConfig.left }}
-                    className="fixed w-48 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[999] overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <div className="p-2 space-y-1">
-                      {/* VIEW DETAILS */}
-                      <button
-                        onClick={() => {
-                          handleViewInvoice(currentInv);
-                          setMenuConfig({
-                            open: false,
-                            id: null,
-                            top: 0,
-                            left: 0,
-                          });
-                        }}
-                        className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-slate-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg flex items-center gap-3"
-                      >
-                        <Layers size={14} /> View Details
-                      </button>
+    return (
+      <div
+        style={{ top: menuConfig.top, left: menuConfig.left }}
+        className="fixed w-48 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[999] overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-2 space-y-1">
+          
+          {/* VIEW DETAILS */}
+          <button
+            onClick={() => {
+              if (isUiLocked) return;
+              handleViewInvoice(currentInv);
+              setMenuConfig({ open: false, id: null, top: 0, left: 0 });
+            }}
+            disabled={isUiLocked}
+            className={`w-full text-left px-4 py-2.5 text-[11px] font-bold text-slate-700 hover:bg-blue-50 rounded-lg flex items-center gap-3 transition-opacity ${
+              isUiLocked ? "opacity-40 cursor-not-allowed" : ""
+            }`}
+          >
+            <Layers size={14} /> View Details
+          </button>
 
-                      {/* POST TO FBR (Uses currentInv instead of inv) */}
-                      {currentInv.status === "Validated" &&
-                        permissions.can_post_invoice === 1 &&
-                        minUnpostedInvoiceNo == currentInv.invoice_no && (
-                          <button
-                            onClick={() => postInvoiceToFBR(currentInv.id)}
-                            className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-blue-600 hover:bg-blue-50 rounded-lg flex items-center gap-3 transition-colors border-t border-slate-50 pt-3"
-                          >
-                            <Check size={14} /> Post to FBR
-                          </button>
-                        )}
+          {/* VALIDATE INVOICE */}
+          {["Pending", "Failed"].includes(currentInv.status) && (
+            <button
+              onClick={async () => {
+                if (isUiLocked) return;
+                setMenuConfig({ open: false, id: null, top: 0, left: 0 });
+                // Reuses your existing individual inline validate function
+                if (typeof validateInvoiceDirectly === "function") {
+                  await validateInvoiceDirectly(currentInv);
+                }
+              }}
+              disabled={isUiLocked}
+              className={`w-full text-left px-4 py-2.5 text-[11px] font-bold text-amber-600 hover:bg-amber-50 rounded-lg flex items-center gap-3 transition-opacity ${
+                isUiLocked ? "opacity-40 cursor-not-allowed" : ""
+              }`}
+            >
+              <Calculator size={14} /> Validate Invoice
+            </button>
+          )}
 
-                      {/* VALIDATE (Uses currentInv instead of inv) */}
-                      {(currentInv.status === "Pending" ||
-                        currentInv.status === "Failed") && (
-                        <button
-                          onClick={() => validateInvoiceDirectly(currentInv)}
-                          className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-slate-600 hover:bg-slate-50 rounded-lg flex items-center gap-3 transition-colors"
-                        >
-                          <Settings size={14} /> Validate Inv.
-                        </button>
-                      )}
+          {/* POST TO FBR */}
+          {currentInv.status === "Validated" &&
+            permissions.can_post_invoice === 1 &&
+            minUnpostedInvoiceNo == currentInv.invoice_no && (
+              <button
+                onClick={async () => {
+                  if (isUiLocked) return;
+                  setMenuConfig({ open: false, id: null, top: 0, left: 0 });
+                  await postInvoiceToFBR(currentInv.id);
+                }}
+                disabled={isUiLocked}
+                className={`w-full text-left px-4 py-2.5 text-[11px] font-bold text-blue-600 hover:bg-blue-50 rounded-lg flex items-center gap-3 transition-opacity ${
+                  isUiLocked ? "opacity-40 cursor-not-allowed" : ""
+                }`}
+              >
+                <Check size={14} /> Post to FBR
+              </button>
+            )}
 
-                      {/* PRINT BILL */}
-                      <button
-                        onClick={() => printInvoice(currentInv)}
-                        className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-slate-700 hover:bg-slate-50 rounded-lg flex items-center gap-3 border-t border-slate-50 pt-2"
-                      >
-                        <Calculator size={14} /> Print Bill
-                      </button>
+          {/* PRINT INVOICE */}
+          <button
+            onClick={async () => {
+              if (isUiLocked) return;
+              setMenuConfig({ open: false, id: null, top: 0, left: 0 });
+              try {
+                // await handlePrintInvoice(
+                //   currentInv,
+                //   customers,
+                //   scenarioCodes,
+                //   invoices,
+                //   formatDateForInput,
+                //   formatNumber,
+                //   shouldShow,
+                //   shouldShowHeader,
+                //   fields,
+                // );
+                await  printInvoice(currentInv)
+              } catch (printErr) {
+                console.error("Print Error:", printErr);
+              }
+            }}
+            disabled={isUiLocked}
+            className={`w-full text-left px-4 py-2.5 text-[11px] font-bold text-slate-700 hover:bg-blue-50 rounded-lg flex items-center gap-3 transition-opacity ${
+              isUiLocked ? "opacity-40 cursor-not-allowed" : ""
+            }`}
+          >
+            <Settings size={14} /> Print Invoice
+          </button>
 
-                      {/* DELETE (Uses currentInv instead of inv) */}
-                      {permissions.can_delete_invoice === 1 && (
-                        <button
-                          onClick={() => deleteInvoice(currentInv.id)}
-                          className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-red-600 hover:bg-red-50 rounded-lg flex items-center gap-3 transition-colors border-t border-slate-50"
-                        >
-                          <Trash2 size={14} /> Delete
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                );
-              })()}
+          {/* DELETE INVOICE */}
+          {["Pending", "Failed", "Validated"].includes(currentInv.status) &&
+            permissions.can_delete_invoice === 1 && (
+              <button
+                onClick={async () => {
+                  if (isUiLocked) return;
+                  setMenuConfig({ open: false, id: null, top: 0, left: 0 });
+                  await deleteInvoice(currentInv.id);
+                }}
+                disabled={isUiLocked}
+                className={`w-full text-left px-4 py-2.5 text-[11px] font-bold text-red-600 hover:bg-red-50 rounded-lg flex items-center gap-3 transition-opacity border-t border-slate-100 pt-2 ${
+                  isUiLocked ? "opacity-40 cursor-not-allowed" : ""
+                }`}
+              >
+                <Trash2 size={14} /> Delete Invoice
+              </button>
+            )}
+
+        </div>
+      </div>
+    );
+  })()}
           </div>
         </div>
         {selectedError && (

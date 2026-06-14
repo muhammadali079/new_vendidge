@@ -282,6 +282,9 @@ export default function ConsultantMasterInvoices() {
     //   allClients.find((c) => c.id === inv.user_id),
     //   inv.invoice_no,
     // );
+     let freshCustomersList = customers;
+     let freshFieldsList = fields;
+
     console.log(
       "Invoice for printing:",
       inv.address || "",
@@ -296,11 +299,19 @@ export default function ConsultantMasterInvoices() {
     sessionStorage.setItem("sellerInvoiceNTN", inv.seller_invoice_ntn || "");
     sessionStorage.setItem("sellerBusinessName", inv.sellerBusinessName || "");
     const custRes = await fetch(`/api/customer?userId=${inv.user_id}`);
-    if (custRes.ok) setCustomers(await custRes.json());
+    if (custRes.ok){
+      const data = await custRes.json();
+      freshCustomersList = data; 
+      setCustomers(data);
+    } 
     const fieldRes = await fetch(
       `/api/userChoosableFields?userId=${Number(sessionStorage.getItem("userId"))}&role=${sessionStorage.getItem("role")}`,
     );
-    if (fieldRes.ok) setFields(await fieldRes.json());
+    if (fieldRes.ok) {
+        const data = await fieldRes.json();
+      freshFieldsList = data; 
+      setFields(data);
+    }
     const mockForm = {
       invoiceNo: inv.invoice_no,
       date: inv.invoice_date,
@@ -316,7 +327,7 @@ export default function ConsultantMasterInvoices() {
     await handlePrintInvoice(
       inv, // targetInvoice
       inv, // invoiceForm
-      customers, // Metadata from your Consultant state
+      freshCustomersList, // Metadata from your Consultant state
       inv.items || [], // Pre-hydrated items
       scenarioCodes,
       invoices,
@@ -324,7 +335,7 @@ export default function ConsultantMasterInvoices() {
       formatNumber,
       shouldShow,
       shouldShowHeader,
-      fields,
+      freshFieldsList,
     );
   };
   const handleBatchPrint = async () => {
@@ -367,8 +378,9 @@ export default function ConsultantMasterInvoices() {
         setCustomers(batchCustomers);
       }
 
+      let freshFields = fields;
       if (fieldRes.ok) {
-        const freshFields = await fieldRes.json();
+         freshFields = await fieldRes.json();
         setFields(freshFields);
       }
 
@@ -383,7 +395,7 @@ export default function ConsultantMasterInvoices() {
         formatNumber,
         shouldShow,
         shouldShowHeader,
-        fields,
+        freshFields,
       );
     } catch (error) {
       console.error("Batch print preparation failed:", error);
@@ -680,8 +692,12 @@ export default function ConsultantMasterInvoices() {
     setProcessingId(inv.id);
 
     try {
-      // 1. SETUP SESSION CONTEXT (Required by getFbrPayload utility)
-      // The utility pulls these values directly from sessionStorage
+      const custRes = await fetch(`/api/customer?userId=${inv.user_id}`);
+      if (custRes.ok) {
+       const data = await custRes.json();
+      freshCustomersList = data; 
+      setCustomers(data);
+      }
       sessionStorage.setItem("sellerAddress", inv.address || "");
       sessionStorage.setItem("sellerProvince", inv.province || "");
       sessionStorage.setItem("sellerProvinceId", inv.province_id || "");
@@ -706,7 +722,7 @@ export default function ConsultantMasterInvoices() {
         inv, // Matches targetInvoice structure
         inv.items || [], // Pre-hydrated items from updated route
         isProd,
-        customers,
+        freshCustomersList,
         formatDateForInput,
       );
 
@@ -758,7 +774,6 @@ export default function ConsultantMasterInvoices() {
     );
     // 2. Process Sequentially
     for (const inv of selectedObjs) {
-      // Only attempt if it's the next unposted one for this user
       if (
         inv.status === "Validated" &&
         inv.invoice_no === inv.minUnpostedForUser
@@ -1090,24 +1105,24 @@ export default function ConsultantMasterInvoices() {
                             )}
                           </button>
                         ) : /* 2. POST: Shown ONLY if Validated AND it's the next in line */
-                        inv.status === "Validated" &&
-                          inv.invoice_no === inv.minUnpostedForUser ? (
-                          <button
-                            disabled={processingId === inv.id}
-                            onClick={() => handlePostToFBRDirectly(inv)}
-                            className="p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all shadow-sm"
-                            title="Post to FBR"
-                          >
-                            {processingId === inv.id ? (
-                              <Loader2 className="animate-spin" size={16} />
-                            ) : (
-                              <Send size={16} />
-                            )}
-                          </button>
-                        ) : (
-                          /* Placeholder to keep Print button in place if neither action is valid */
-                          <div className="w-8" />
-                        )}
+                          inv.status === "Validated" &&
+                            inv.invoice_no === inv.minUnpostedForUser ? (
+                            <button
+                              disabled={processingId === inv.id}
+                              onClick={() => handlePostToFBRDirectly(inv)}
+                              className="p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-600 hover:text-white transition-all shadow-sm"
+                              title="Post to FBR"
+                            >
+                              {processingId === inv.id ? (
+                                <Loader2 className="animate-spin" size={16} />
+                              ) : (
+                                <Send size={16} />
+                              )}
+                            </button>
+                          ) : (
+                            /* Placeholder to keep Print button in place if neither action is valid */
+                            <div className="w-8" />
+                          )}
                       </div>
 
                       {/* PERMANENT PRINT SLOT */}
@@ -1143,22 +1158,22 @@ export default function ConsultantMasterInvoices() {
                     {/* HIDE ACTION COMPLETELY if both perms are 0 */}
                     {(perms.can_edit_invoice === 1 ||
                       perms.can_view_invoice === 1) && (
-                      <button
-                        onClick={() =>
-                          setupContextAndRoute(
-                            allClients.find((c) => c.id === inv.user_id),
-                            inv.invoice_no,
-                          )
-                        }
-                        className="text-indigo-600 font-black text-xs hover:underline uppercase"
-                      >
-                        {/* Label changes based on Edit vs View permission */}
-                        {perms.can_edit_invoice === 1 &&
-                        inv.status !== "Success"
-                          ? "Edit"
-                          : "View"}
-                      </button>
-                    )}
+                        <button
+                          onClick={() =>
+                            setupContextAndRoute(
+                              allClients.find((c) => c.id === inv.user_id),
+                              inv.invoice_no,
+                            )
+                          }
+                          className="text-indigo-600 font-black text-xs hover:underline uppercase"
+                        >
+                          {/* Label changes based on Edit vs View permission */}
+                          {perms.can_edit_invoice === 1 &&
+                            inv.status !== "Success"
+                            ? "Edit"
+                            : "View"}
+                        </button>
+                      )}
 
                     {/* SILENT GUARD: Only show Delete if allowed */}
                     {perms.can_delete_invoice === 1 && (
