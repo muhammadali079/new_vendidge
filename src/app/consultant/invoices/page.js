@@ -692,6 +692,7 @@ export default function ConsultantMasterInvoices() {
     setProcessingId(inv.id);
 
     try {
+      let freshCustomersList = customers;
       const custRes = await fetch(`/api/customer?userId=${inv.user_id}`);
       if (custRes.ok) {
        const data = await custRes.json();
@@ -756,7 +757,6 @@ export default function ConsultantMasterInvoices() {
     }
   };
 
-  // --- BATCH LOGIC REWRITTEN ---
 
   const handleBatchPost = async () => {
     if (selectedInvoices.length === 0) return;
