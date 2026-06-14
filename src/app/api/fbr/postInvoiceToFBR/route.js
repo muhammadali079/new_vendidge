@@ -133,8 +133,8 @@ export async function POST(request) {
       }
     }
 
-       const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-       await sleep(10000);
+      //  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+      //  await sleep(10000);
 
     let fbrUrl =
       isProd === "1" || isProd === "true"
