@@ -197,6 +197,7 @@ export default function InvoicePage({ darkMode }) {
   const [userBusinesses, setUserBusinesses] = useState([]);
 
   useEffect(() => {
+   
     const storedPerms = sessionStorage.getItem("permissions");
     const storedBusinesses = sessionStorage.getItem("businesses");
     if (storedPerms) {
@@ -2379,6 +2380,7 @@ export default function InvoicePage({ darkMode }) {
         saleType: inv.saleType,
         fbrInvoiceRefNo: inv.fbrInvoiceRefNo,
         buyerType: inv.buyerType,
+        internal_inv_ref_no: inv.internal_inv_ref_no,
         items: itemsArray.map((row) => ({
           hsCode: row.hsCode,
           description: row.description,
@@ -3145,7 +3147,10 @@ export default function InvoicePage({ darkMode }) {
                         value={invoiceForm.sellerAddress || ""}
                       />
                     </div> */}
-                    {sessionStorage.getItem("isProd") !== "1" && (
+                    {document.cookie
+                      .split("; ")
+                      .find((row) => row.startsWith("isProd="))
+                      ?.split("=")[1] != "1" && (
                       <div className="relative w-full group">
                         <label className="block text-sm font-medium mb-1">
                           Scenario Code

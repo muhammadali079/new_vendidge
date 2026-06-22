@@ -454,8 +454,10 @@ export default function ConsultantMasterInvoices() {
     try {
       // Replicate the exact 'invoiceToSubmit' structure from endUser-invoice page
       const invoiceToSubmit = {
+       
         userId: Number(inv.user_id),
         invoiceNo: inv.invoice_no,
+        internal_inv_ref_no : inv.internal_inv_ref_no,
         date: formatDateForInput(inv.invoice_date),
         customer: inv.customer_name,
         customerId: inv.customer_id,

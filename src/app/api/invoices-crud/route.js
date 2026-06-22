@@ -26,7 +26,7 @@ export async function POST(req) {
 
   try {
     //const isProd = req.cookies.get("isProd")?.value === "1";
-    const isProd = await checkIsProdUser(connection, userId);
+   
     const authHeader =
       req.headers.get("authorization") || req.headers.get("Authorization");
 
@@ -84,6 +84,7 @@ export async function POST(req) {
 
     // 3. Start the Transaction on the dedicated connection
     await connection.beginTransaction();
+     const isProd = await checkIsProdUser(connection, userId);
 
     console.log("seller business id ", sellerBusinessId);
     console.log("seller business name", sellerBusinessName);
@@ -383,9 +384,9 @@ export async function PUT(req) {
   const connection = await db.getConnection();
   try {
    //const isProd = req.cookies.get("isProd")?.value === "1";
-    const isProd = await checkIsProdUser(connection, userId);
+   
 
-    console.log("isProd:", isProd, typeof isProd);
+   
     const authHeader =
       req.headers.get("authorization") || req.headers.get("Authorization");
     if (!authHeader) {
@@ -399,6 +400,7 @@ export async function PUT(req) {
 
     const body = await req.json();
     const {
+      userId,
       invoiceId,
       invoiceNo,
       internal_inv_ref_no,
@@ -454,6 +456,9 @@ export async function PUT(req) {
     );
 
     console.log("to Validate:", toValidate);
+
+     const isProd = await checkIsProdUser(connection, userId);
+      console.log("isProd:", isProd, typeof isProd);
     if (!invoiceId) {
       return NextResponse.json(
         { message: "invoiceId is required" },
@@ -1883,11 +1888,13 @@ const roundTo2Num = (num) => Math.round(Number(num || 0) * 100) / 100;
     if (!toValidate) {
       await connection.query(sql, params);
       if (isProd) {
+        console.log("going to update status from prod");
         await connection.query(
-          `UPDATE invoices_prod SET status = 'Pending' WHERE id = ?`,
+          `UPDATE new_invoices_prod SET status = 'Pending' WHERE id = ?`,
           [invoiceId],
         );
       } else {
+        console.log("going to update status from sandbox");
         await connection.query(
           `UPDATE new_invoices SET status = 'Pending' WHERE id = ?`,
           [invoiceId],
@@ -1966,7 +1973,7 @@ export async function DELETE(req) {
 
   try {
     const isProd = req.cookies.get("isProd")?.value === "1";
-
+  
     console.log("isProd:", isProd);
 
     const { searchParams } = new URL(req.url);
@@ -1987,23 +1994,16 @@ export async function DELETE(req) {
 
     await connection.beginTransaction();
     let rows;
-    if (isProd === "1" || isProd === "true") {
+   
+    
       [rows] = await connection.query(
         `SELECT invoice_no, status, user_id 
-       FROM new_invoices_prod 
+       FROM ${targetTable} 
        WHERE id = ? 
        FOR UPDATE`,
         [invoiceId],
       );
-    } else {
-      [rows] = await connection.query(
-        `SELECT invoice_no, status, user_id 
-       FROM new_invoices 
-       WHERE id = ? 
-       FOR UPDATE`,
-        [invoiceId],
-      );
-    }
+    
 
     if (rows.length === 0) {
       await connection.rollback();
@@ -2050,7 +2050,7 @@ export async function DELETE(req) {
     await connection.commit();
 
     return NextResponse.json(
-      { message: "Invoice deleted and invoice roundTo2Nums rearranged" },
+      { message: "Invoice deleted and invoice Numbers rearranged" },
       { status: 200 },
     );
   } catch (error) {
