@@ -13,7 +13,11 @@ export default function Providers({ children }) {
   const [darkMode, setDarkMode] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  const isHomePage = pathname === "/" || pathname === "/superAdmin";
+  // const isHomePage = pathname === "/" || pathname === "/superAdmin";
+  const isHomePage =
+    pathname === "/" ||
+    pathname === "/superAdmin" ||
+    pathname === "/home";
 
   if (isHomePage) {
     return children;
